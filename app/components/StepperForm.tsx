@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import lighthouse from "@lighthouse-web3/sdk";
 import axios from "axios";
 import { generateLighthouseJWT } from "@/utils/IPFS";
+// @ts-ignore
 import { useWalletClient } from "wagmi";
 
 const StepperForm: React.FC<{
@@ -70,7 +71,7 @@ const StepperForm: React.FC<{
       if (walletClient) {
         signed = await walletClient?.signMessage({
           account: address as `0x${string}`,
-          message: response.data.message,
+          message: response.data.message??"",
         });
       } else {
         return;
