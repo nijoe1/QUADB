@@ -22,9 +22,14 @@ import {
   ModalBody,
   Select,
   ModalFooter,
+  Input,
+  Tooltip,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
 } from "@chakra-ui/react";
 import {
-  FaAccessibleIcon,
   FaArrowRight,
   FaEllipsisV,
   FaShoppingCart,
@@ -50,8 +55,10 @@ const VotingPage = () => {
     onOpen: onCartOpen,
     onClose: onCartClose,
   } = useDisclosure();
-  const [voiceCredits, setVoiceCredits] = useState(100000);
+  const [voiceCredits, setVoiceCredits] = useState(10000);
   const [votes, setVotes] = useState({});
+  const [showAlert, setShowAlert] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -61,7 +68,16 @@ const VotingPage = () => {
   useEffect(() => {
     const savedVotes = JSON.parse(localStorage.getItem("votes")) || {};
     setVotes(savedVotes);
+    updateVoiceCredits(savedVotes);
   }, []);
+
+  const updateVoiceCredits = (votesObj) => {
+    const usedVoiceCredits = Object.values(votesObj).reduce(
+      (acc, numVotes) => acc + numVotes * numVotes,
+      0
+    );
+    setVoiceCredits(10000 - usedVoiceCredits);
+  };
 
   async function getMetadataCID(data) {
     const temp = [];
@@ -115,6 +131,22 @@ const VotingPage = () => {
     const updatedCart = cart.filter((item) => item.InstanceID !== instanceID);
     setCart(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
+
+    // Remove votes associated with the removed item
+    const updatedVotes = { ...votes };
+    delete updatedVotes[instanceID];
+    setVotes(updatedVotes);
+    localStorage.setItem("votes", JSON.stringify(updatedVotes));
+    updateVoiceCredits(updatedVotes);
+  };
+
+  const handleVoteChange = (instanceID, value) => {
+    if (value < 0) return;
+
+    const newVotesObj = { ...votes, [instanceID]: value };
+    setVotes(newVotesObj);
+    localStorage.setItem("votes", JSON.stringify(newVotesObj));
+    updateVoiceCredits(newVotesObj);
   };
 
   const handleVote = (instanceID, action) => {
@@ -127,15 +159,8 @@ const VotingPage = () => {
     const newVotesObj = { ...votes, [instanceID]: newVotes };
     setVotes(newVotesObj);
     localStorage.setItem("votes", JSON.stringify(newVotesObj));
-
-    // Update voice credits
-    const usedVoiceCredits = Object.values(newVotesObj).reduce(
-      (acc, numVotes) => acc + numVotes * numVotes,
-      0
-    );
-    setVoiceCredits(100000 - usedVoiceCredits);
+    updateVoiceCredits(newVotesObj);
   };
-  const router = useRouter();
 
   const navigateToHashRoute = (hashRoute) => {
     if (hashRoute == "/") {
@@ -158,7 +183,7 @@ const VotingPage = () => {
         </div>
       ) : (
         <Container>
-          <Flex justify="space-between" mb="4">
+          <Flex justify="space-between" mb="4" gap={3}>
             <Select
               placeholder="Select Category"
               onChange={(e) => setSelectedCategory(e.target.value)}
@@ -224,7 +249,9 @@ const VotingPage = () => {
                         right="0"
                         zIndex="1"
                       >
-                        <Badge className="mt-2"colorScheme="green">{instance.category}</Badge>
+                        <Badge className="mt-2" colorScheme="green">
+                          {instance.category}
+                        </Badge>
                         <Menu zIndex="2">
                           <MenuButton
                             as={IconButton}
@@ -270,21 +297,25 @@ const VotingPage = () => {
                     </Box>
                     <div className="flex items-center justify-between mx-auto gap-4 ">
                       <Button
-                        colorScheme="gray"
-                        className="mt-5"
-                        onClick={() => addToCart(instance)}
-                        leftIcon={<FaShoppingCart />}
-                      ></Button>
-                      <Button
                         onClick={() =>
                           navigateToHashRoute(
                             "/instance?id=" + instance.InstanceID
                           )
                         }
                         colorScheme="gray"
-                        className="mt-5"
+                        className="mt-5 items-end float-right"
                         leftIcon={<FaArrowRight />}
                       ></Button>
+                      {!cart.find(
+                        (item) => item.InstanceID === instance.InstanceID
+                      ) && (
+                        <Button
+                          colorScheme="gray"
+                          className="mt-5 items-start float-left"
+                          onClick={() => addToCart(instance)}
+                          leftIcon={<FaShoppingCart />}
+                        ></Button>
+                      )}
                     </div>
                   </Box>
                 </GridItem>
@@ -293,7 +324,7 @@ const VotingPage = () => {
           </Flex>
         </Container>
       )}
-      <Modal isOpen={isCartOpen} onClose={onCartClose}>
+      <Modal isOpen={isCartOpen} onClose={onCartClose} isCentered={true}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Your Cart</ModalHeader>
@@ -304,7 +335,7 @@ const VotingPage = () => {
             ) : (
               cart.map((instance) => (
                 <Box key={instance.InstanceID} mb="4">
-                  <Flex justify="space-between">
+                  <Flex justify="space-between" alignItems="center">
                     <Box>
                       <Text fontWeight="semibold">
                         {instance.metadata.name}
@@ -318,40 +349,64 @@ const VotingPage = () => {
                     />
                   </Flex>
                   <Flex mt="2" justify="space-between" alignItems="center">
-                    <Button
-                      size="sm"
-                      onClick={() =>
-                        handleVote(instance.InstanceID, "decrement")
-                      }
-                      isDisabled={!(votes[instance.InstanceID] > 0)}
-                    >
-                      -
-                    </Button>
-                    <Text>{votes[instance.InstanceID] || 0}</Text>
-                    <Button
-                      size="sm"
-                      onClick={() =>
-                        handleVote(instance.InstanceID, "increment")
-                      }
-                      isDisabled={
-                        voiceCredits -
-                          ((votes[instance.InstanceID] || 0) + 1) *
-                            ((votes[instance.InstanceID] || 0) + 1) <
-                        0
-                      }
-                    >
-                      +
-                    </Button>
+                    <Text>Votes:</Text>
+                    <Flex alignItems="center">
+                      <Button
+                        size="sm"
+                        onClick={() =>
+                          handleVote(instance.InstanceID, "decrement")
+                        }
+                        isDisabled={!(votes[instance.InstanceID] > 0)}
+                      >
+                        -
+                      </Button>
+                      <Input
+                        type="number"
+                        value={votes[instance.InstanceID] || 0}
+                        onChange={(e) =>
+                          handleVoteChange(
+                            instance.InstanceID,
+                            parseInt(e.target.value)
+                          )
+                        }
+                        width="60px"
+                        textAlign="center"
+                        mx="2"
+                      />
+                      <Button
+                        size="sm"
+                        onClick={() =>
+                          handleVote(instance.InstanceID, "increment")
+                        }
+                        isDisabled={
+                          voiceCredits -
+                            ((votes[instance.InstanceID] || 0) + 1) *
+                              ((votes[instance.InstanceID] || 0) + 1) <
+                          0
+                        }
+                      >
+                        +
+                      </Button>
+                    </Flex>
+                    <Text>
+                      Voice Credits: {(votes[instance.InstanceID] || 0) ** 2}
+                    </Text>
                   </Flex>
                 </Box>
               ))
             )}
           </ModalBody>
           <ModalFooter>
-            <Text mr="4">Voice Credits: {voiceCredits}</Text>
-            <Button colorScheme="blue" mr={3} onClick={onCartClose}>
+            <Text mr="4">Remaining Voice Credits: {voiceCredits}</Text>
+            <Button colorScheme="gray" mr={3} onClick={onCartClose}>
               Close
             </Button>
+            <Tooltip
+              label="WIP!  Soon you will be able to vote privately for the datasets that matter for you sir."
+              fontSize="md"
+            >
+              <Button colorScheme="gray">Vote</Button>
+            </Tooltip>
           </ModalFooter>
         </ModalContent>
       </Modal>
