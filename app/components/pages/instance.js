@@ -22,7 +22,6 @@ import {
   getInstanceMembers,
 } from "@/utils/tableland";
 import { getIpfsGatewayUri, resolveIPNS } from "@/utils/IPFS";
-import Subscribe from "@/components/contracts/subscribe";
 import Loading from "@/components/Animation/Loading";
 
 import axios from "axios";
@@ -54,7 +53,6 @@ const InstanceDetailsPage = () => {
       members.forEach((member) => {
         temp.add(member.member.toLowerCase());
       });
-
 
       const instanceData = await getInstanceMetadata(data[0]);
       temp.add(instanceData.creator.toLowerCase());
@@ -142,12 +140,11 @@ const InstanceDetailsPage = () => {
                 mb={4}
                 p={["2", "4"]}
               >
-                  {
+                {
                   //   (hasAccess ||
                   // instanceMembers.find(
                   //   (member) => member.toLowerCase() === address.toLowerCase()
                   //     )) &&
-                    (
                   <Tabs
                     isFitted
                     variant="enclosed"
@@ -193,7 +190,7 @@ const InstanceDetailsPage = () => {
                       </TabPanel>
                     </TabPanels>
                   </Tabs>
-                )}
+                }
               </Box>
             </div>
           )}

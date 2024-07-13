@@ -214,14 +214,12 @@ contract MACIQV is MACIQVBase, DomainObjs, Params {
         if (contributorInfo[_sender].signedUp) revert AlreadyContributed();
 
 
-        if (_isAddressZero(address(allowlistVerifier))) {
-            revert NoAllowlist();
+        if (!_isAddressZero(address(allowlistVerifier))) {
+            bool isValid = allowlistVerifier.validateUser(_proof, _sender);
+            if (!isValid) {
+                revert NoAllowlist();
+            }
         }
-        // bool verified = allowlistVerifier.validateUser(_proof, _sender);
-
-        // if (!verified) {
-        //     revert InvalidProof();
-        // }
 
         address token = getPoolToken();
 

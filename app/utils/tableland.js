@@ -280,3 +280,48 @@ export const constructObject = async () => {
   };
   return rootObject;
 };
+
+// Function to fetch all instances
+export const getAllInstances = async () => {
+  const query = `${TablelandGateway}SELECT * FROM ${tables.spaceInstances}`;
+  try {
+    const result = await axios.get(query);
+    return result.data;
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+};
+
+// Function to build the category hierarchy
+const buildHierarchy = (spaces, spaceID) => {
+  let hierarchy = [];
+  let currentSpace = spaces.find(space => space.DBSpaceID.toLowerCase() === spaceID.toLowerCase());
+
+  while (currentSpace) {
+    hierarchy.unshift(currentSpace.DBSubSpaceName);
+    if (!currentSpace.DBSubSpaceOfID) break;
+    currentSpace = spaces.find(space => space.DBSpaceID.toLowerCase() === currentSpace.DBSubSpaceOfID.toLowerCase());
+  }
+
+  return hierarchy.join(' > ');
+};
+
+const transformCategory = (category) => {
+  return category.split(' > ').reverse().join('.') + '.QUADB.eth';
+};
+
+// Function to fetch and categorize instances
+export const getCategorizedInstances = async () => {
+  const spaces = await getSpaces();
+  const instances = await getAllInstances();
+
+  if (!spaces || !instances) return null;
+
+  const categorizedInstances = instances.map(instance => {
+    const category = transformCategory(buildHierarchy(spaces, instance.instanceOfSpace));
+    return { ...instance, category };
+  });
+
+  return categorizedInstances;
+};

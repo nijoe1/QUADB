@@ -1,27 +1,141 @@
-import React, { useState, useEffect } from "react";
-import { Box, Flex, Select, useDisclosure } from "@chakra-ui/react";
-import { Container } from "@/components//ui/container";
-import Tree from "react-d3-tree";
-import { useRouter } from "next/router";
-import CreateSubSpaceModal from "@/components/contracts/createSubSpace";
-import { constructObject } from "@/utils/tableland";
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  Flex,
+  Box,
+  Badge,
+  Image,
+  Text,
+  Button,
+  Grid,
+  GridItem,
+  useDisclosure,
+  IconButton,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  Select,
+  ModalFooter,
+} from "@chakra-ui/react";
+import {
+  FaAccessibleIcon,
+  FaArrowRight,
+  FaEllipsisV,
+  FaShoppingCart,
+  FaTrash,
+} from "react-icons/fa";
+import { Container } from "@/components/ui/container";
+import { getIpfsGatewayUri } from "@/utils/IPFS";
+import { getCategorizedInstances } from "@/utils/tableland";
+import axios from "axios";
 import Loading from "@/components/Animation/Loading";
+import { useRouter } from "next/router";
 
-const Voting = () => {
+const VotingPage = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const router = useRouter();
-  const [treeData, setTreeData] = useState(null);
-  const [tempTreeData, setTempTreeData] = useState(null);
   const [fetched, setFetched] = useState(false);
+  const [instances, setInstances] = useState([]);
+  const [filteredInstances, setFilteredInstances] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [cart, setCart] = useState([]);
+  const {
+    isOpen: isCartOpen,
+    onOpen: onCartOpen,
+    onClose: onCartClose,
+  } = useDisclosure();
+  const [voiceCredits, setVoiceCredits] = useState(100000);
+  const [votes, setVotes] = useState({});
 
-  const [selectedCategory, setSelectedCategory] = useState();
-  const [windowDimensions, setWindowDimensions] = useState({
-    width: undefined,
-    height: undefined,
-  });
-  const [categoryOptions, setCategoryOptions] = useState([]);
-  const [isRoot, setIsRoot] = useState();
-  const [clickedID, setClickedID] = useState();
+  useEffect(() => {
+    const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
+    setCart(savedCart);
+  }, []);
+
+  useEffect(() => {
+    const savedVotes = JSON.parse(localStorage.getItem("votes")) || {};
+    setVotes(savedVotes);
+  }, []);
+
+  async function getMetadataCID(data) {
+    const temp = [];
+    for (const item of data) {
+      const metadataCIDLink = getIpfsGatewayUri(item.metadataCID);
+      const res = await axios(metadataCIDLink);
+      item.metadata = res.data; // obj that contains => name about imageUrl
+      temp.push(item); // Push fetched JSON metadata directly
+    }
+    return temp;
+  }
+
+  async function fetchInstances() {
+    const data = await getCategorizedInstances();
+    const instancesWithMetadata = await getMetadataCID(data);
+    setInstances(instancesWithMetadata);
+    setFilteredInstances(instancesWithMetadata);
+    setFetched(true);
+
+    // Extract unique categories
+    const uniqueCategories = [
+      ...new Set(instancesWithMetadata.map((instance) => instance.category)),
+    ];
+    setCategories(uniqueCategories);
+  }
+
+  useEffect(() => {
+    fetchInstances();
+  }, []);
+
+  useEffect(() => {
+    if (selectedCategory) {
+      setFilteredInstances(
+        instances.filter((instance) => instance.category === selectedCategory)
+      );
+    } else {
+      setFilteredInstances(instances);
+    }
+  }, [selectedCategory, instances]);
+
+  const addToCart = (instance) => {
+    if (cart.find((item) => item.InstanceID === instance.InstanceID)) {
+      return; // Avoid duplicates
+    }
+    const updatedCart = [...cart, instance];
+    setCart(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+  };
+
+  const removeFromCart = (instanceID) => {
+    const updatedCart = cart.filter((item) => item.InstanceID !== instanceID);
+    setCart(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+  };
+
+  const handleVote = (instanceID, action) => {
+    const currentVotes = votes[instanceID] || 0;
+    const newVotes =
+      action === "increment" ? currentVotes + 1 : currentVotes - 1;
+
+    if (newVotes < 0) return;
+
+    const newVotesObj = { ...votes, [instanceID]: newVotes };
+    setVotes(newVotesObj);
+    localStorage.setItem("votes", JSON.stringify(newVotesObj));
+
+    // Update voice credits
+    const usedVoiceCredits = Object.values(newVotesObj).reduce(
+      (acc, numVotes) => acc + numVotes * numVotes,
+      0
+    );
+    setVoiceCredits(100000 - usedVoiceCredits);
+  };
+  const router = useRouter();
 
   const navigateToHashRoute = (hashRoute) => {
     if (hashRoute == "/") {
@@ -35,145 +149,6 @@ const Voting = () => {
       });
     }
   };
-  useEffect(() => {}, [isRoot, clickedID]);
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowDimensions({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
-    };
-
-    // Add event listener to update window dimensions on resize
-    window.addEventListener("resize", handleResize);
-
-    // Initial call to set window dimensions
-    handleResize();
-
-    // Remove event listener on component unmount
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  useEffect(() => {
-    // Generate tree data for the selected category or entire tree if no category is selected
-    generateTreeData();
-  }, []);
-
-  useEffect(() => {
-    // Generate tree data for the selected category or entire tree if no category is selected
-    generateTreeData(selectedCategory);
-  }, [selectedCategory]);
-
-  // Generate tree data for the selected category or entire tree if no category is selected
-  const generateTreeData = async (selectedCategory) => {
-    // If a category is selected, find its subtree and return it
-    if (selectedCategory) {
-      setTreeData(findCategoryNode(tempTreeData, selectedCategory));
-    } else {
-      // Replace this with your actual data for the "QUADB.eth" category
-      const exampleData = await constructObject();
-
-      // Extract immediate children of the root node as categories
-      const categories = exampleData.children.map(
-        (child) => child.name.split(".")[0]
-      );
-
-      // Set categories as options
-      setCategoryOptions(
-        categories.map((category) => ({ value: category, label: category }))
-      );
-      // If no category is selected, return the entire tree data
-      // return exampleData;
-      setTreeData(exampleData);
-      setTempTreeData(exampleData);
-      setFetched(true);
-    }
-  };
-
-  // Function to find the node for the selected category
-  const findCategoryNode = (data, category) => {
-    const categoryNode = { ...data };
-    categoryNode.children = categoryNode.children.filter(
-      (child) => child.name.split(".")[0] === category
-    );
-    return categoryNode;
-  };
-
-  // Define custom styles for different node types
-  const nodeStyles = {
-    root: { fill: "#424242", stroke: "#000", strokeWidth: "2px" },
-    branch: { fill: "#727272", stroke: "#000", strokeWidth: "2px" },
-    leaf: { fill: "#ecf1f6", stroke: "#000", strokeWidth: "2px" },
-  };
-
-  // Handle click event on the label to navigate to the spaces page
-  const handleLabelClick = (name) => {
-    // Implement navigation logic here, for example:
-    if (name.attributes?.nodeType !== "root") {
-      navigateToHashRoute(`/SingleSpacePage?id=${name.id}`);
-    }
-  };
-
-  // Handle click event on the circle to toggle nodes
-  const handleCircleClick = (nodeDatum, toggleNode) => {
-    toggleNode();
-  };
-
-  const handleNewClick = (nodeDatum, toggleNode) => {
-    setIsRoot(nodeDatum.attributes.nodeType == "root");
-    setClickedID(nodeDatum.id);
-    onOpen();
-  };
-
-  // Custom node and label rendering function
-  const renderCustomNodeElement = ({ nodeDatum, toggleNode }) => (
-    <g>
-      <circle
-        r="15"
-        style={nodeStyles[nodeDatum.attributes?.nodeType]}
-        onClick={() => handleCircleClick(nodeDatum, toggleNode)}
-      />
-      <text
-        fill="black"
-        strokeWidth="1"
-        x="20"
-        y="-2"
-        onClick={() => handleLabelClick(nodeDatum)}
-        style={{ cursor: "pointer" }}
-      >
-        {nodeDatum.name}
-      </text>
-      {nodeDatum.attributes?.nodeType != "root" && (
-        <g>
-          {" "}
-          <rect
-            x="30"
-            y="4"
-            width="40"
-            height="20"
-            rx="5"
-            fill="gray"
-            stroke="black"
-            strokeWidth="1"
-            onClick={() => handleLabelClick(nodeDatum)}
-            style={{ cursor: "pointer" }}
-          />
-          <text
-            fill="black"
-            strokeWidth="1"
-            x="50"
-            y="15"
-            textAnchor="middle"
-            alignmentBaseline="middle"
-            onClick={() => handleNewClick(nodeDatum)}
-            style={{ cursor: "pointer" }}
-          >
-            {"new"}
-          </text>
-        </g>
-      )}
-    </g>
-  );
 
   return (
     <div className="flex flex-col items-center">
@@ -183,80 +158,205 @@ const Voting = () => {
         </div>
       ) : (
         <Container>
-          <Box
-            borderWidth="1px"
-            borderColor={"black"}
-            borderRadius="lg"
-            overflow="hidden"
-            boxShadow="md"
-            height="calc(100vh - 150px)" // Adjust height dynamically
-            display="flex"
-            alignItems="center"
-          >
-            <Flex
-              direction="column"
-              align="center"
-              justify="center"
-              height="100%"
-              width="100%"
+          <Flex justify="space-between" mb="4">
+            <Select
+              placeholder="Select Category"
+              onChange={(e) => setSelectedCategory(e.target.value)}
             >
-              {/* Category dropdown */}
-              <Select
-                placeholder="All categories..."
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                mb={4}
-                mt="6%"
-                width={["90%", "70%", "50%"]} // Adjust width for different screen sizes
-                _focus={{
-                  borderColor: "white",
-                }}
-              >
-                {categoryOptions.map((category) => (
-                  <option key={category.value} value={category.value}>
-                    {category.label}
-                  </option>
-                ))}
-              </Select>
-              {/* Display tree */}
-              {treeData && (
-                <Box
-                  id="treeWrapper"
-                  width="100%"
-                  height="calc(100vh - 250px)" // Adjust height dynamically
-                  display="flex"
-                  justifyContent="center"
-                  alignItems="center"
-                >
-                  <Tree
-                    data={treeData}
-                    orientation="vertical"
-                    rootNodeClassName="node__root"
-                    branchNodeClassName="node__branch"
-                    leafNodeClassName="node__leaf"
-                    renderCustomNodeElement={renderCustomNodeElement}
-                    translate={{
-                      x: windowDimensions.width / 2.8,
-                      y: windowDimensions.height / 7,
-                    }}
-                    zoom={1}
-                    separation={{ siblings: 2, nonSiblings: 2 }}
-                    initialDepth={1}
-                  />
-                </Box>
-              )}
-            </Flex>
-            <CreateSubSpaceModal
-              isOpen={isOpen}
-              onClose={onClose}
-              isRoot={isRoot}
-              clickedID={clickedID}
-            />
-          </Box>
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </Select>
+            <Button onClick={onCartOpen} leftIcon={<FaShoppingCart />}>
+              Open Cart ({cart.length})
+            </Button>
+          </Flex>
+          <Flex justify="center">
+            <Grid
+              templateColumns={[
+                "1fr",
+                "repeat(2, 1fr)",
+                "repeat(3, 1fr)",
+                "repeat(4, 1fr)",
+              ]}
+              gap={6}
+              width="100%"
+              className="flex md:justify-between lg:grid lg:px-3 relative"
+            >
+              {filteredInstances.map((instance) => (
+                <GridItem key={instance.InstanceID}>
+                  <Box
+                    pb="4"
+                    px="2"
+                    pt="2"
+                    bg="white"
+                    borderRadius="md"
+                    boxShadow="md"
+                    position="relative"
+                    cursor="pointer"
+                  >
+                    <Box
+                      position="relative"
+                      borderRadius="md"
+                      overflow="hidden"
+                      mb="10%"
+                      height="120px"
+                    >
+                      <Image
+                        src={
+                          instance.metadata.imageUrl
+                            ? instance.metadata.imageUrl
+                            : "https://via.placeholder.com/150"
+                        }
+                        alt="Profile Image"
+                        width="100%"
+                        aspectRatio={2 / 1}
+                        objectFit="cover"
+                      />
+                      <Box
+                        display="flex"
+                        justifyContent="flex-start"
+                        alignItems="flex-start"
+                        position="absolute"
+                        top="0"
+                        right="0"
+                        zIndex="1"
+                      >
+                        <Badge className="mt-2"colorScheme="green">{instance.category}</Badge>
+                        <Menu zIndex="2">
+                          <MenuButton
+                            as={IconButton}
+                            icon={<FaEllipsisV />}
+                            aria-label="Options"
+                            variant="ghost"
+                            color="black"
+                            size="sm"
+                            mb="3"
+                          />
+                          <MenuList zIndex="3">
+                            <MenuItem
+                              colorScheme="black"
+                              className="bg-black/80 text-white"
+                              onClick={() => console.log("Download dataset")}
+                            >
+                              Download Dataset
+                            </MenuItem>
+                            <MenuItem
+                              colorScheme="black"
+                              className="bg-black/80 text-white"
+                              onClick={() => console.log("Fork instance")}
+                            >
+                              Fork Instance
+                            </MenuItem>
+                          </MenuList>
+                        </Menu>
+                      </Box>
+                    </Box>
+                    <Box height="50px">
+                      <Text
+                        fontWeight="semibold"
+                        fontSize="sm"
+                        noOfLines={1}
+                        color="black"
+                        mb="1"
+                      >
+                        {instance.metadata.name.slice(0, 30)}
+                      </Text>
+                      <Text fontSize="xs" noOfLines={2} color="black" mb="1">
+                        {instance.metadata.about.slice(0, 50)}
+                      </Text>
+                    </Box>
+                    <div className="flex items-center justify-between mx-auto gap-4 ">
+                      <Button
+                        colorScheme="gray"
+                        className="mt-5"
+                        onClick={() => addToCart(instance)}
+                        leftIcon={<FaShoppingCart />}
+                      ></Button>
+                      <Button
+                        onClick={() =>
+                          navigateToHashRoute(
+                            "/instance?id=" + instance.InstanceID
+                          )
+                        }
+                        colorScheme="gray"
+                        className="mt-5"
+                        leftIcon={<FaArrowRight />}
+                      ></Button>
+                    </div>
+                  </Box>
+                </GridItem>
+              ))}
+            </Grid>
+          </Flex>
         </Container>
       )}
+      <Modal isOpen={isCartOpen} onClose={onCartClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Your Cart</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            {cart.length === 0 ? (
+              <Text>No items in the cart</Text>
+            ) : (
+              cart.map((instance) => (
+                <Box key={instance.InstanceID} mb="4">
+                  <Flex justify="space-between">
+                    <Box>
+                      <Text fontWeight="semibold">
+                        {instance.metadata.name}
+                      </Text>
+                      <Text fontSize="sm">{instance.metadata.about}</Text>
+                    </Box>
+                    <IconButton
+                      icon={<FaTrash />}
+                      colorScheme="red"
+                      onClick={() => removeFromCart(instance.InstanceID)}
+                    />
+                  </Flex>
+                  <Flex mt="2" justify="space-between" alignItems="center">
+                    <Button
+                      size="sm"
+                      onClick={() =>
+                        handleVote(instance.InstanceID, "decrement")
+                      }
+                      isDisabled={!(votes[instance.InstanceID] > 0)}
+                    >
+                      -
+                    </Button>
+                    <Text>{votes[instance.InstanceID] || 0}</Text>
+                    <Button
+                      size="sm"
+                      onClick={() =>
+                        handleVote(instance.InstanceID, "increment")
+                      }
+                      isDisabled={
+                        voiceCredits -
+                          ((votes[instance.InstanceID] || 0) + 1) *
+                            ((votes[instance.InstanceID] || 0) + 1) <
+                        0
+                      }
+                    >
+                      +
+                    </Button>
+                  </Flex>
+                </Box>
+              ))
+            )}
+          </ModalBody>
+          <ModalFooter>
+            <Text mr="4">Voice Credits: {voiceCredits}</Text>
+            <Button colorScheme="blue" mr={3} onClick={onCartClose}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
 };
 
-export default Voting;
+export default VotingPage;
