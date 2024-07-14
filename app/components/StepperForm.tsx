@@ -1,25 +1,33 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import lighthouse from "@lighthouse-web3/sdk";
 import axios from "axios";
 import { generateLighthouseJWT } from "@/utils/IPFS";
-// @ts-ignore
 import { useWalletClient } from "wagmi";
 
-const StepperForm: React.FC<{
-  isOpen: boolean;
-  onClose: () => void;
-  address: string;
-}> = ({ isOpen, onClose, address }) => {
+const StepperForm: React.FC = ({ isOpen, onClose, address }) => {
   const { data: walletClient } = useWalletClient();
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [apiClicked, setApiClicked] = useState(false);
   const [tokenClicked, setTokenClicked] = useState(false);
 
-  const generateLighthouseApiKey = async (address: any) => {
-    if (typeof localStorage === "undefined") {
-      return;
+  useEffect(() => {
+    if (isOpen) {
+      checkLocalStorage();
     }
+  }, [isOpen]);
 
+  const checkLocalStorage = () => {
+    const apiKey = localStorage.getItem(`API_KEY_${address?.toLowerCase()}`);
+    const jwt = localStorage.getItem(
+      `lighthouse-jwt-${address?.toLowerCase()}`
+    );
+
+    if (apiKey && jwt) {
+      closeModal();
+    }
+  };
+
+  const generateLighthouseApiKey = async (address: any) => {
     let key = localStorage.getItem(`API_KEY_${address?.toLowerCase()}`);
 
     if (!key) {
@@ -49,21 +57,12 @@ const StepperForm: React.FC<{
         setApiClicked(!apiClicked);
       }
     } else {
-      let JWT;
-      try {
-        JWT = localStorage.getItem(`lighthouse-jwt-${address}`);
-      } catch {}
-      if (JWT) {
-        setCurrentStep(0);
-        onClose();
-      } else {
-        nextStep();
-      }
+      nextStep();
     }
   };
 
   const generateLighthouseJWToken = async (address: string) => {
-    let key = localStorage.getItem(`lighthouse-jwt-${address}`);
+    let key = localStorage.getItem(`lighthouse-jwt-${address?.toLowerCase()}`);
     if (!key) {
       const response = await lighthouse.getAuthMessage(address);
 
@@ -71,7 +70,7 @@ const StepperForm: React.FC<{
       if (walletClient) {
         signed = await walletClient?.signMessage({
           account: address as `0x${string}`,
-          message: response.data.message??"",
+          message: response.data.message ?? "",
         });
       } else {
         return;
@@ -81,14 +80,15 @@ const StepperForm: React.FC<{
         let res = await generateLighthouseJWT(address, signed);
         if (res) {
           localStorage.setItem(`lighthouse-jwt-${address.toLowerCase()}`, res);
-          nextStep();
+          closeModal();
         } else {
           setTokenClicked(!tokenClicked);
         }
       }
+    } else {
+      closeModal();
     }
   };
-
 
   const steps = [
     {
@@ -104,8 +104,10 @@ const StepperForm: React.FC<{
   ];
 
   const nextStep = () => {
-    if (currentStep < steps.length) {
+    if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
+    } else {
+      closeModal();
     }
   };
 
@@ -123,9 +125,11 @@ const StepperForm: React.FC<{
       }`}
     >
       <div className="fixed inset-0 bg-gray-700 opacity-70"></div>
-      <div className=" bg-white p-8 rounded flex flex-col items-center text-center mx-auto shadow-lg relative z-10">
+      <div className="bg-white p-8 rounded flex flex-col items-center text-center mx-auto shadow-lg relative z-10">
         <div className="flex flex-col items-center text-center">
-          <h3 className="text-xl font-semibold mb-4">{`${steps[currentStep].title}`}</h3>
+          <h3 className="text-xl font-semibold mb-4">
+            {steps[currentStep].title}
+          </h3>
           <p className="mb-6">{steps[currentStep].description}</p>
 
           {currentStep === 0 && (
@@ -146,7 +150,6 @@ const StepperForm: React.FC<{
               onClick={async () => {
                 setTokenClicked(!tokenClicked);
                 await generateLighthouseJWToken(address);
-                closeModal();
               }}
               className="bg-black text-white py-2 px-4 rounded-lg mt-4"
             >
