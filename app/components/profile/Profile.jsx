@@ -31,7 +31,6 @@ const Profile = ({ onProfile }) => {
     getProfile();
   }, [profileInfo, userAddress]);
 
-
   const updateProfileInfo = async (name, description, picture) => {
     try {
       const response = await pushSign.profile.update({
@@ -66,8 +65,7 @@ const Profile = ({ onProfile }) => {
     }
   };
   useEffect(() => {
-    async function getProfile() {
-    }
+    async function getProfile() {}
     getProfile();
   }, [profileInfo]);
 
@@ -81,8 +79,8 @@ const Profile = ({ onProfile }) => {
         boxShadow="md"
       >
         <Box p="4" mb="4" className="flex flex-col items-center">
-          <Image
-            src={profileInfo?.picture || "/path/to/image.jpg"}
+          <img
+            src="./images/allo.jpg"
             alt="Profile Image"
             borderRadius="full"
             boxSize={["120px", "150px"]}

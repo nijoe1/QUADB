@@ -270,10 +270,10 @@ export const constructObject = async () => {
 
   const rootObject = {
     name: "quadb.eth",
-    id: "0x7a2c09049961bf43db89e836f4138a4116134572ead5883a5c06c1feec99dfd2",
+    id: "0x1347af471e551e181d2bd1085b73bc585a504cc56c485cf21ab9fcae63880fbf",
     attributes: { nodeType: "root" },
     children: await buildChildren(
-      "0x7a2c09049961bf43db89e836f4138a4116134572ead5883a5c06c1feec99dfd2",
+      "0x1347af471e551e181d2bd1085b73bc585a504cc56c485cf21ab9fcae63880fbf",
       "",
       sampleSpacesData
     ), // Start with null as the parentID and empty string as the parentHierarchy

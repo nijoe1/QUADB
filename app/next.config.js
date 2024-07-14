@@ -3,7 +3,7 @@
 module.exports = {
   reactStrictMode: true,
   trailingSlash: true,
-  output: "export",
+  // output: "export",
   images: {
     // domains: ["gateway.lighthouse.storage"],
     unoptimized: true,

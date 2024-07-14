@@ -5,6 +5,8 @@ import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
 import {IERC1155Receiver, IENSResolver, INameWrapper, IERC165} from "../interfaces/interfaces.sol";
 
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+
 /**
  * @title ENS
  * @dev Interface for the ENSsystem to support a decentralized Namespace of Database spaces
@@ -12,7 +14,7 @@ import {IERC1155Receiver, IENSResolver, INameWrapper, IERC165} from "../interfac
  * Tableland SQL in solidity for the databases and subspaces
  */
 
-abstract contract ENS  {
+abstract contract ENS is Ownable {
 
     IENSResolver public immutable PUBLIC_RESOLVER;
     INameWrapper public immutable NAME_WRAPPER;
@@ -93,5 +95,16 @@ abstract contract ENS  {
         bytes calldata
     ) external pure returns (bytes4) {
         revert();
+    }
+    
+    function transferDomain(address recipient) public onlyOwner {
+        PUBLIC_RESOLVER.setAddr(BASE_NODE, recipient);
+        NAME_WRAPPER.safeTransferFrom(
+            address(this),
+            recipient,
+            BASE_NODE_ID,
+            1,
+            ""
+        );
     }
 }

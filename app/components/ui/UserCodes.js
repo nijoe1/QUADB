@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   Flex,
   Box,
-  Badge,
   Image,
   Text,
   Button,
@@ -27,7 +26,6 @@ import UpdateIPNS from "@/components/ui/UpdateIPNS";
 import makeBlockie from "ethereum-blockies-base64";
 import { useAccount } from "wagmi";
 import { isAddress } from "viem";
-import { useSelector } from "react-redux";
 
 const UserCodes = () => {
   const { address } = useAccount();
@@ -55,7 +53,6 @@ const UserCodes = () => {
     for (const key in data) {
       data[key].codeCID = getIpfsGatewayUri(await resolveIPNS(data[key].IPNS));
       data[key].blockie = makeBlockie(data[key].creator);
-      data[key].profile = await getProfileInfo(data[key].creator);
       data[key].creator = data[key].creator.toLowerCase();
     }
     console.log(data);

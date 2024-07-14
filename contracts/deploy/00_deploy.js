@@ -1,5 +1,7 @@
 require("hardhat-deploy");
 require("hardhat-deploy-ethers");
+require("@nomiclabs/hardhat-etherscan");
+
 
 const { ethers } = require("hardhat");
 const { Console } = require("console");
@@ -12,7 +14,6 @@ module.exports = async ({ deployments }) => {
   const { deploy } = deployments;
   console.log("Wallet+ Ethereum Address:", wallet.address);
 
-  // // Calibration Testnet
   const NAME_WRAPPER = "0x0635513f179D50A207757E05759CbD106d7dFcE8";
   const PUBLIC_RESOLVER = "0x8FADE66B79cC9f707aB26799354482EB93a5B7dD";
 
@@ -111,7 +112,14 @@ module.exports = async ({ deployments }) => {
 
   // Verify the contract
   // await hre.run("verify:verify", {
-  //   address: QUADB2.address,
-  //   constructorArguments: [NAME_WRAPPER, PUBLIC_RESOLVER],
+  //   address: QUADB.address,
+  //   constructorArguments: [
+  //     NAME_WRAPPER,
+  //     PUBLIC_RESOLVER,
+  //     IMPLEMENTATION.address,
+  //     SUBSCRIPTION_IMPLEMENTATION.address,
+  //   ],
   // });
-};
+  // const transferDomain = await QUADB.transferDomain(wallet.address);
+// await transferDomain.wait();};
+}

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { use, useCallback, useEffect, useState } from "react";
 import {
   Flex,
   Box,
@@ -42,6 +42,102 @@ import axios from "axios";
 import Loading from "@/components/Animation/Loading";
 import { useRouter } from "next/router";
 
+import { IDKitWidget } from "@worldcoin/idkit";
+
+const WordCoinVerification = () => {
+  const [verified, setVerified] = useState(() => {
+    return localStorage.getItem("isVerified") === "true";
+  });
+
+  const verifyProof = async (proof) => {
+    console.log("proof", proof);
+    const response = await fetch("https://word-id.vercel.app/api/verify", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ ...proof, action: "test" }),
+    });
+    if (response.ok) {
+      const { verified } = await response.json();
+      if (verified) {
+        localStorage.setItem("isVerified", "true");
+        setVerified(true);
+      }
+      return verified;
+    } else {
+      const { code, detail } = await response.json();
+      throw new Error(`Error Code ${code}: ${detail}`);
+    }
+  };
+
+  const onSuccess = () => {
+    localStorage.setItem("isVerified", "true");
+    setVerified(true);
+  };
+
+  useEffect(() => {}, [verified]);
+
+  return (
+    <div className="flex flex-col items-center gap-3 py-3 mx-[15%]">
+      {verified ? (
+        <Alert
+          status="success"
+          variant="subtle"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          textAlign="center"
+          height="200px"
+          mt="4"
+        >
+          <AlertIcon boxSize="40px" mr={0} />
+          <AlertTitle mt={4} mb={1} fontSize="lg">
+            Verification Successful!
+          </AlertTitle>
+          <AlertDescription maxWidth="sm">
+            You can now successfully participate in the MACI QV round. Your
+            votes are not going to get disclosed and cannot get censored, using
+            the power of the MACI protocol.
+          </AlertDescription>
+        </Alert>
+      ) : (
+        <>
+          <Text fontSize="2xl" fontWeight="bold">
+            Participate in the MACI Quadratic Voting Round
+          </Text>
+          <Text textAlign="center" px="5">
+            To vote on the datasets you think deserve to get funded, you need to
+            verify yourself. A new funding round will run every 6 months, with
+            the current round distributing 10 ETH to the top-voted datasets.
+          </Text>
+          <IDKitWidget
+            app_id="app_c3d26e172495a10b9f67a2d58ddeaf13"
+            action="quadb"
+            handleVerify={verifyProof}
+            onSuccess={onSuccess}
+          >
+            {({ open }) => (
+              <button
+                className="border border-black rounded-md cursor-pointer"
+                onClick={open}
+              >
+                <div className="mx-9 my-1">Verify with World ID</div>
+              </button>
+            )}
+          </IDKitWidget>
+          <button className="border border-black rounded-md cursor-pointer">
+            <div className="mx-5 my-1">Verify with zk-email KYC</div>
+          </button>
+          <button className="border border-black rounded-md cursor-pointer">
+            <div className="mx-3 my-1">Verify with zk-email Twitter</div>
+          </button>
+        </>
+      )}
+    </div>
+  );
+};
+
 const VotingPage = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [fetched, setFetched] = useState(false);
@@ -57,8 +153,38 @@ const VotingPage = () => {
   } = useDisclosure();
   const [voiceCredits, setVoiceCredits] = useState(10000);
   const [votes, setVotes] = useState({});
-  const [showAlert, setShowAlert] = useState(false);
   const router = useRouter();
+
+  const [isVerified, setIsVerified] = useState(() => {
+    return localStorage.getItem("isVerified") === "true";
+  });
+
+  const verifyProof = async (proof) => {
+    console.log("proof", proof);
+    const response = await fetch("https://word-id.vercel.app/api/verify", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ ...proof, action: "test" }),
+    });
+    if (response.ok) {
+      const { verified } = await response.json();
+      if (verified) {
+        localStorage.setItem("isVerified", "true");
+        setIsVerified(true);
+      }
+      return verified;
+    } else {
+      const { code, detail } = await response.json();
+      throw new Error(`Error Code ${code}: ${detail}`);
+    }
+  };
+
+  const onSuccess = () => {
+    localStorage.setItem("isVerified", "true");
+    setIsVerified(true);
+  };
 
   useEffect(() => {
     const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -107,6 +233,8 @@ const VotingPage = () => {
   useEffect(() => {
     fetchInstances();
   }, []);
+
+  useEffect(() => {}, [setIsVerified, isVerified]);
 
   useEffect(() => {
     if (selectedCategory) {
@@ -181,8 +309,89 @@ const VotingPage = () => {
         <div className="mx-auto mt-[10%]">
           <Loading />
         </div>
+      ) : !isVerified ? (
+        <div className="mx-auto mt-[10%]">
+          <div className="flex flex-col items-center gap-3 py-3 mx-[15%]">
+            {isVerified ? (
+              <Alert
+                status="success"
+                variant="subtle"
+                flexDirection="column"
+                alignItems="center"
+                justifyContent="center"
+                textAlign="center"
+                height="200px"
+                mt="4"
+              >
+                <AlertIcon boxSize="40px" mr={0} />
+                <AlertTitle mt={4} mb={1} fontSize="lg">
+                  Verification Successful!
+                </AlertTitle>
+                <AlertDescription maxWidth="sm">
+                  You can now successfully participate in the MACI QV round.
+                  Your votes are not going to get disclosed and cannot get
+                  censored, using the power of the MACI protocol.
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <>
+                <Text fontSize="2xl" fontWeight="bold">
+                  Participate in the MACI Quadratic Voting Round
+                </Text>
+                <Text textAlign="center" px="5">
+                  To vote on the datasets you think deserve to get funded, you
+                  need to verify yourself. A new funding round will run every 6
+                  months, with the current round distributing 10 ETH to the
+                  top-voted datasets.
+                </Text>
+                <IDKitWidget
+                  app_id="app_c3d26e172495a10b9f67a2d58ddeaf13"
+                  action="quadb"
+                  handleVerify={verifyProof}
+                  onSuccess={onSuccess}
+                >
+                  {({ open }) => (
+                    <button
+                      className="border border-black rounded-md cursor-pointer"
+                      onClick={open}
+                    >
+                      <div className="mx-9 my-1">Verify with World ID</div>
+                    </button>
+                  )}
+                </IDKitWidget>
+                <button className="border border-black rounded-md cursor-pointer">
+                  <div className="mx-5 my-1">Verify with zk-email KYC</div>
+                </button>
+                <button className="border border-black rounded-md cursor-pointer">
+                  <div className="mx-3 my-1">Verify with zk-email Twitter</div>
+                </button>
+              </>
+            )}
+          </div>
+        </div>
       ) : (
         <Container>
+          <Alert
+            status="success"
+            variant="subtle"
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
+            textAlign="center"
+            height="150px"
+            my="2"
+            rounded={10}
+          >
+            <AlertIcon boxSize="20px" mr={0} />
+            <AlertTitle mt={4} mb={1} fontSize="md">
+              You are a verified Human!
+            </AlertTitle>
+            <AlertDescription maxWidth="sm">
+              Participate in the MACI QV round. Your votes are private and cannot get
+              disclosed or get censored, using the power of the MACI
+              protocol.
+            </AlertDescription>
+          </Alert>
           <Flex justify="space-between" mb="4" gap={3}>
             <Select
               placeholder="Select Category"
