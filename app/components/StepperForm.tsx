@@ -4,8 +4,11 @@ import axios from "axios";
 import { generateLighthouseJWT } from "@/utils/IPFS";
 import { useWalletClient } from "wagmi";
 
-const StepperForm: React.FC = ({ isOpen, onClose, address }) => {
-  const { data: walletClient } = useWalletClient();
+const StepperForm: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  address: string;
+}> = ({ isOpen, onClose, address }) => {  const { data: walletClient } = useWalletClient();
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [apiClicked, setApiClicked] = useState(false);
   const [tokenClicked, setTokenClicked] = useState(false);
