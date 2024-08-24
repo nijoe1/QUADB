@@ -140,9 +140,8 @@ const CardItem = ({ profileInfo, creator }) => {
                             cursor={"pointer"}
                             onClick={() => {
                               router.push({
-                                pathname: "",
-                                hash:
-                                  "/profile?address=" + contributor?.address,
+                                pathname: "/profile" + contributor?.address,
+                                
                               });
                             }}
                           >

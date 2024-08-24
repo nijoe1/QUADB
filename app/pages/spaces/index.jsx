@@ -22,19 +22,6 @@ const SpacesGraph = () => {
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [isRoot, setIsRoot] = useState();
   const [clickedID, setClickedID] = useState();
-
-  const navigateToHashRoute = (hashRoute) => {
-    if (hashRoute == "/") {
-      router.push({
-        pathname: hashRoute,
-      });
-    } else {
-      router.push({
-        pathname: "",
-        hash: hashRoute,
-      });
-    }
-  };
   useEffect(() => {}, [isRoot, clickedID]);
   useEffect(() => {
     const handleResize = () => {
@@ -106,11 +93,11 @@ const SpacesGraph = () => {
     leaf: { fill: "#ecf1f6", stroke: "#000", strokeWidth: "2px" },
   };
 
-  // Handle click event on the label to navigate to the spaces page
-  const handleLabelClick = (name) => {
+  const handleLabelClick = (nodeDatum) => {
     // Implement navigation logic here, for example:
-    if (name.attributes?.nodeType !== "root") {
-      navigateToHashRoute(`/SingleSpacePage?id=${name.id}`);
+    if (nodeDatum.attributes?.nodeType !== "root") {
+      // Update this path according to your app's routing structure
+      router.push(`/spaces/${nodeDatum.id}`);
     }
   };
 
@@ -143,7 +130,7 @@ const SpacesGraph = () => {
       >
         {nodeDatum.name}
       </text>
-      {(
+      {
         <g>
           {" "}
           <rect
@@ -171,7 +158,7 @@ const SpacesGraph = () => {
             {"new"}
           </text>
         </g>
-      )}
+      }
     </g>
   );
 

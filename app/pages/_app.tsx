@@ -35,30 +35,32 @@ const queryClient = new QueryClient();
 
 const id = "";
 
-export default function App({ Component, pageProps }: AppProps) {
+export default function Providers({ Component, pageProps }: AppProps) {
   const router = useRouter();
   return (
     <ChakraProvider>
       <WagmiProvider config={config}>
-          <QueryClientProvider client={queryClient}>
-            <RainbowKitProvider
-              theme={darkTheme({
-                accentColor: "#424242",
-                accentColorForeground: "white",
-                borderRadius: "large",
-                fontStack: "system",
-                overlayBlur: "small",
-              })}
-              modalSize="compact"
-            >
-              {/* <div className="bg-black"> */}
-              <Navbar />
-              <Component {...pageProps} />
-              <div className="flex flex-grow mt-[33%]"></div>
-              <Footer />
-              {/* </div> */}
-            </RainbowKitProvider>
-          </QueryClientProvider>
+        <QueryClientProvider client={queryClient}>
+          <RainbowKitProvider
+            theme={darkTheme({
+              accentColor: "#424242",
+              accentColorForeground: "white",
+              borderRadius: "large",
+              fontStack: "system",
+              overlayBlur: "small",
+            })}
+            modalSize="compact"
+          >
+            {/* <div className="bg-black"> */}
+            <Navbar />
+            <Component {...pageProps} />
+            <div className="flex flex-grow mt-[33%]">
+
+            </div>
+            <Footer />
+            {/* </div> */}
+          </RainbowKitProvider>
+        </QueryClientProvider>
       </WagmiProvider>
     </ChakraProvider>
   );

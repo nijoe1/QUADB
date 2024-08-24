@@ -2,14 +2,9 @@ import { Button } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 export default function NavbarLogo(): JSX.Element {
   const router = useRouter();
-  const navigateToHashRoute = (hashRoute: any) => {
-    router.push({
-      pathname: "",
-      hash: hashRoute,
-    });
-  };
+
   return (
-    <Button onClick={() => navigateToHashRoute("/")}>
+    <Button onClick={() => router.push("/")}>
       <QUADBLogo />
     </Button>
   );
@@ -17,11 +12,6 @@ export default function NavbarLogo(): JSX.Element {
 
 type Props = {
   color?: "red" | "white";
-};
-
-const colors = {
-  red: "#f85959",
-  white: "#ffffff",
 };
 
 function QUADBLogo(props: Props): JSX.Element {

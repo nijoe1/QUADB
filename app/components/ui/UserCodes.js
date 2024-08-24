@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from "react";
 import {
   Flex,
@@ -203,8 +204,7 @@ const UserCodes = () => {
                                 alt="Sender Avatar"
                                 onClick={() => {
                                   router.push({
-                                    pathname: "",
-                                    hash: "/profile?address=" + code.creator,
+                                    pathname: "/profile" + contributor?.address,
                                   });
                                 }}
                               />
@@ -218,8 +218,7 @@ const UserCodes = () => {
                               cursor="pointer"
                               onClick={() => {
                                 router.push({
-                                  pathname: "",
-                                  hash: "/profile?address=" + code.creator,
+                                  pathname: "/profile/" + code.creator,
                                 });
                               }}
                             >

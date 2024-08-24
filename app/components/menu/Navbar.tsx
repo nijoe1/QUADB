@@ -1,16 +1,15 @@
-import { useEffect, useState } from "react";
-import { Container } from "@/components//ui/container";
+import React, { useState, useEffect } from "react";
+import { Container } from "@/components/ui/container";
 import Logo from "@/components/menu/NavbarLogo";
 import NavLinks, { NavLinksResponsive } from "@/components/menu/NavLinks";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import StepperForm from "../StepperForm";
 import { useAccount, useChainId } from "wagmi";
-import { useRouter } from "next/router";
+import Link from "next/link"; // Import Link from next/link
 
 export default function Navbar(): JSX.Element {
-  const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
-  const { address, isConnected } = useAccount(); // Removed isOpen
+  const { address, isConnected } = useAccount(); // Using wagmi's hooks
   const chainID = useChainId();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [changeChain, setChangeChain] = useState(true);
@@ -42,7 +41,7 @@ export default function Navbar(): JSX.Element {
       try {
         API_KEY = localStorage.getItem(`API_KEY_${address?.toLowerCase()}`);
       } catch {}
-      if (address && address != prevAddress && isConnected) {
+      if (address && address !== prevAddress && isConnected) {
         localStorage.setItem("prevAddress", address ? address : "".toString());
         localStorage.setItem("prevChain", chainID.toString());
         setChangeChain(false);
@@ -54,31 +53,7 @@ export default function Navbar(): JSX.Element {
       }
     };
     check();
-  }, [address]); // Removed isOpen from dependency array
-
-  useEffect(() => {
-    let prevChain;
-    let prevAddress;
-    try {
-      prevAddress = localStorage.getItem("prevAddress");
-      prevChain = localStorage.getItem("prevChain");
-    } catch {}
-    if (prevAddress && parseInt(prevChain || "0") != chainID && changeChain) {
-      localStorage.setItem("prevChain", chainID.toString());
-      window.location.href = "/";
-    }
-  }, [chainID, address]); // Removed isOpen from dependency array
-
-  useEffect(() => {
-    let storedRoute;
-    try {
-      storedRoute = localStorage.getItem("route");
-
-      window.location.hash = storedRoute?.toString() || "/";
-    } catch {
-      window.location.hash = "/";
-    }
-  }, []);
+  }, [address, isConnected, chainID]);
 
   return (
     <Container className="bg-black/80 rounded-md mt-4">

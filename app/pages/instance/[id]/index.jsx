@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from "react";
 import {
   Box,
@@ -28,7 +29,7 @@ import axios from "axios";
 
 const InstanceDetailsPage = () => {
   const router = useRouter();
-  const instanceID = router.asPath.replace("/#/instance?id=", "");
+  const { id: instanceID } = router.query;
   const [instance, setInstance] = useState(null);
   const [isLoading, setIsLoading] = useState(true); // State to manage loading
   const [hasAccess, setHasAccess] = useState(false); // State to manage access [true/false

@@ -18,7 +18,7 @@ import {
 import { FaEllipsisV } from "react-icons/fa";
 import { Container } from "@/components/ui/container";
 import { useRouter } from "next/router";
-import CreateNewInstance from "../contracts/createNewInstance";
+import CreateNewInstance from "@/components/contracts/createNewInstance";
 import { getIpfsGatewayUri } from "@/utils/IPFS";
 import { getSpaceInstances } from "@/utils/tableland";
 import axios from "axios";
@@ -26,7 +26,7 @@ import Loading from "@/components/Animation/Loading";
 
 const SingleSpacePage = () => {
   const router = useRouter();
-  const spaceID = router.asPath.replace("/#/SingleSpacePage?id=", "");
+  const { spaceId: spaceID } = router.query;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [fetched, setFetched] = useState(false);
   const [instances, setInstances] = useState({
@@ -70,19 +70,6 @@ const SingleSpacePage = () => {
       setFetched(!fetched);
     });
   }, [spaceID]);
-
-  const navigateToHashRoute = (hashRoute) => {
-    if (hashRoute == "/") {
-      router.push({
-        pathname: hashRoute,
-      });
-    } else {
-      router.push({
-        pathname: "",
-        hash: hashRoute,
-      });
-    }
-  };
 
   const handleNewClick = () => {
     onOpen();
@@ -153,9 +140,9 @@ const SingleSpacePage = () => {
                           aspectRatio={2 / 1}
                           objectFit="cover"
                           onClick={() =>
-                            navigateToHashRoute(
-                              "/instance?id=" + instance.InstanceID,
-                            )
+                            router.push({
+                              pathname: `/instance/${instance.InstanceID.toLowerCase()}`,
+                            })
                           }
                         />
                         <Box
@@ -226,7 +213,7 @@ const SingleSpacePage = () => {
                       </Box>
                     </Box>
                   </GridItem>
-                )),
+                ))
               )}
             </Grid>
           </Flex>

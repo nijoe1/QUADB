@@ -1,8 +1,8 @@
 import { Dispatch, SetStateAction } from "react";
 import { RxCrossCircled } from "react-icons/rx";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useRouter } from "next/router";
 import { Button, Text } from "@chakra-ui/react";
+import Link from "next/link";
 
 export type link = {
   text: string;
@@ -10,32 +10,17 @@ export type link = {
 };
 
 function NavLink({ text, href }: link): JSX.Element {
-  const router = useRouter();
-  const navigateToHashRoute = (hashRoute: any) => {
-    if (hashRoute == "/") {
-      router.push({
-        pathname: hashRoute,
-      });
-    } else {
-      router.push({
-        pathname: "",
-        hash: hashRoute,
-      });
-    }
-  };
-
   return (
-    <Button
-      className={`hover:text-black/90 transition-all rounded-xl px-3 py-1 `}
-      onClick={(e) => {
-        e.preventDefault();
-        navigateToHashRoute(href);
-      }}
-      bg="#333333"
-      color="white"
-    >
-      <Text>{text}</Text>
-    </Button>
+    <Link href={href} passHref>
+      <Button
+        as="a" // Make Button behave like an anchor tag
+        className="hover:text-black/90 transition-all rounded-xl px-3 py-1"
+        bg="#333333"
+        color="white"
+      >
+        <Text>{text}</Text>
+      </Button>
+    </Link>
   );
 }
 
@@ -50,25 +35,15 @@ function ResponsiveNavLink({
   href,
   setIsSidebarOpen,
 }: ResponsiveNavLinkProps): JSX.Element {
-  const router = useRouter();
-  const navigateToHashRoute = (hashRoute: any) => {
-    router.push({
-      pathname: "",
-      hash: hashRoute,
-    });
-  };
-
   return (
-    <div
-      className={`hover:bg-black/20 text-gray transition-all w-full text-center py-3 cursor-pointer`} // Ensure consistent class names
-      onClick={(e) => {
-        e.preventDefault();
-        navigateToHashRoute(href);
-        setIsSidebarOpen(false);
-      }}
-    >
-      <Text className="hover:text-white text-gray">{text}</Text>
-    </div>
+    <Link href={href} passHref>
+      <div
+        className="hover:bg-black/20 text-gray transition-all w-full text-center py-3 cursor-pointer"
+        onClick={() => setIsSidebarOpen(false)}
+      >
+        <Text className="hover:text-white text-gray">{text}</Text>
+      </div>
+    </Link>
   );
 }
 
@@ -85,17 +60,15 @@ export function NavLinksResponsive({
 }: NavLinksResponsiveProps): JSX.Element {
   return (
     <ul
-      className={`fixed z-[10] h-[100vh] top-0 w-[70vw] max-w-[300px] flex flex-col gap-2 justify-center shadow-2xl ${"bg-black/90"}  text-white font-bold rounded-box transition-all ${
-        isSidebarOpen ? "left-0 " : "-left-[400px]"
-      }`}
+      className={`fixed z-[10] h-[100vh] top-0 w-[70vw] max-w-[300px] flex flex-col gap-2 justify-center shadow-2xl ${"bg-black/90"} text-white font-bold rounded-box transition-all ${isSidebarOpen ? "left-0 " : "-left-[400px]"}`}
     >
       {isConnected &&
         links.map((item) => (
           <ResponsiveNavLink
-            setIsSidebarOpen={setIsSidebarOpen}
             key={item.text}
             text={item.text}
             href={item.href}
+            setIsSidebarOpen={setIsSidebarOpen}
           />
         ))}
       <div className="flex md:hidden justify-center gap-2">
@@ -135,7 +108,7 @@ const links: link[] = [
     href: "/profile",
   },
   {
-    text: "MACIQV",
-    href: "/voting",
+    text: "Fund",
+    href: "/fundWhatMatters",
   },
 ];

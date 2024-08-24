@@ -5,17 +5,7 @@ import { useRouter } from "next/router";
 
 export function Hero(): JSX.Element {
   const router = useRouter();
-  const navigateToHashRoute = (hashRoute: any) => {
-    // if (hashRoute == "/") {
-    //   window.location.hash = "/";
-    // } else {
-    //   window.location.hash = hashRoute;
-    // }
-    router.push({
-      pathname: "",
-      hash: hashRoute,
-    });
-  };
+
   const scrollToSection = (sectionId: string) => {
     const section = document.getElementById(sectionId);
 
@@ -38,7 +28,7 @@ export function Hero(): JSX.Element {
             </p>
             <div className="items-center gap-x-3 space-y-3 sm:flex sm:space-y-0">
               <Button
-                onClick={() => navigateToHashRoute("/spaces")}
+                onClick={() => router.push("/spaces")}
                 className="group flex items-center justify-center gap-x-2"
               >
                 Discover

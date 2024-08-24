@@ -32,7 +32,7 @@ const InstanceCodes = ({ hasAccess }) => {
   const [viewAllCodes, setViewAllCodes] = useState(true);
 
   const router = useRouter();
-  const spaceID = router.asPath.replace("/#/instance?id=", "");
+  const { id: spaceID } = router.query;
   const {
     isOpen,
     onOpen,
@@ -58,7 +58,7 @@ const InstanceCodes = ({ hasAccess }) => {
   }
 
   const getProfileInfo = async (address) => {
-   return
+    return;
   };
 
   useEffect(() => {
@@ -224,8 +224,7 @@ const InstanceCodes = ({ hasAccess }) => {
                                 alt="Sender Avatar"
                                 onClick={() => {
                                   router.push({
-                                    pathname: "",
-                                    hash: "/profile?address=" + code.creator,
+                                    pathname: "/profile" + contributor?.address,
                                   });
                                 }}
                               />
@@ -239,8 +238,7 @@ const InstanceCodes = ({ hasAccess }) => {
                               cursor="pointer"
                               onClick={() => {
                                 router.push({
-                                  pathname: "",
-                                  hash: "/profile?address=" + code.creator,
+                                  pathname: "/profile" + contributor?.address,
                                 });
                               }}
                             >

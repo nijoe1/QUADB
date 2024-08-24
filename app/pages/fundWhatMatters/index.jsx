@@ -290,19 +290,6 @@ const VotingPage = () => {
     updateVoiceCredits(newVotesObj);
   };
 
-  const navigateToHashRoute = (hashRoute) => {
-    if (hashRoute == "/") {
-      router.push({
-        pathname: hashRoute,
-      });
-    } else {
-      router.push({
-        pathname: "",
-        hash: hashRoute,
-      });
-    }
-  };
-
   return (
     <div className="flex flex-col items-center">
       {!fetched ? (
@@ -387,8 +374,8 @@ const VotingPage = () => {
               You are a verified Human!
             </AlertTitle>
             <AlertDescription maxWidth="sm">
-              Participate in the MACI QV round. Your votes are private and cannot get
-              disclosed or get censored, using the power of the MACI
+              Participate in the MACI QV round. Your votes are private and
+              cannot get disclosed or get censored, using the power of the MACI
               protocol.
             </AlertDescription>
           </Alert>
@@ -507,8 +494,8 @@ const VotingPage = () => {
                     <div className="flex items-center justify-between mx-auto gap-4 ">
                       <Button
                         onClick={() =>
-                          navigateToHashRoute(
-                            "/instance?id=" + instance.InstanceID
+                          router.push(
+                            "/instance/" + instance.InstanceID
                           )
                         }
                         colorScheme="gray"

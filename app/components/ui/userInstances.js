@@ -28,8 +28,7 @@ import { isAddress } from "viem";
 const UserInstances = () => {
   const { address } = useAccount();
   const router = useRouter();
-  const userAddress = router.asPath.replace("/#/profile?address=", "");
-
+  const { address: userAddress } = router.query;
   const [fetched, setFetched] = useState(false);
   const [instances, setInstances] = useState({
     openInstances: [],
@@ -50,7 +49,6 @@ const UserInstances = () => {
   }
 
   async function fetchInstances() {
-    console.log(address);
     let addr = isAddress(userAddress) ? userAddress : address;
     const data = (await getUserInstances(addr?.toLowerCase()))[0]?.instances;
     console.log(data);
@@ -73,21 +71,7 @@ const UserInstances = () => {
       setInstances(resp);
       setFetched(!fetched);
     });
-  }, [userAddress, address]);
-
-  const navigateToHashRoute = (hashRoute) => {
-    if (hashRoute == "/") {
-      router.push({
-        pathname: hashRoute,
-      });
-    } else {
-      router.push({
-        pathname: "",
-        hash: hashRoute,
-      });
-    }
-  };
-
+  }, [userAddress]);
   return (
     <div className="flex flex-col items-center">
       {!fetched ? (
@@ -139,8 +123,8 @@ const UserInstances = () => {
                           aspectRatio={2 / 1}
                           objectFit="cover"
                           onClick={() =>
-                            navigateToHashRoute(
-                              "/instance?id=" + instance.InstanceID,
+                            router.push(
+                              "/instance/" + instance.InstanceID.toLowerCase()
                             )
                           }
                         />
@@ -210,7 +194,7 @@ const UserInstances = () => {
                       </Box>
                     </Box>
                   </GridItem>
-                )),
+                ))
               )}
             </Grid>
           </Flex>

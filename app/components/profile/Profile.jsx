@@ -1,15 +1,13 @@
+"use client";
 import React, { useState, useEffect } from "react";
 import { Box, Image, Text, Badge, Button, IconButton } from "@chakra-ui/react";
 import { useAccount } from "wagmi";
 import UpdateProfile from "@/components/profile/UpdateProfile";
 import { FaEdit } from "react-icons/fa";
-import { useRouter } from "next/router";
 import { isAddress } from "viem";
 // Inside your component:
 const Profile = ({ onProfile }) => {
-  const router = useRouter();
   const { address } = useAccount();
-  const userAddress = router.asPath.replace("/#/profile?address=", "");
   const [isOpen, setIsOpen] = useState(false);
 
   const handleOpenModal = () => {
@@ -29,7 +27,7 @@ const Profile = ({ onProfile }) => {
       await fetchSubscriptions();
     }
     getProfile();
-  }, [profileInfo, userAddress]);
+  }, [profileInfo, address]);
 
   const updateProfileInfo = async (name, description, picture) => {
     try {
@@ -116,10 +114,7 @@ const Profile = ({ onProfile }) => {
             mt="2"
             fontSize="sm"
           >
-            {userAddress.toLowerCase() == address?.toLowerCase() ||
-            !isAddress(userAddress)
-              ? `${address?.slice(0, 6)}...${address?.slice(-6)}`
-              : `${userAddress.slice(0, 6)}...${userAddress.slice(-6)}`}
+           User Name
           </Badge>
           <Text fontSize={["sm", "md"]} color="white" mt="2">
             {profileInfo?.desc || "User Description"}

@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Tabs, TabList, TabPanels, TabPanel, Tab } from "@chakra-ui/react";
 import Profile from "@/components/profile/Profile";
-import UserInstances from "@/components/pages/UserInstances";
+import UserInstances from "@/components/ui/UserInstances";
 import UserCodes from "@/components/ui/UserCodes";
 const ProfilePage = () => {
   return (

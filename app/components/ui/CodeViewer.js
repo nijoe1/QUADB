@@ -18,7 +18,6 @@ import { Button } from "./Button";
 const CodeViewer = ({ code, onClose }) => {
   const toast = useToast();
 
- 
   const [tabIndex, setTabIndex] = useState(0);
 
   const handleTabChange = (index) => {
@@ -58,8 +57,7 @@ const CodeViewer = ({ code, onClose }) => {
             cursor={"pointer"}
             onClick={() => {
               router.push({
-                pathname: "",
-                hash: "/profile?address=" + code.creator,
+                pathname: "/profile" + contributor?.address,
               });
             }}
           >
@@ -90,7 +88,7 @@ const CodeViewer = ({ code, onClose }) => {
               <NotebookPreviewer code={code.codeCID} />
             </Box>
           </TabPanel>
-         
+
           <TabPanel>
             <div className="flex flex-col items-center text-center p-5">
               {/* Compute output */}
