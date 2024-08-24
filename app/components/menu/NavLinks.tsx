@@ -107,8 +107,8 @@ const links: link[] = [
     text: "Profile",
     href: "/profile",
   },
-  {
-    text: "Fund",
-    href: "/fundWhatMatters",
-  },
+  // {
+  //   text: "Fund",
+  //   href: "/fundWhatMatters",
+  // },
 ];
