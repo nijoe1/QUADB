@@ -1,8 +1,8 @@
 import React from "react";
 import { Box, Tabs, TabList, TabPanels, TabPanel, Tab } from "@chakra-ui/react";
 import Profile from "@/components/profile/Profile";
-import UserInstances from "../../../components/ui/UserInstances";
-import UserCodes from "../../../components/ui/components/ui/UserCodes";
+// import UserInstances from "@/components/ui/UserInstances";
+import UserCodes from "@/components/ui/UserCodes";
 const ProfilePage = () => {
   return (
     <div className="mt-2 max-w-[1180px] mx-auto">
@@ -32,7 +32,7 @@ const ProfilePage = () => {
           <TabPanels>
             <TabPanel>
               <Box minHeight="200px" overflow="auto">
-                <UserInstances />
+                {/* <UserInstances /> */}
               </Box>
             </TabPanel>
             <TabPanel>
