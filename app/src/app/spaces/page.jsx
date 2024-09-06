@@ -1,8 +1,9 @@
+"use client"
 import React, { useState, useEffect } from "react";
 import { Box, Flex, Select, useDisclosure } from "@chakra-ui/react";
 import { Container } from "@/components//ui/container";
 import Tree from "react-d3-tree";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import CreateSubSpaceModal from "@/components/contracts/createSubSpace";
 import { constructObject } from "@/utils/tableland";
 import Loading from "@/components/Animation/Loading";
@@ -93,11 +94,11 @@ const SpacesGraph = () => {
     leaf: { fill: "#ecf1f6", stroke: "#000", strokeWidth: "2px" },
   };
 
-  const handleLabelClick = (nodeDatum) => {
+  const handleLabelClick = async(nodeDatum) => {
     // Implement navigation logic here, for example:
     if (nodeDatum.attributes?.nodeType !== "root") {
       // Update this path according to your app's routing structure
-      router.push(`/spaces/${nodeDatum.id}`);
+      await router.push(`/spaces/${nodeDatum.id}`);
     }
   };
 
@@ -125,7 +126,7 @@ const SpacesGraph = () => {
         strokeWidth="1"
         x="20"
         y="-2"
-        onClick={() => handleLabelClick(nodeDatum)}
+        onClick={async() => await handleLabelClick(nodeDatum)}
         style={{ cursor: "pointer" }}
       >
         {nodeDatum.name}
@@ -142,7 +143,7 @@ const SpacesGraph = () => {
             fill="gray"
             stroke="black"
             strokeWidth="1"
-            onClick={() => handleLabelClick(nodeDatum)}
+            onClick={async() => await handleLabelClick(nodeDatum)}
             style={{ cursor: "pointer" }}
           />
           <text

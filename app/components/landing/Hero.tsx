@@ -1,11 +1,10 @@
+"use client";
 import { Button } from "@/components/ui/Button";
 import { ArrowRightIcon } from "@chakra-ui/icons";
 import HeroAnimation from "@/components/Animation/HeroAnimation";
-import { useRouter } from "next/router";
+import Link from "next/link";
 
 export function Hero(): JSX.Element {
-  const router = useRouter();
-
   const scrollToSection = (sectionId: string) => {
     const section = document.getElementById(sectionId);
 
@@ -27,13 +26,13 @@ export function Hero(): JSX.Element {
               computations on top of them using the Filecoin Virtual Machine
             </p>
             <div className="items-center gap-x-3 space-y-3 sm:flex sm:space-y-0">
-              <Button
-                onClick={() => router.push("/spaces")}
+              <Link
+                href="/spaces"
                 className="group flex items-center justify-center gap-x-2"
               >
                 Discover
                 <ArrowRightIcon className="w-4 h-4 group-hover:translate-x-1 transition" />
-              </Button>
+              </Link>
               <Button
                 variant={"outline"}
                 onClick={(e) => {
@@ -80,25 +79,25 @@ export function Hero(): JSX.Element {
                 </li>
                 <li>
                   <img
-                    src="/images/allo.jpg"
+                    src="/images/tableland.png"
                     alt="fleek"
                     className="h-[60px]  scale-90"
                   />
                 </li>
                 <li>
                   <img
-                    src="/images/pse.png"
+                    src="/images/storacha.png"
                     alt="fleek"
                     className="h-[60px]  scale-90"
                   />
                 </li>
-                <li>
+                {/* <li>
                   <img
                     src="/images/worldcoin.jpeg"
                     alt="push"
                     className="h-[65px]  scale-90 rounded-md"
                   />
-                </li>
+                </li> */}
               </ul>
             </div>
           </div>

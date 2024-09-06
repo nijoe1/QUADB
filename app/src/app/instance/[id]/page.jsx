@@ -14,7 +14,7 @@ import DatasetViewer from "@/components/ui/DatasetViewer";
 import InstanceCodes from "@/components/ui/InstanceCodes";
 import { useAccount } from "wagmi";
 import { useSelector } from "react-redux";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { Container } from "@/components//ui/container";
 import CardItem from "@/components/profile/CardItem";
 import {
@@ -26,10 +26,10 @@ import { getIpfsGatewayUri, resolveIPNS } from "@/utils/IPFS";
 import Loading from "@/components/Animation/Loading";
 
 import axios from "axios";
-
-const InstanceDetailsPage = () => {
+const InstanceDetailsPage = ({ params: { id } }) => {
   const router = useRouter();
-  const { id: instanceID } = router.query;
+  const instanceID = id;
+  console.log("Instance ID:", instanceID);
   const [instance, setInstance] = useState(null);
   const [isLoading, setIsLoading] = useState(true); // State to manage loading
   const [hasAccess, setHasAccess] = useState(false); // State to manage access [true/false
@@ -50,18 +50,18 @@ const InstanceDetailsPage = () => {
       const data = await getInstance(instanceID);
       let members = await getInstanceMembers(instanceID);
       let temp = new Set();
-      temp.add(data[0].creator.toLowerCase());
+      temp.add(data[0].creator?.toLowerCase());
       members.forEach((member) => {
-        temp.add(member.member.toLowerCase());
+        temp.add(member.member?.toLowerCase());
       });
 
       const instanceData = await getInstanceMetadata(data[0]);
-      temp.add(instanceData.creator.toLowerCase());
+      temp.add(instanceData.creator?.toLowerCase());
       setInstanceMembers(Array.from(temp));
 
       console.log("Instance Data:", instanceData);
-      const hasAccess = await getHasAccess(instanceID, address);
-      setHasAccess(hasAccess);
+      // const hasAccess = await getHasAccess(instanceID, address);
+      setHasAccess(true);
       console.log("creatorrrrrrrrr ", instanceData.creator);
       setInstance(instanceData);
     } catch (error) {
@@ -72,7 +72,7 @@ const InstanceDetailsPage = () => {
   }
 
   useEffect(() => {
-    if (isLoading) {
+    if (isLoading && instanceID) {
       fetchData();
     }
   }, [router, isLoading]);
@@ -187,6 +187,7 @@ const InstanceDetailsPage = () => {
                                 member?.toLowerCase() === address?.toLowerCase()
                             )
                           }
+                          spaceID={instance?.spaceID}
                         />
                       </TabPanel>
                     </TabPanels>

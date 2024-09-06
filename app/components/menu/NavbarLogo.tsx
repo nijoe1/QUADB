@@ -1,22 +1,14 @@
-import { Button } from "@chakra-ui/react";
-import { useRouter } from "next/router";
+"use client";
+import Link from "next/link";
 export default function NavbarLogo(): JSX.Element {
-  const router = useRouter();
-
   return (
-    <Button onClick={() => router.push("/")}>
+    <Link href={"/"} className="round-md">
       <QUADBLogo />
-    </Button>
+    </Link>
   );
 }
 
-type Props = {
-  color?: "red" | "white";
-};
-
-function QUADBLogo(props: Props): JSX.Element {
-  const { color = "red" } = props;
-
+function QUADBLogo(): JSX.Element {
   return (
     <svg
       version="1.1"

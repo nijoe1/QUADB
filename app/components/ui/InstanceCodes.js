@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from "react";
 import {
   Flex,
@@ -17,7 +18,7 @@ import {
 } from "@chakra-ui/react";
 import { Container } from "@/components//ui/container";
 import CodeViewer from "./CodeViewer"; // Import CodeViewer component
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import CreateNewInstanceCode from "@/components/contracts/createInstanceCode";
 import { FaEllipsisV } from "react-icons/fa";
 import { getInstanceCodes } from "@/utils/tableland";
@@ -27,12 +28,10 @@ import { FaArrowLeft } from "react-icons/fa";
 import UpdateIPNS from "@/components/ui/UpdateIPNS";
 import makeBlockie from "ethereum-blockies-base64";
 
-const InstanceCodes = ({ hasAccess }) => {
+const InstanceCodes = ({ hasAccess, spaceID }) => {
   const [code, setCode] = useState(null);
   const [viewAllCodes, setViewAllCodes] = useState(true);
 
-  const router = useRouter();
-  const { id: spaceID } = router.query;
   const {
     isOpen,
     onOpen,

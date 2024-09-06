@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState } from "react";
 import {
   Input,
   Modal,
@@ -19,7 +19,7 @@ import {
 } from "@chakra-ui/react";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { CONTRACT_ABI, CONTRACT_ADDRESSES } from "@/constants/contracts";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { createIPNSName, uploadFile } from "@/utils/IPFS";
 import { FaFileUpload } from "react-icons/fa";
 

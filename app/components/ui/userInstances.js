@@ -1,3 +1,4 @@
+"use client"
 import React, { useState, useEffect } from "react";
 import {
   Flex,
@@ -17,7 +18,7 @@ import {
 } from "@chakra-ui/react";
 import { FaEllipsisV } from "react-icons/fa";
 import { Container } from "@/components/ui/container";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { getIpfsGatewayUri } from "@/utils/IPFS";
 import { getUserInstances } from "@/utils/tableland";
 import axios from "axios";
@@ -28,7 +29,7 @@ import { isAddress } from "viem";
 const UserInstances = () => {
   const { address } = useAccount();
   const router = useRouter();
-  const { address: userAddress } = router.query;
+  const userAddress = undefined;
   const [fetched, setFetched] = useState(false);
   const [instances, setInstances] = useState({
     openInstances: [],

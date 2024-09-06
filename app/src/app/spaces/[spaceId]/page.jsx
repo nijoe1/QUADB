@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from "react";
 import {
   Flex,
@@ -17,16 +18,16 @@ import {
 } from "@chakra-ui/react";
 import { FaEllipsisV } from "react-icons/fa";
 import { Container } from "@/components/ui/container";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import CreateNewInstance from "@/components/contracts/createNewInstance";
 import { getIpfsGatewayUri } from "@/utils/IPFS";
 import { getSpaceInstances } from "@/utils/tableland";
 import axios from "axios";
 import Loading from "@/components/Animation/Loading";
 
-const SingleSpacePage = () => {
+const SingleSpacePage = ({ params: { spaceId } }) => {
   const router = useRouter();
-  const { spaceId: spaceID } = router.query;
+  const spaceID = spaceId;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [fetched, setFetched] = useState(false);
   const [instances, setInstances] = useState({
@@ -140,9 +141,11 @@ const SingleSpacePage = () => {
                           aspectRatio={2 / 1}
                           objectFit="cover"
                           onClick={() =>
-                            router.push({
-                              pathname: `/instance/${instance.InstanceID.toLowerCase()}`,
-                            })
+                            router.push(
+                              `/instance/${instance.InstanceID.toLowerCase()}`,
+                              undefined,
+                              { shallow: true }
+                            )
                           }
                         />
                         <Box

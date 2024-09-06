@@ -17,7 +17,7 @@ import {
 } from "@chakra-ui/react";
 import { Container } from "@/components//ui/container";
 import CodeViewer from "./CodeViewer"; // Import CodeViewer component
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { FaEllipsisV } from "react-icons/fa";
 import { getUserCodes } from "@/utils/tableland";
 import Loading from "@/components/Animation/Loading";
@@ -34,7 +34,7 @@ const UserCodes = () => {
   const [viewAllCodes, setViewAllCodes] = useState(true);
 
   const router = useRouter();
-  const userAddress = router.asPath.replace("/#/profile?address=", "");
+  const userAddress = undefined;
   const {
     isOpen,
     onOpen,
@@ -90,7 +90,7 @@ const UserCodes = () => {
   return (
     <div>
       {!fetched ? (
-        <div className="flex flex-col items-center mx-auto mt-[10%]">
+        <div className="flex flex-col items-center mx-[10%] mt-[10%]">
           <Loading />
         </div>
       ) : (

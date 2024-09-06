@@ -2,7 +2,7 @@ import NavbarLogo from "@/components/menu/NavbarLogo";
 import Link from "next/link";
 export default function Footer() {
   return (
-    <footer className="relative  bg-black/80 bottom-0 rounded-t-lg">
+    <footer className="overflow-y-auto flex items-center w-full bg-black/80 rounded-t-lg justify-center mt-[40%]">
       <div className="px-4 py-12 mx-auto md:px-24 lg:px-8">
         <div className="flex flex-col items-center gap-5">
           <div className="flex items-center gap-3">
@@ -18,7 +18,7 @@ export default function Footer() {
             </Link>
           </div>
           <p className="text-lg text-center text-white/90">
-            Build with ❤️ for ETHGlobal Brussels from
+            Build with ❤️ for everyone from
             <span className="font-bold">{" Nick🇬🇷"}</span>
           </p>
         </div>

@@ -1,3 +1,4 @@
+"use client"
 import React, { useState, useEffect, use } from "react";
 import {
   Box,
@@ -21,7 +22,7 @@ import {
 } from "@chakra-ui/react";
 import { useAccount } from "wagmi";
 import makeBlockie from "ethereum-blockies-base64";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 const CardItem = ({ profileInfo, creator }) => {
   const router = useRouter();
