@@ -12,63 +12,36 @@ import { fromString as uint8ArrayFromString } from "uint8arrays/from-string";
 import { toString as uint8ArrayToString } from "uint8arrays/to-string";
 import { CONTRACT_ADDRESSES } from "@/constants/contracts";
 import { getInstanceID } from "./ENS";
-
-import * as Client from "@web3-storage/w3up-client";
-import { StoreMemory } from "@web3-storage/w3up-client/stores/memory";
-import * as Proof from "@web3-storage/w3up-client/proof";
-import { Signer } from "@web3-storage/w3up-client/principal/ed25519";
 import { config } from "dotenv";
 config();
 
-import * as Delegation from "@web3-storage/w3up-client/delegation";
+function toFormData(data) {
+  const formData = new FormData();
 
-export const storachaDelegate = async () => {
-  try {
-    // Create a new client
-    const client = await Client.create();
-    console.log("Client created", client);
-
-    // Fetch the delegation from the backend
-    const apiUrl = `/api/w3up-delegation/${client.did()}`;
-    const response = await fetch(apiUrl);
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch delegation: ${response.statusText}`);
-    }
-
-    const data = await response.arrayBuffer();
-
-    // Deserialize the delegation
-    const delegation = await Delegation.extract(new Uint8Array(data));
-    if (!delegation.ok) {
-      throw new Error("Failed to extract delegation", {
-        cause: delegation.error,
-      });
-    }
-
-    // Add proof that this agent has been delegated capabilities on the space
-    const space = await client.addSpace(delegation.ok);
-    client.setCurrentSpace(space.did());
-
-    console.log("Client is ready to go!");
-  } catch (error) {
-    console.error("Error during frontend operation:", error);
-    // Handle the error, e.g., display a message to the user
+  if (!(data instanceof File)) {
+    const blob = new Blob([JSON.stringify(data)], {
+      type: "application/json",
+    });
+    data = new File([blob], "metadata.json");
   }
+
+  formData.append("file", data);
+  return formData;
+}
+export const storachaUpload = async (file) => {
+
+  console.log("Uploading file...");
+
+  const res = await fetch(`/api/ipfs`, {
+    method: "POST",
+    body: toFormData(file),
+  });
+  const cid = await res.json();
+
+  console.log("cid: ", cid);
+  return cid.cid;
 };
 
-export const storachaUpload = async (file) => {
-  // Load client with specific private key
-  const principal = Signer.parse(process.env.KEY);
-  const store = new StoreMemory();
-  const client = await Client.create({ principal, store });
-  // Add proof that this agent has been delegated capabilities on the space
-  const proof = await Proof.parse(process.env.PROOF);
-  const space = await client.addSpace(proof);
-  await client.setCurrentSpace(space.did());
-  const directoryCid = await client.uploadDirectory([file]);
-  console.log(directoryCid);
-};
 const LighthouseChains = {
   11155111: {
     name: "Sepolia",

@@ -26,7 +26,6 @@ import {
   createIPNSName,
   uploadFile,
   storachaUpload,
-  storachaDelegate,
 } from "@/utils/IPFS";
 import ChakraTagInput from "@/components/ui/TagsInput";
 import { isAddress } from "viem";
@@ -136,10 +135,8 @@ const CreateNewInstance = ({
       type: "application/json",
     });
     // const metadataCID = await uploadFile(jsonFile, key);
-    await storachaDelegate();
     const metadataCID = await storachaUpload(jsonFile);
-    console.log("Metadata CID", cid);
-    return metadataCID.Hash;
+    return metadataCID;
   };
 
   const handleChange = (e) => {
@@ -351,12 +348,7 @@ const CreateNewInstance = ({
           <Button colorScheme="white" mr={3} onClick={handleCreate}>
             Create
           </Button>
-          <Button
-            variant="white"
-            onClick={async () => await storachaDelegate()}
-          >
-            Storacha
-          </Button>
+
           <Button variant="white" onClick={onClose}>
             Cancel
           </Button>
