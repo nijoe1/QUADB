@@ -1,5 +1,5 @@
 {
-  "name": "QUADB",
+  "name": "quadb",
   "version": "0.3.0",
   "private": true,
   "scripts": {
@@ -19,7 +19,7 @@
     "@lighthouse-web3/kavach": "^0.1.5",
     "@lighthouse-web3/sdk": "^0.3.2",
     "@rainbow-me/rainbowkit": "2",
-    "@tanstack/react-query": "^5.25.0",
+    "@tanstack/react-query": "^5.55.4",
     "@wagmi/core": "^2.6.5",
     "@web3-storage/w3up-client": "^16.0.0",
     "@worldcoin/idkit": "^1.2.2",
@@ -52,6 +52,7 @@
     "react-icons": "^4.12.0",
     "react-ipynb-renderer": "^2.1.5-alpha.0",
     "react-markdown": "^9.0.1",
+    "react-query": "^3.39.3",
     "react-redux": "^9.1.0",
     "react-router-dom": "^6.22.3",
     "tailwind-merge": "^2.2.1",

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Flex,
   Box,
@@ -18,18 +18,13 @@ import {
 import { Container } from "@/components/UI/container";
 import CodeViewer from "./CodeViewer"; // Import CodeViewer component
 import { useRouter } from "next/navigation";
-import { FaEllipsisV } from "react-icons/fa";
-import { getUserCodes } from "@/lib/tableland";
+import { FaEllipsisV, FaArrowLeft } from "react-icons/fa";
 import Loading from "@/components/Animation/Loading";
-import { getIpfsGatewayUri, resolveIPNS } from "@/lib/IPFS";
-import { FaArrowLeft } from "react-icons/fa";
 import UpdateIPNS from "@/components/UI/UpdateIPNS";
+import useUserInstanceCodes from "@/hooks/useUserInstanceCodes";
 import makeBlockie from "ethereum-blockies-base64";
-import { useAccount } from "wagmi";
-import { isAddress } from "viem";
 
 const UserCodes = () => {
-  const { address } = useAccount();
   const [code, setCode] = useState(null);
   const [viewAllCodes, setViewAllCodes] = useState(true);
 
@@ -44,30 +39,7 @@ const UserCodes = () => {
     onClose: onUpdateClose,
   } = useDisclosure();
 
-  const [codes, setCodes] = useState([]);
-  const [fetched, setFetched] = useState(false);
-
-  async function fetchInstanceCodes() {
-    let addr = isAddress(userAddress) ? userAddress : address;
-
-    const data = await getUserCodes(addr);
-    for (const key in data) {
-      data[key].codeCID = getIpfsGatewayUri(await resolveIPNS(data[key].IPNS));
-      data[key].blockie = makeBlockie(data[key].creator);
-      data[key].creator = data[key].creator.toLowerCase();
-    }
-    console.log(data);
-    return data;
-  }
-
-  useEffect(() => {
-    if (!fetched) {
-      fetchInstanceCodes().then((resp) => {
-        setCodes(resp);
-        setFetched(!fetched);
-      });
-    }
-  }, [address, userAddress]);
+  const { data: codes, isLoading } = useUserInstanceCodes(userAddress);
 
   const handleNewClick = async () => {
     onOpen();
@@ -89,7 +61,7 @@ const UserCodes = () => {
 
   return (
     <div>
-      {!fetched ? (
+      {isLoading ? (
         <div className="flex flex-col items-center mx-[10%] mt-[10%]">
           <Loading />
         </div>

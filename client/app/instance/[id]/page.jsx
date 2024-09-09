@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   Box,
   Tabs,
@@ -13,96 +13,59 @@ import {
 import DatasetViewer from "@/components/UI/DatasetViewer";
 import InstanceCodes from "@/components/UI/InstanceCodes";
 import { useAccount } from "wagmi";
-import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { Container } from "@/components/UI/container";
 import CardItem from "@/components/Profile/CardItem";
-import { getInstance, getHasAccess, getInstanceMembers } from "@/lib/tableland";
-import { getIpfsGatewayUri, resolveIPNS } from "@/lib/IPFS";
 import Loading from "@/components/Animation/Loading";
+import useInstanceData from "@/hooks/useInstanceData";
 
-import axios from "axios";
 const InstanceDetailsPage = ({ params: { id } }) => {
   const router = useRouter();
   const instanceID = id;
-  console.log("Instance ID:", instanceID);
-  const [instance, setInstance] = useState(null);
-  const [isLoading, setIsLoading] = useState(true); // State to manage loading
-  const [hasAccess, setHasAccess] = useState(false); // State to manage access [true/false
-  const [instanceMembers, setInstanceMembers] = useState([]); // State to manage instance members [array]
   const { address } = useAccount();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { data, isLoading, error } = useInstanceData(instanceID);
 
-  async function getInstanceMetadata(item) {
-    const metadataCIDLink = getIpfsGatewayUri(item.metadataCID);
-    const res = await axios(metadataCIDLink);
-    item.metadata = res.data;
-    item.cid = await resolveIPNS(item.IPNS);
-    return item;
-  }
-
-  async function fetchData() {
-    try {
-      const data = await getInstance(instanceID);
-      let members = await getInstanceMembers(instanceID);
-      let temp = new Set();
-      temp.add(data[0].creator?.toLowerCase());
-      members.forEach((member) => {
-        temp.add(member.member?.toLowerCase());
-      });
-
-      const instanceData = await getInstanceMetadata(data[0]);
-      temp.add(instanceData.creator?.toLowerCase());
-      setInstanceMembers(Array.from(temp));
-
-      console.log("Instance Data:", instanceData);
-      // const hasAccess = await getHasAccess(instanceID, address);
-      setHasAccess(true);
-      console.log("creatorrrrrrrrr ", instanceData.creator);
-      setInstance(instanceData);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setIsLoading(false); // Mark loading as complete regardless of success or failure
-    }
-  }
-
-  useEffect(() => {
-    if (isLoading && instanceID) {
-      fetchData();
-    }
-  }, [router, isLoading]);
-
-  return (
-    <Container>
-      {isLoading ? ( // Render loading state if data is still loading
+  if (isLoading) {
+    return (
+      <Container>
         <div className="flex flex-col items-center mx-auto mt-[10%]">
           <Loading />
         </div>
-      ) : (
-        <div>
-          {instance && ( // Render component only if instance data is available
-            <div>
-              <Box
-                bg="#333333"
-                className="flex flex-col items-center "
-                borderRadius="md"
-                boxShadow="md"
-                mb={4}
-                p={["2", "4"]}
-              >
-                <CardItem
-                  profileInfo={{
-                    name: instance?.metadata?.name || "Instance Name",
-                    desc: instance?.metadata?.about || "Instance Description",
-                    picture:
-                      instance?.metadata?.imageUrl || "/path/to/image.jpg",
-                    members: instanceMembers || [instance?.creator],
-                    creator: instance?.creator,
-                  }}
-                  creator={instance?.creator}
-                />
-                {/* {!(
+      </Container>
+    );
+  }
+
+  if (error) {
+    return <div>Error loading instance data</div>;
+  }
+
+  const { instance, instanceMembers } = data;
+
+  return (
+    <Container>
+      <div>
+        {instance && ( // Render component only if instance data is available
+          <div>
+            <Box
+              bg="#333333"
+              className="flex flex-col items-center "
+              borderRadius="md"
+              boxShadow="md"
+              mb={4}
+              p={["2", "4"]}
+            >
+              <CardItem
+                profileInfo={{
+                  name: instance?.metadata?.name || "Instance Name",
+                  desc: instance?.metadata?.about || "Instance Description",
+                  picture: instance?.metadata?.imageUrl || "/path/to/image.jpg",
+                  members: instanceMembers || [instance?.creator],
+                  creator: instance?.creator,
+                }}
+                creator={instance?.creator}
+              />
+              {/* {!(
                   hasAccess ||
                   instanceMembers.find(
                     (member) => member?.toLowerCase() === address?.toLowerCase()
@@ -127,73 +90,72 @@ const InstanceDetailsPage = ({ params: { id } }) => {
                       price={instance?.price || 0}
                     />
                   </div> */}
-                {/* )} */}
-              </Box>
-              <Box
-                bg="#333333"
-                borderRadius="md"
-                height={1000}
-                boxShadow="md"
-                mb={4}
-                p={["2", "4"]}
-              >
-                {
-                  //   (hasAccess ||
-                  // instanceMembers.find(
-                  //   (member) => member.toLowerCase() === address.toLowerCase()
-                  //     )) &&
-                  <Tabs
-                    isFitted
-                    variant="enclosed"
-                    className="text-white"
-                    minWidth={["150px", "200px"]}
-                    colorScheme="white"
-                    mb="4"
-                  >
-                    <TabList mb="4">
-                      <Tab>Dataset</Tab>
-                      <Tab>Codes</Tab>
-                    </TabList>
-                    <TabPanels>
-                      <TabPanel>
-                        <DatasetViewer
-                          cid={instance?.cid}
-                          IPNS={instance?.IPNS}
-                          EncryptedKeyCID={instance?.IPNSEncryptedKey}
-                          isEncrypted={instance?.price > 0}
-                          spaceID={instanceID}
-                          hasAccess={
-                            instance?.creator?.toLowerCase() ==
-                              address?.toLowerCase() ||
-                            instanceMembers.find(
-                              (member) =>
-                                member?.toLowerCase() === address?.toLowerCase()
-                            )
-                          }
-                        />
-                      </TabPanel>
+              {/* )} */}
+            </Box>
+            <Box
+              bg="#333333"
+              borderRadius="md"
+              height={1000}
+              boxShadow="md"
+              mb={4}
+              p={["2", "4"]}
+            >
+              {
+                //   (hasAccess ||
+                // instanceMembers.find(
+                //   (member) => member.toLowerCase() === address.toLowerCase()
+                //     )) &&
+                <Tabs
+                  isFitted
+                  variant="enclosed"
+                  className="text-white"
+                  minWidth={["150px", "200px"]}
+                  colorScheme="white"
+                  mb="4"
+                >
+                  <TabList mb="4">
+                    <Tab>Dataset</Tab>
+                    <Tab>Codes</Tab>
+                  </TabList>
+                  <TabPanels>
+                    <TabPanel>
+                      <DatasetViewer
+                        cid={instance?.cid}
+                        IPNS={instance?.IPNS}
+                        EncryptedKeyCID={instance?.IPNSEncryptedKey}
+                        isEncrypted={instance?.price > 0}
+                        spaceID={instanceID}
+                        hasAccess={
+                          instance?.creator?.toLowerCase() ==
+                            address?.toLowerCase() ||
+                          instanceMembers.find(
+                            (member) =>
+                              member?.toLowerCase() === address?.toLowerCase()
+                          )
+                        }
+                      />
+                    </TabPanel>
 
-                      <TabPanel>
-                        <InstanceCodes
-                          hasAccess={
-                            instance?.creator?.toLowerCase() ==
-                              address?.toLowerCase() ||
-                            instanceMembers.find(
-                              (member) =>
-                                member?.toLowerCase() === address?.toLowerCase()
-                            )
-                          }
-                          spaceID={instance?.spaceID}
-                        />
-                      </TabPanel>
-                    </TabPanels>
-                  </Tabs>
-                }
-              </Box>
-            </div>
-          )}
-        </div>
-      )}
+                    <TabPanel>
+                      <InstanceCodes
+                        hasAccess={
+                          instance?.creator?.toLowerCase() ==
+                            address?.toLowerCase() ||
+                          instanceMembers.find(
+                            (member) =>
+                              member?.toLowerCase() === address?.toLowerCase()
+                          )
+                        }
+                        spaceID={instance?.spaceID}
+                      />
+                    </TabPanel>
+                  </TabPanels>
+                </Tabs>
+              }
+            </Box>
+          </div>
+        )}
+      </div>
     </Container>
   );
 };
