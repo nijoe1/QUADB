@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   Flex,
   Box,
@@ -20,57 +20,16 @@ import { FaEllipsisV } from "react-icons/fa";
 import { Container } from "@/components/UI/container";
 import { useRouter } from "next/navigation";
 import CreateNewInstance from "@/components/Contracts/createNewInstance";
-import { getIpfsGatewayUri } from "@/lib/IPFS";
-import { getSpaceInstances } from "@/lib/tableland";
-import axios from "axios";
 import Loading from "@/components/Animation/Loading";
+import useFetchSpaceInstances from "@/hooks/useFetchSpaceInstances"; // Importing the custom hook
 
 const SingleSpacePage = ({ params: { spaceId } }) => {
   const router = useRouter();
-  const spaceID = spaceId;
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [fetched, setFetched] = useState(false);
-  const [instances, setInstances] = useState({
-    openInstances: [],
-    openPrivateInstances: [],
-    paidInstances: [],
-    paidPrivateInstances: [],
-  });
+  const spaceID = spaceId;
 
-  async function getMetadataCID(data) {
-    const temp = [];
-    for (const item of data) {
-      const metadataCIDLink = getIpfsGatewayUri(item.metadataCID);
-      const res = await axios(metadataCIDLink);
-      item.metadata = res.data; // obj that contains => name about imageUrl
-      temp.push(item); // Push fetched JSON metadata directly
-    }
-    return temp;
-  }
-
-  async function fetchInstances() {
-    const data = (await getSpaceInstances(spaceID))[0]?.instances;
-    const dataObj = {}; // Initialize data object
-    for (const key in data) {
-      if (
-        key === "openInstances" ||
-        key === "openPrivateInstances" ||
-        key === "paidInstances" ||
-        key === "paidPrivateInstances"
-      ) {
-        const instancesArray = data[key].map(JSON.parse); // Parse each stringified JSON object
-        dataObj[key] = await getMetadataCID(instancesArray);
-      }
-    }
-    return dataObj;
-  }
-
-  useEffect(() => {
-    fetchInstances().then((resp) => {
-      setInstances(resp);
-      setFetched(!fetched);
-    });
-  }, [spaceID]);
+  // Using the custom hook to fetch instances
+  const { instances, fetched } = useFetchSpaceInstances(spaceID);
 
   const handleNewClick = () => {
     onOpen();

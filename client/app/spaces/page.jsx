@@ -1,20 +1,19 @@
-"use client"
-import React, { useState, useEffect } from "react";
+"use client";
+import React, { useState } from "react";
 import { Box, Flex, Select, useDisclosure } from "@chakra-ui/react";
 import { Container } from "@/components/UI/container";
 import Tree from "react-d3-tree";
 import { useRouter } from "next/navigation";
 import CreateSubSpaceModal from "@/components/Contracts/createSubSpace";
-import { constructObject } from "@/lib/tableland";
 import Loading from "@/components/Animation/Loading";
+import useFetchTreeData from "@/hooks/useFetchTreeData"; // Importing the custom hook
+import useWindowDimensions from "@/hooks/useWindowDimensions"; // Importing the window dimensions hook
+import useFetchRootObject from "@/hooks/useFetchRootObject"; // Importing the root object hook
+import Link from "next/link";
 
 const SpacesGraph = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
-  const [treeData, setTreeData] = useState(null);
-  const [tempTreeData, setTempTreeData] = useState(null);
-  const [fetched, setFetched] = useState(false);
-
   const [selectedCategory, setSelectedCategory] = useState();
   const [windowDimensions, setWindowDimensions] = useState({
     width: undefined,
@@ -23,88 +22,79 @@ const SpacesGraph = () => {
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [isRoot, setIsRoot] = useState();
   const [clickedID, setClickedID] = useState();
-  useEffect(() => {}, [isRoot, clickedID]);
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowDimensions({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
-    };
 
-    // Add event listener to update window dimensions on resize
-    window.addEventListener("resize", handleResize);
+  // Using the custom hooks
+  const { fetchTreeData, isLoading: isTreeLoading } =
+    useFetchTreeData(setCategoryOptions);
+  const { data: rootObject, isLoading: isRootLoading } = useFetchRootObject();
+  useWindowDimensions(setWindowDimensions); // Call the window dimensions hook
 
-    // Initial call to set window dimensions
-    handleResize();
+  // Define the custom node rendering function
+  const renderCustomNodeElement = ({ nodeDatum, toggleNode }) => (
+    <g>
+      <circle
+        r="15"
+        style={{
+          fill:
+            nodeDatum.attributes.nodeType === "root"
+              ? "#424242"
+              : nodeDatum.attributes.nodeType === "branch"
+                ? "#727272"
+                : "#ecf1f6",
+        }}
+        onClick={toggleNode}
+      />
+      <Link href={`/spaces/${nodeDatum.id}`}>
+        <text
+          fill="black"
+          strokeWidth="1"
+          x="20"
+          y="-2"
+          style={{ cursor: "pointer" }}
+        >
+          {nodeDatum.name}
+        </text>
+      </Link>
+      <g>
+        <rect
+          x="30"
+          y="4"
+          width="40"
+          height="20"
+          rx="5"
+          fill="gray"
+          stroke="black"
+          strokeWidth="1"
+          onClick={() => handleLabelClick(nodeDatum)}
+          style={{ cursor: "pointer" }}
+        />
+        <text
+          fill="black"
+          strokeWidth="1"
+          x="50"
+          y="15"
+          textAnchor="middle"
+          alignmentBaseline="middle"
+          onClick={() => handleNewClick(nodeDatum)}
+          style={{ cursor: "pointer" }}
+        >
+          {"new"}
+        </text>
+      </g>
+    </g>
+  );
 
-    // Remove event listener on component unmount
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  // Fetch tree data on component mount
+  React.useEffect(() => {
+    fetchTreeData();
+  }, [fetchTreeData]);
 
-  useEffect(() => {
-    // Generate tree data for the selected category or entire tree if no category is selected
-    generateTreeData();
-  }, []);
-
-  useEffect(() => {
-    // Generate tree data for the selected category or entire tree if no category is selected
-    generateTreeData(selectedCategory);
-  }, [selectedCategory]);
-
-  // Generate tree data for the selected category or entire tree if no category is selected
-  const generateTreeData = async (selectedCategory) => {
-    // If a category is selected, find its subtree and return it
-    if (selectedCategory) {
-      setTreeData(findCategoryNode(tempTreeData, selectedCategory));
-    } else {
-      // Replace this with your actual data for the "QUADB.eth" category
-      const exampleData = await constructObject();
-
-      // Extract immediate children of the root node as categories
-      const categories = exampleData.children.map(
-        (child) => child.name.split(".")[0]
-      );
-
-      // Set categories as options
-      setCategoryOptions(
-        categories.map((category) => ({ value: category, label: category }))
-      );
-      // If no category is selected, return the entire tree data
-      // return exampleData;
-      setTreeData(exampleData);
-      setTempTreeData(exampleData);
-      setFetched(true);
-    }
-  };
-
-  // Function to find the node for the selected category
-  const findCategoryNode = (data, category) => {
-    const categoryNode = { ...data };
-    categoryNode.children = categoryNode.children.filter(
-      (child) => child.name.split(".")[0] === category
-    );
-    return categoryNode;
-  };
-
-  // Define custom styles for different node types
-  const nodeStyles = {
-    root: { fill: "#424242", stroke: "#000", strokeWidth: "2px" },
-    branch: { fill: "#727272", stroke: "#000", strokeWidth: "2px" },
-    leaf: { fill: "#ecf1f6", stroke: "#000", strokeWidth: "2px" },
-  };
-
-  const handleLabelClick = async(nodeDatum) => {
+  const handleLabelClick = async (nodeDatum) => {
     // Implement navigation logic here, for example:
     if (nodeDatum.attributes?.nodeType !== "root") {
       // Update this path according to your app's routing structure
-      await router.push(`/spaces/${nodeDatum.id}`);
+      router.push(`/spaces/${nodeDatum.id}`);
     }
-  };
-
-  // Handle click event on the circle to toggle nodes
-  const handleCircleClick = (nodeDatum, toggleNode) => {
-    toggleNode();
   };
 
   const handleNewClick = (nodeDatum, toggleNode) => {
@@ -113,59 +103,9 @@ const SpacesGraph = () => {
     onOpen();
   };
 
-  // Custom node and label rendering function
-  const renderCustomNodeElement = ({ nodeDatum, toggleNode }) => (
-    <g>
-      <circle
-        r="15"
-        style={nodeStyles[nodeDatum.attributes?.nodeType]}
-        onClick={() => handleCircleClick(nodeDatum, toggleNode)}
-      />
-      <text
-        fill="black"
-        strokeWidth="1"
-        x="20"
-        y="-2"
-        onClick={async() => await handleLabelClick(nodeDatum)}
-        style={{ cursor: "pointer" }}
-      >
-        {nodeDatum.name}
-      </text>
-      {
-        <g>
-          {" "}
-          <rect
-            x="30"
-            y="4"
-            width="40"
-            height="20"
-            rx="5"
-            fill="gray"
-            stroke="black"
-            strokeWidth="1"
-            onClick={async() => await handleLabelClick(nodeDatum)}
-            style={{ cursor: "pointer" }}
-          />
-          <text
-            fill="black"
-            strokeWidth="1"
-            x="50"
-            y="15"
-            textAnchor="middle"
-            alignmentBaseline="middle"
-            onClick={() => handleNewClick(nodeDatum)}
-            style={{ cursor: "pointer" }}
-          >
-            {"new"}
-          </text>
-        </g>
-      }
-    </g>
-  );
-
   return (
     <div className="flex flex-col items-center">
-      {!fetched ? (
+      {isRootLoading || isTreeLoading ? (
         <div className="mx-auto mt-[10%]">
           <Loading />
         </div>
@@ -177,7 +117,7 @@ const SpacesGraph = () => {
             borderRadius="lg"
             overflow="hidden"
             boxShadow="md"
-            height="calc(100vh - 150px)" // Adjust height dynamically
+            height="calc(100vh - 150px)"
             display="flex"
             alignItems="center"
           >
@@ -195,7 +135,7 @@ const SpacesGraph = () => {
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 mb={4}
                 mt="6%"
-                width={["90%", "70%", "50%"]} // Adjust width for different screen sizes
+                width={["90%", "70%", "50%"]}
                 _focus={{
                   borderColor: "white",
                 }}
@@ -207,17 +147,17 @@ const SpacesGraph = () => {
                 ))}
               </Select>
               {/* Display tree */}
-              {treeData && (
+              {rootObject && (
                 <Box
                   id="treeWrapper"
                   width="100%"
-                  height="calc(100vh - 250px)" // Adjust height dynamically
+                  height="calc(100vh - 250px)"
                   display="flex"
                   justifyContent="center"
                   alignItems="center"
                 >
                   <Tree
-                    data={treeData}
+                    data={rootObject}
                     orientation="vertical"
                     rootNodeClassName="node__root"
                     branchNodeClassName="node__branch"

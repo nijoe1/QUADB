@@ -9,9 +9,9 @@ export const useCSVHandler = () => {
     setFile(file);
     const reader = new FileReader();
     reader.onload = (e) => {
-      const csvString = e?.target?.result;
+      const csvString = e?.target?.result as string;
       const arrayFromCsv = csvToObjectArray(csvString);
-      setNewRows(arrayFromCsv);
+      setNewRows(arrayFromCsv as never[]);
     };
     reader.readAsText(file);
   };
