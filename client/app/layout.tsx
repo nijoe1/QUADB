@@ -1,8 +1,8 @@
 "use client";
 import "@/styles/globals.css";
 import { ChakraProvider } from "@chakra-ui/react";
-import Navbar from "@/components/Menu/Navbar";
-import Footer from "@/components/Menu/Footer";
+import Navbar from "@/app/components/Menu/Navbar";
+import Footer from "@/app/components/Menu/Footer";
 import "@rainbow-me/rainbowkit/styles.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider, http } from "wagmi";

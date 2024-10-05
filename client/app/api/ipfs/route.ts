@@ -4,6 +4,7 @@ import * as Client from "@web3-storage/w3up-client";
 import { StoreMemory } from "@web3-storage/w3up-client/stores/memory";
 import * as Proof from "@web3-storage/w3up-client/proof";
 import { Signer } from "@web3-storage/w3up-client/principal/ed25519";
+
 export async function POST(request: NextRequest) {
   try {
     const form = await request.formData();

@@ -1,14 +1,14 @@
 "use client";
 import React, { useState } from "react";
 import { Box, Flex, Select, useDisclosure } from "@chakra-ui/react";
-import { Container } from "@/components/UI/container";
+import { Container } from "@/app/components/UI/container";
 import Tree from "react-d3-tree";
 import { useRouter } from "next/navigation";
-import CreateSubSpaceModal from "@/components/Contracts/createSubSpace";
-import Loading from "@/components/Animation/Loading";
-import useFetchTreeData from "@/hooks/useFetchTreeData"; // Importing the custom hook
-import useWindowDimensions from "@/hooks/useWindowDimensions"; // Importing the window dimensions hook
-import useFetchRootObject from "@/hooks/useFetchRootObject"; // Importing the root object hook
+import CreateSubSpaceModal from "@/app/components/Contracts/createSubSpace";
+import Loading from "@/app/components/Animation/Loading";
+import useFetchTreeData from "@/app/hooks/useFetchTreeData"; // Importing the custom hook
+import useWindowDimensions from "@/app/hooks/useWindowDimensions"; // Importing the window dimensions hook
+import { useFetchRootObject } from "@/app/hooks/useFetchRootObject"; // Importing the root object hook
 import Link from "next/link";
 
 const SpacesGraph = () => {

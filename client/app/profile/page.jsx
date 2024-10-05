@@ -1,10 +1,10 @@
 "use client";
 import React from "react";
 import { Box, Tabs, TabList, TabPanels, TabPanel, Tab } from "@chakra-ui/react";
-import Profile from "@/components/Profile/Profile";
-import UserInstances from "@/components/UI/UserInstances";
-import UserCodes from "@/components/UI/UserCodes";
-import { Container } from "@/components/UI/container";
+import Profile from "@/app/components/Profile/Profile";
+import UserInstances from "@/app/components/UI/UserInstances";
+import UserCodes from "@/app/components/UI/UserCodes";
+import { Container } from "@/app/components/UI/container";
 const ProfilePage = () => {
   return (
     <Container>
@@ -27,7 +27,6 @@ const ProfilePage = () => {
             colorScheme="white"
             mb="4"
           >
-            {" "}
             <TabList mb="4">
               <Tab>Datasets</Tab>
               <Tab>Created Codes</Tab>

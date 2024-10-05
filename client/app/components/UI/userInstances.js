@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Flex,
   Box,
@@ -19,22 +19,60 @@ import {
 import { FaEllipsisV } from "react-icons/fa";
 import { Container } from "@/app/components/UI/container";
 import { useRouter } from "next/navigation";
-import { CreateNewInstance } from "@/app/components/Contracts/createNewInstance";
+import { getIpfsGatewayUri } from "@/app/lib/IPFS";
+import { getUserInstances } from "@/app/lib/tableland";
+import axios from "axios";
 import Loading from "@/app/components/Animation/Loading";
-import useFetchSpaceInstances from "@/app/hooks/useFetchSpaceInstances"; // Importing the custom hook
+import { useAccount } from "wagmi";
+import { isAddress } from "viem";
 
-const SingleSpacePage = ({ params: { spaceId } }) => {
+const UserInstances = () => {
+  const { address } = useAccount();
   const router = useRouter();
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const spaceID = spaceId;
+  const userAddress = undefined;
+  const [fetched, setFetched] = useState(false);
+  const [instances, setInstances] = useState({
+    openInstances: [],
+    openPrivateInstances: [],
+    paidInstances: [],
+    paidPrivateInstances: [],
+  });
 
-  // Using the custom hook to fetch instances
-  const { instances, fetched } = useFetchSpaceInstances(spaceID);
+  async function getMetadataCID(data) {
+    const temp = [];
+    for (const item of data) {
+      const metadataCIDLink = getIpfsGatewayUri(item.metadataCID);
+      const res = await axios(metadataCIDLink);
+      item.metadata = res.data; // obj that contains => name about imageUrl
+      temp.push(item); // Push fetched JSON metadata directly
+    }
+    return temp;
+  }
 
-  const handleNewClick = () => {
-    onOpen();
-  };
+  async function fetchInstances() {
+    let addr = isAddress(userAddress) ? userAddress : address;
+    const data = (await getUserInstances(addr?.toLowerCase()))[0]?.instances;
+    console.log(data);
+    const dataObj = {}; // Initialize data object
+    for (const key in data) {
+      if (
+        key === "createdInstances" ||
+        key === "partOfInstances" ||
+        key === "subscribedInstances"
+      ) {
+        const instancesArray = data[key].map(JSON.parse); // Parse each stringified JSON object
+        dataObj[key] = await getMetadataCID(instancesArray);
+      }
+    }
+    return dataObj;
+  }
 
+  useEffect(() => {
+    fetchInstances().then((resp) => {
+      setInstances(resp);
+      setFetched(!fetched);
+    });
+  }, [userAddress]);
   return (
     <div className="flex flex-col items-center">
       {!fetched ? (
@@ -43,20 +81,6 @@ const SingleSpacePage = ({ params: { spaceId } }) => {
         </div>
       ) : (
         <Container>
-          <Button
-            onClick={handleNewClick}
-            colorScheme="black"
-            ml="3"
-            className="bg-black/80 text-white"
-            my="4"
-          >
-            Create Dataset
-          </Button>
-          <CreateNewInstance
-            onClose={onClose}
-            isOpen={isOpen}
-            spaceID={spaceID}
-          />
           <Flex justify="center">
             <Grid
               templateColumns={[
@@ -101,9 +125,7 @@ const SingleSpacePage = ({ params: { spaceId } }) => {
                           objectFit="cover"
                           onClick={() =>
                             router.push(
-                              `/instance/${instance.InstanceID.toLowerCase()}`,
-                              undefined,
-                              { shallow: true }
+                              "/instance/" + instance.InstanceID.toLowerCase()
                             )
                           }
                         />
@@ -119,16 +141,14 @@ const SingleSpacePage = ({ params: { spaceId } }) => {
                           <Badge
                             mt="1.5"
                             colorScheme={
-                              type === "openInstances" ||
-                              type === "openPrivateInstances"
-                                ? "green"
-                                : "red"
+                              type === "createdInstances" ? "green" : "red"
                             }
                           >
-                            {type === "openInstances" ||
-                            type === "openPrivateInstances"
-                              ? "Open"
-                              : "Paid"}
+                            {type === "createdInstances"
+                              ? "Created"
+                              : type === "partOfInstances"
+                                ? "Contributor"
+                                : "Subscriber"}
                           </Badge>
                           <Menu zIndex="2">
                             <MenuButton
@@ -185,4 +205,4 @@ const SingleSpacePage = ({ params: { spaceId } }) => {
   );
 };
 
-export default SingleSpacePage;
+export default UserInstances;
