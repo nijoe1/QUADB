@@ -25,7 +25,9 @@ import { MdMoreVert } from "react-icons/md";
 import Loading from "@/app/components/Animation/Loading";
 import { Container } from "@/app/components/UI/container";
 import UpdateIPNS from "@/app/components/UI/UpdateIPNS";
+import { Lit } from "@/app/lib/lit";
 import * as IPFS from "@/app/lib/IPFS";
+
 import { useAccount } from "wagmi";
 
 const DatasetViewer = ({
@@ -88,8 +90,14 @@ const DatasetViewer = ({
         let JWT;
         let blobResponse;
         try {
-          JWT = localStorage.getItem(`lighthouse-jwt-${address}`);
-          blobResponse = await decrypt(cid, address, JWT);
+          // Decrypt the encrypted blob using the EncryptedKeyCID
+          const lit = new Lit("filecoin");
+          const cidData = await IPFS.fetchIPFS(cid);
+          blobResponse = (await lit.decrypt(cidData))?.decryptedString;
+
+          if (!blobResponse) {
+            throw new Error("Failed to get encrypted CSV file");
+          }
 
           // Convert the decrypted blob into a File object
           const decryptedFile = new File([blobResponse], "decrypted.csv", {
@@ -110,13 +118,13 @@ const DatasetViewer = ({
             throw new Error("Failed to parse decrypted CSV file");
           }
         } catch (error) {
-          throw new Error("Failed to decrypt CSV file: " + error.message);
+          throw new Error("Failed to decrypt CSV file: " + error);
         }
       }
     } catch (error) {
       toast({
         title: "Error",
-        description: error?.message,
+        description: error as string,
         status: "error",
         duration: 3000,
         isClosable: true,
@@ -169,7 +177,7 @@ const DatasetViewer = ({
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
-  const handleRowsPerPageChange = (e) => {
+  const handleRowsPerPageChange = (e: any) => {
     setRowsPerPage(parseInt(e.target.value));
     setCurrentPage(1);
   };

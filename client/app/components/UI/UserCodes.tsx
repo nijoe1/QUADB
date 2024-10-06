@@ -24,7 +24,7 @@ import UpdateIPNS from "@/app/components/UI/UpdateIPNS";
 import useUserInstanceCodes from "@/app/hooks/useUserInstanceCodes";
 import makeBlockie from "ethereum-blockies-base64";
 
-const UserCodes = () => {
+export const UserCodes = () => {
   const [code, setCode] = useState<any>(null);
   const [viewAllCodes, setViewAllCodes] = useState(true);
 
@@ -231,5 +231,3 @@ const UserCodes = () => {
     </div>
   );
 };
-
-export default UserCodes;
