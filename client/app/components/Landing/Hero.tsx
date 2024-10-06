@@ -58,39 +58,40 @@ export function Hero(): JSX.Element {
               <ul className="flex items-center flex-wrap justify-center lg:justify-between gap-4">
                 <li>
                   <img
+                    src="/images/storacha.png"
+                    alt="storacha"
+                    className="h-[60px] rounded-full scale-90"
+                  />
+                </li>
+                <li>
+                  <img
                     src="/images/filecoin.png"
-                    alt="push"
+                    alt="filecoin"
                     className="h-[65px]  scale-90"
                   />
                 </li>
                 <li>
                   <img
-                    src="/images/lighthouse-storage.png"
-                    alt="lighthouse"
-                    className="h-[60px] "
-                  />
-                </li>
-                <li>
-                  <img
-                    src="/images/ens.jpg"
-                    alt="tableland"
+                    src="/images/fns.jpg"
+                    alt="fns"
                     className="h-[65px]  scale-90 rounded-md"
                   />
                 </li>
                 <li>
                   <img
                     src="/images/tableland.png"
-                    alt="fleek"
+                    alt="tableland"
                     className="h-[60px]  scale-90"
                   />
                 </li>
                 <li>
                   <img
-                    src="/images/storacha.png"
-                    alt="fleek"
-                    className="h-[60px]  scale-90"
+                    src="/images/lit-logo.jpeg"
+                    alt="lit"
+                    className="h-[60px] rounded-full"
                   />
                 </li>
+
                 {/* <li>
                   <img
                     src="/images/worldcoin.jpeg"

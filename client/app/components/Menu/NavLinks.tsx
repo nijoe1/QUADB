@@ -11,15 +11,12 @@ export type link = {
 
 function NavLink({ text, href }: link): JSX.Element {
   return (
-    <Link href={href} passHref>
-      <Button
-        as="a" // Make Button behave like an anchor tag
-        className="hover:text-black/90 transition-all rounded-xl px-3 py-1"
-        bg="#333333"
-        color="white"
-      >
-        <Text>{text}</Text>
-      </Button>
+    <Link
+      href={href}
+      passHref
+      className=" text-gray-200 hover:text-gray-50 transition-all rounded-xl px-3 py-1 "
+    >
+      <Text>{text}</Text>
     </Link>
   );
 }
@@ -102,6 +99,10 @@ const links: link[] = [
   {
     text: "Explore",
     href: "/spaces",
+  },
+  {
+    text: "Challenges",
+    href: "/challenges",
   },
   // {
   //   text: "Profile",

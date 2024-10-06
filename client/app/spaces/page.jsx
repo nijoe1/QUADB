@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import CreateSubSpaceModal from "@/app/components/Contracts/createSubSpace";
 import Loading from "@/app/components/Animation/Loading";
 import useFetchTreeData from "@/app/hooks/useFetchTreeData"; // Importing the custom hook
-import useWindowDimensions from "@/app/hooks/useWindowDimensions"; // Importing the window dimensions hook
+import { useWindowDimensions } from "@/app/hooks/useWindowDimensions"; // Importing the window dimensions hook
 import { useFetchRootObject } from "@/app/hooks/useFetchRootObject"; // Importing the root object hook
 import Link from "next/link";
 

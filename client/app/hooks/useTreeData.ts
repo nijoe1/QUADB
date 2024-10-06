@@ -1,6 +1,11 @@
 import { useEffect } from "react";
 
-const useTreeData = (fetchTreeData, selectedCategory, tempTreeData, setTreeData) => {
+const useTreeData = (
+  fetchTreeData: any,
+  selectedCategory: any,
+  tempTreeData: any,
+  setTreeData: any
+) => {
   useEffect(() => {
     fetchTreeData();
   }, [fetchTreeData]);
@@ -9,7 +14,7 @@ const useTreeData = (fetchTreeData, selectedCategory, tempTreeData, setTreeData)
     if (selectedCategory && tempTreeData) {
       const categoryNode = { ...tempTreeData };
       categoryNode.children = categoryNode.children.filter(
-        (child) => child.name.split(".")[0] === selectedCategory
+        (child: any) => child.name.split(".")[0] === selectedCategory
       );
       setTreeData(categoryNode);
     }

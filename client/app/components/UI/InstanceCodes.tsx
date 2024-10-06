@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Flex,
   Box,
@@ -17,19 +17,26 @@ import {
 } from "@chakra-ui/react";
 import { Container } from "@/app/components/UI/container";
 import CodeViewer from "./CodeViewer"; // Import CodeViewer component
-import { useRouter } from "next/navigation";
-import { FaEllipsisV, FaArrowLeft } from "react-icons/fa";
+import CreateNewInstanceCode from "@/app/components/Contracts/createInstanceCode";
+import { FaEllipsisV } from "react-icons/fa";
+import { getInstanceCodes } from "@/app/lib/tableland";
 import Loading from "@/app/components/Animation/Loading";
+import { getIpfsGatewayUri, resolveIPNS } from "@/app/lib/IPFS";
+import { FaArrowLeft } from "react-icons/fa";
 import UpdateIPNS from "@/app/components/UI/UpdateIPNS";
-import useUserInstanceCodes from "@/app/hooks/useUserInstanceCodes";
 import makeBlockie from "ethereum-blockies-base64";
+import router from "next/router";
 
-const UserCodes = () => {
-  const [code, setCode] = useState(null);
+const InstanceCodes = ({
+  hasAccess,
+  spaceID,
+}: {
+  hasAccess: boolean;
+  spaceID: string;
+}) => {
+  const [code, setCode] = useState<any | null>(null);
   const [viewAllCodes, setViewAllCodes] = useState(true);
 
-  const router = useRouter();
-  const userAddress = undefined;
   const {
     isOpen,
     onOpen,
@@ -39,7 +46,33 @@ const UserCodes = () => {
     onClose: onUpdateClose,
   } = useDisclosure();
 
-  const { data: codes, isLoading } = useUserInstanceCodes(userAddress);
+  const [codes, setCodes] = useState([] as any[]);
+  const [fetched, setFetched] = useState(false);
+
+  async function fetchInstanceCodes() {
+    // const data = (await getSpaceInstances(spaceID))[0].instances;
+    const data = await getInstanceCodes(spaceID);
+    for (const key in data) {
+      data[key].codeCID = getIpfsGatewayUri(await resolveIPNS(data[key].IPNS));
+      data[key].blockie = makeBlockie(data[key].creator);
+      data[key].profile = await getProfileInfo(data[key].creator);
+    }
+    console.log(data);
+    return data;
+  }
+
+  const getProfileInfo = async (address: any) => {
+    return;
+  };
+
+  useEffect(() => {
+    if (!fetched) {
+      fetchInstanceCodes().then((resp) => {
+        setCodes(resp);
+        setFetched(!fetched);
+      });
+    }
+  }, [spaceID]);
 
   const handleNewClick = async () => {
     onOpen();
@@ -49,7 +82,7 @@ const UserCodes = () => {
     onUpdateOpen();
   };
 
-  const handleClick = (instance) => {
+  const handleClick = (instance: any) => {
     setCode(instance);
     setViewAllCodes(false);
   };
@@ -61,44 +94,63 @@ const UserCodes = () => {
 
   return (
     <div>
-      {isLoading ? (
-        <div className="flex flex-col items-center mx-[10%] mt-[10%]">
+      {!fetched ? (
+        <div className="flex flex-col items-center mx-auto mt-[10%]">
           <Loading />
         </div>
       ) : (
         <Container>
           {code ? (
             <>
-              <div className="flex flex-wrap">
-                <IconButton
-                  icon={<FaArrowLeft />}
-                  aria-label="Go back to All Codes"
-                  variant="outline"
-                  mb="4"
-                  ml={"6%"}
-                  onClick={handleBack}
-                />
-                <Button
-                  colorScheme="black"
-                  ml="3"
-                  className="bg-black/80 text-white"
-                  onClick={handleUpdateClick}
-                >
-                  Update Notebook
-                </Button>
-                <UpdateIPNS
-                  isOpen={isUpdateOpen}
-                  onClose={onUpdateClose}
-                  isDataset={false}
-                  IPNS={code.IPNS}
-                  EncryptedKeyCID={code.IPNSEncryptedKey}
-                />
-              </div>
+              {hasAccess && (
+                <div className="flex flex-wrap">
+                  <IconButton
+                    icon={<FaArrowLeft />}
+                    aria-label="Go back to All Codes"
+                    variant="outline"
+                    mb="4"
+                    ml={"6%"}
+                    onClick={handleBack}
+                  />
+                  <Button
+                    colorScheme="black"
+                    ml="3"
+                    className="bg-black/80 text-white"
+                    onClick={handleUpdateClick}
+                  >
+                    Update Notebook
+                  </Button>
+                  <UpdateIPNS
+                    isOpen={isUpdateOpen}
+                    onClose={onUpdateClose}
+                    isDataset={false}
+                    IPNS={code.IPNS}
+                    EncryptedKeyCID={code.IPNSEncryptedKey}
+                    isEncrypted={code.isEncrypted}
+                    spaceID={spaceID}
+                    currentCSV=""
+                  />
+                </div>
+              )}
 
               <CodeViewer code={code} onClose={handleBack} />
             </>
           ) : (
             <div>
+              <Button
+                onClick={handleNewClick}
+                colorScheme="black"
+                ml="3"
+                className="bg-black/80 text-white"
+                my="4"
+              >
+                Create Code
+              </Button>
+              <CreateNewInstanceCode
+                onClose={onClose}
+                isOpen={isOpen}
+                spaceID={spaceID as `0x${string}`}
+              />
               <Flex justify="center">
                 <Grid
                   templateColumns={[
@@ -118,13 +170,15 @@ const UserCodes = () => {
                         px="2"
                         pt="2"
                         bg="#333333"
-                        borderRadius="md"
-                        borderColor={"white"}
+                        // borderRadius="md"
                         boxShadow="md"
-                        className="cursor-pointer border-1 border-white"
                         position="relative"
+                        className="cursor-pointer border-1 border-white"
                       >
-                        <Box height="100px">
+                        <Box
+                          height="100px"
+                          className="cursor-pointer border-1 border-white"
+                        >
                           <Box
                             display="flex"
                             justifyContent="flex-start"
@@ -134,7 +188,7 @@ const UserCodes = () => {
                             right="0"
                             zIndex="1"
                           >
-                            <Menu zIndex="2">
+                            <Menu>
                               <MenuButton
                                 as={IconButton}
                                 icon={<FaEllipsisV />}
@@ -158,13 +212,14 @@ const UserCodes = () => {
                               </MenuList>
                             </Menu>
                           </Box>
-                          <div className="flex flex-wrap items-center mb-2 rounded-md">
+                          <div className="flex flex-wrap items-center mb-2 rounded-md cursor-pointer border-1 border-white">
                             <Box
                               borderRadius="md"
                               boxSize="35px"
                               mr={2}
                               bg="#333333"
                               cursor={"pointer"}
+                              className="cursor-pointer border-1 border-white"
                             >
                               <Image
                                 className=" rounded-md"
@@ -176,7 +231,7 @@ const UserCodes = () => {
                                 alt="Sender Avatar"
                                 onClick={() => {
                                   router.push({
-                                    pathname: "/profile" + contributor?.address,
+                                    pathname: "/profile" + code.creator,
                                   });
                                 }}
                               />
@@ -190,7 +245,7 @@ const UserCodes = () => {
                               cursor="pointer"
                               onClick={() => {
                                 router.push({
-                                  pathname: "/profile/" + code.creator,
+                                  pathname: "/profile" + code?.creator,
                                 });
                               }}
                             >
@@ -233,4 +288,4 @@ const UserCodes = () => {
   );
 };
 
-export default UserCodes;
+export default InstanceCodes;

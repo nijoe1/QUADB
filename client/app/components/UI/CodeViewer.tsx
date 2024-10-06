@@ -12,15 +12,15 @@ import {
   Badge,
 } from "@chakra-ui/react";
 import NotebookPreviewer from "./NotebookPreviewer";
-import { useAccount } from "wagmi";
-
+import { useRouter } from "next/router";
 import { Button } from "./Button";
-const CodeViewer = ({ code, onClose }) => {
-  const toast = useToast();
 
+const CodeViewer = ({ code, onClose }: { code: any; onClose: () => void }) => {
+  const toast = useToast();
+  const router = useRouter();
   const [tabIndex, setTabIndex] = useState(0);
 
-  const handleTabChange = (index) => {
+  const handleTabChange = (index: any) => {
     setTabIndex(index);
   };
 
@@ -57,7 +57,7 @@ const CodeViewer = ({ code, onClose }) => {
             cursor={"pointer"}
             onClick={() => {
               router.push({
-                pathname: "/profile" + contributor?.address,
+                pathname: "/profile" + code.creator,
               });
             }}
           >

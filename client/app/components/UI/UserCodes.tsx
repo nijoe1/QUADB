@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Flex,
   Box,
@@ -15,21 +15,21 @@ import {
   MenuList,
   MenuItem,
 } from "@chakra-ui/react";
-import { Container } from "@/components/UI/container";
+import { Container } from "@/app/components/UI/container";
 import CodeViewer from "./CodeViewer"; // Import CodeViewer component
-import CreateNewInstanceCode from "@/components/Contracts/createInstanceCode";
-import { FaEllipsisV } from "react-icons/fa";
-import { getInstanceCodes } from "@/lib/tableland";
-import Loading from "@/components/Animation/Loading";
-import { getIpfsGatewayUri, resolveIPNS } from "@/lib/IPFS";
-import { FaArrowLeft } from "react-icons/fa";
-import UpdateIPNS from "@/components/UI/UpdateIPNS";
+import { useRouter } from "next/navigation";
+import { FaEllipsisV, FaArrowLeft } from "react-icons/fa";
+import Loading from "@/app/components/Animation/Loading";
+import UpdateIPNS from "@/app/components/UI/UpdateIPNS";
+import useUserInstanceCodes from "@/app/hooks/useUserInstanceCodes";
 import makeBlockie from "ethereum-blockies-base64";
 
-const InstanceCodes = ({ hasAccess, spaceID }) => {
-  const [code, setCode] = useState(null);
+const UserCodes = () => {
+  const [code, setCode] = useState<any>(null);
   const [viewAllCodes, setViewAllCodes] = useState(true);
 
+  const router = useRouter();
+  const userAddress = undefined;
   const {
     isOpen,
     onOpen,
@@ -39,33 +39,7 @@ const InstanceCodes = ({ hasAccess, spaceID }) => {
     onClose: onUpdateClose,
   } = useDisclosure();
 
-  const [codes, setCodes] = useState([]);
-  const [fetched, setFetched] = useState(false);
-
-  async function fetchInstanceCodes() {
-    // const data = (await getSpaceInstances(spaceID))[0].instances;
-    const data = await getInstanceCodes(spaceID);
-    for (const key in data) {
-      data[key].codeCID = getIpfsGatewayUri(await resolveIPNS(data[key].IPNS));
-      data[key].blockie = makeBlockie(data[key].creator);
-      data[key].profile = await getProfileInfo(data[key].creator);
-    }
-    console.log(data);
-    return data;
-  }
-
-  const getProfileInfo = async (address) => {
-    return;
-  };
-
-  useEffect(() => {
-    if (!fetched) {
-      fetchInstanceCodes().then((resp) => {
-        setCodes(resp);
-        setFetched(!fetched);
-      });
-    }
-  }, [spaceID]);
+  const { data: codes, isLoading } = useUserInstanceCodes(userAddress || "");
 
   const handleNewClick = async () => {
     onOpen();
@@ -75,7 +49,7 @@ const InstanceCodes = ({ hasAccess, spaceID }) => {
     onUpdateOpen();
   };
 
-  const handleClick = (instance) => {
+  const handleClick = (instance: any) => {
     setCode(instance);
     setViewAllCodes(false);
   };
@@ -87,60 +61,47 @@ const InstanceCodes = ({ hasAccess, spaceID }) => {
 
   return (
     <div>
-      {!fetched ? (
-        <div className="flex flex-col items-center mx-auto mt-[10%]">
+      {isLoading ? (
+        <div className="flex flex-col items-center mx-[10%] mt-[10%]">
           <Loading />
         </div>
       ) : (
         <Container>
           {code ? (
             <>
-              {hasAccess && (
-                <div className="flex flex-wrap">
-                  <IconButton
-                    icon={<FaArrowLeft />}
-                    aria-label="Go back to All Codes"
-                    variant="outline"
-                    mb="4"
-                    ml={"6%"}
-                    onClick={handleBack}
-                  />
-                  <Button
-                    colorScheme="black"
-                    ml="3"
-                    className="bg-black/80 text-white"
-                    onClick={handleUpdateClick}
-                  >
-                    Update Notebook
-                  </Button>
-                  <UpdateIPNS
-                    isOpen={isUpdateOpen}
-                    onClose={onUpdateClose}
-                    isDataset={false}
-                    IPNS={code.IPNS}
-                    EncryptedKeyCID={code.IPNSEncryptedKey}
-                  />
-                </div>
-              )}
+              <div className="flex flex-wrap">
+                <IconButton
+                  icon={<FaArrowLeft />}
+                  aria-label="Go back to All Codes"
+                  variant="outline"
+                  mb="4"
+                  ml={"6%"}
+                  onClick={handleBack}
+                />
+                <Button
+                  colorScheme="black"
+                  ml="3"
+                  className="bg-black/80 text-white"
+                  onClick={handleUpdateClick}
+                >
+                  Update Notebook
+                </Button>
+                <UpdateIPNS
+                  isOpen={isUpdateOpen}
+                  onClose={onUpdateClose}
+                  isDataset={false}
+                  IPNS={code.IPNS}
+                  EncryptedKeyCID={code.IPNSEncryptedKey}
+                  isEncrypted={code.isEncrypted}
+                  spaceID={code.spaceID}
+                  currentCSV=""
+                />
+              </div>
 
               <CodeViewer code={code} onClose={handleBack} />
             </>
           ) : (
             <div>
-              <Button
-                onClick={handleNewClick}
-                colorScheme="black"
-                ml="3"
-                className="bg-black/80 text-white"
-                my="4"
-              >
-                Create Code
-              </Button>
-              <CreateNewInstanceCode
-                onClose={onClose}
-                isOpen={isOpen}
-                spaceID={spaceID}
-              />
               <Flex justify="center">
                 <Grid
                   templateColumns={[
@@ -153,22 +114,20 @@ const InstanceCodes = ({ hasAccess, spaceID }) => {
                   width="100%"
                   className="flex md:justify-between lg:grid lg:px-3 relative"
                 >
-                  {codes.map((code) => (
+                  {codes.map((code: any) => (
                     <GridItem key={code.InstanceID}>
                       <Box
                         pb="4"
                         px="2"
                         pt="2"
                         bg="#333333"
-                        // borderRadius="md"
+                        borderRadius="md"
+                        borderColor={"white"}
                         boxShadow="md"
-                        position="relative"
                         className="cursor-pointer border-1 border-white"
+                        position="relative"
                       >
-                        <Box
-                          height="100px"
-                          className="cursor-pointer border-1 border-white"
-                        >
+                        <Box height="100px">
                           <Box
                             display="flex"
                             justifyContent="flex-start"
@@ -178,7 +137,7 @@ const InstanceCodes = ({ hasAccess, spaceID }) => {
                             right="0"
                             zIndex="1"
                           >
-                            <Menu zIndex="2">
+                            <Menu>
                               <MenuButton
                                 as={IconButton}
                                 icon={<FaEllipsisV />}
@@ -202,14 +161,13 @@ const InstanceCodes = ({ hasAccess, spaceID }) => {
                               </MenuList>
                             </Menu>
                           </Box>
-                          <div className="flex flex-wrap items-center mb-2 rounded-md cursor-pointer border-1 border-white">
+                          <div className="flex flex-wrap items-center mb-2 rounded-md">
                             <Box
                               borderRadius="md"
                               boxSize="35px"
                               mr={2}
                               bg="#333333"
                               cursor={"pointer"}
-                              className="cursor-pointer border-1 border-white"
                             >
                               <Image
                                 className=" rounded-md"
@@ -220,9 +178,7 @@ const InstanceCodes = ({ hasAccess, spaceID }) => {
                                 }
                                 alt="Sender Avatar"
                                 onClick={() => {
-                                  router.push({
-                                    pathname: "/profile" + contributor?.address,
-                                  });
+                                  router.push("/profile" + code.creator);
                                 }}
                               />
                             </Box>
@@ -234,9 +190,7 @@ const InstanceCodes = ({ hasAccess, spaceID }) => {
                               mb="1"
                               cursor="pointer"
                               onClick={() => {
-                                router.push({
-                                  pathname: "/profile" + contributor?.address,
-                                });
+                                router.push("/profile/" + code.creator);
                               }}
                             >
                               {code.profile?.name}
@@ -278,4 +232,4 @@ const InstanceCodes = ({ hasAccess, spaceID }) => {
   );
 };
 
-export default InstanceCodes;
+export default UserCodes;

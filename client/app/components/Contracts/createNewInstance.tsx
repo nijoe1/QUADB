@@ -15,14 +15,11 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-  useDisclosure,
   Textarea,
   Box,
   useToast,
 } from "@chakra-ui/react";
 
-import { Lit } from "@/app/lib/lit";
-import { AuthSig } from "@lit-protocol/auth-helpers";
 interface CreateNewInstanceProps {
   isOpen: boolean;
   onClose: () => void;
@@ -55,34 +52,6 @@ export const CreateNewInstance: React.FC<CreateNewInstanceProps> = ({
         <ModalHeader>Create New Dataset</ModalHeader>
         <ModalBody>
           <Box as="form" onSubmit={handleSubmit(onSubmit)}>
-            <Button
-              onClick={async () => {
-                try {
-                  const lit = new Lit("sepolia");
-                  await lit.connect();
-                  const res = await lit.getSessionSignatures();
-                  const authSig = res.capacityDelegationAuthSig as AuthSig;
-                  console.log(authSig);
-                  const encrypt = await lit.encrypt("Hello World");
-                  if (!encrypt) {
-                    throw new Error("Failed to encrypt message");
-                  }
-                  console.log(encrypt);
-                  const message = await lit.decrypt(
-                    encrypt.jsonPayload,
-                    // encrypt.ciphertext,
-                    // encrypt.dataToEncryptHash,
-                    // res.sessionSigs,
-                    authSig
-                  );
-                  console.log(message);
-                } catch (e) {
-                  console.error(e);
-                }
-              }}
-            >
-              Lit
-            </Button>
             <Stack spacing={4}>
               <FormControl isRequired>
                 <FormLabel>Name</FormLabel>

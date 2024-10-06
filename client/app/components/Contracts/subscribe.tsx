@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
-  Input,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -12,12 +11,17 @@ import {
 } from "@chakra-ui/react";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { formatEther } from "viem";
-import { CONTRACT_ABI, CONTRACT_ADDRESSES } from "@/constants/contracts";
+import { CONTRACT_ABI, CONTRACT_ADDRESSES } from "@/app/constants/contracts";
 const Subscribe = ({
-  isOpen = { isOpen },
-  onClose = { onClose },
+  isOpen,
+  onClose,
   instanceID,
   price,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  instanceID: string;
+  price: string;
 }) => {
   const toast = useToast();
 
@@ -45,11 +49,11 @@ const Subscribe = ({
         address: CONTRACT_ADDRESSES,
         abi: CONTRACT_ABI,
         functionName: "purchaseInstanceSubscription",
-        args: [instanceID],
+        args: [instanceID as `0x${string}`],
         value: BigInt(price),
       });
       console.log(data);
-      if (!walletClient) {
+      if (!walletClient || !publicClient || !data) {
         console.log("Wallet client not found");
         return;
       }

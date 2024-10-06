@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {ENS} from "./ENS.sol";
+import {FNS} from "./FNS.sol";
 
 import {Gated, IGated} from "./Gated.sol";
 
@@ -14,7 +14,8 @@ import {Tableland} from "./Tableland.sol";
  * Tableland SQL in solidity for the databases and subspaces
  */
 
-abstract contract Core is ENS, Gated, Tableland {
+abstract contract Core is FNS, Gated, Tableland {
+    
     enum Types {
         NULL,
         PAID_PRIVATE_INSTANCE,
@@ -42,12 +43,14 @@ abstract contract Core is ENS, Gated, Tableland {
     error InstanceAlreadyExists();
 
     constructor(
-        address _nameWrapper,
+        address _registry,
+        address _registrar,
         address _publicResolver,
+        bytes32 _baseNode,
         address _gatedImplementation,
         address _subscriptionImplementation
     )
-        ENS(_nameWrapper, _publicResolver)
+        FNS(_registry, _registrar, _publicResolver, _baseNode)
         Gated(_gatedImplementation, _subscriptionImplementation)
         Tableland()
     {}

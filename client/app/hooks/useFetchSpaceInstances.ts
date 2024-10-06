@@ -3,7 +3,7 @@ import { getSpaceInstances } from "@/app/lib/tableland";
 import { getIpfsGatewayUri } from "@/app/lib/IPFS";
 import axios from "axios";
 
-const useFetchSpaceInstances = (spaceID) => {
+const useFetchSpaceInstances = (spaceID: string) => {
   const [instances, setInstances] = useState({
     openInstances: [],
     openPrivateInstances: [],
@@ -12,7 +12,7 @@ const useFetchSpaceInstances = (spaceID) => {
   });
   const [fetched, setFetched] = useState(false);
 
-  const getMetadataCID = async (data) => {
+  const getMetadataCID = async (data: any) => {
     const temp = [];
     for (const item of data) {
       const metadataCIDLink = getIpfsGatewayUri(item.metadataCID);
@@ -25,7 +25,7 @@ const useFetchSpaceInstances = (spaceID) => {
 
   const fetchInstances = async () => {
     const data = (await getSpaceInstances(spaceID))[0]?.instances;
-    const dataObj = {}; // Initialize data object
+    const dataObj = {} as any;
     for (const key in data) {
       if (
         key === "openInstances" ||
@@ -47,7 +47,7 @@ const useFetchSpaceInstances = (spaceID) => {
     });
   }, [spaceID]);
 
-  return { instances, fetched };
+  return { instances, fetched } as { instances: any; fetched: boolean };
 };
 
 export default useFetchSpaceInstances;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Input,
   Modal,
@@ -13,10 +13,15 @@ import {
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { CONTRACT_ABI, CONTRACT_ADDRESSES } from "@/app/constants/contracts";
 const CreateSubSpaceModal = ({
-  isOpen = { isOpen },
-  onClose = { onClose },
+  isOpen,
+  onClose,
   isRoot,
   clickedID,
+}: {
+  isOpen: any;
+  onClose: any;
+  isRoot: any;
+  clickedID: any;
 }) => {
   const toast = useToast();
 
@@ -48,12 +53,10 @@ const CreateSubSpaceModal = ({
           functionName: "createDBSpace",
           args: [newNodeName],
         });
-        console.log(data);
-        if (!walletClient) {
+        if (!walletClient || !publicClient || !data) {
           console.log("Wallet client not found");
           return;
         }
-        // @ts-ignore
         const hash = await walletClient.writeContract(data.request);
         console.log("Transaction Sent");
         const transaction = await publicClient.waitForTransactionReceipt({
@@ -81,11 +84,10 @@ const CreateSubSpaceModal = ({
           args: [clickedID, newNodeName],
         });
         console.log(data);
-        if (!walletClient) {
+        if (!walletClient || !publicClient || !data) {
           console.log("Wallet client not found");
           return;
         }
-        // @ts-ignore
         const hash = await walletClient.writeContract(data.request);
         console.log("Transaction Sent");
         const transaction = await publicClient.waitForTransactionReceipt({

@@ -31,6 +31,15 @@ const UpdateIPNS = ({
   currentCSV,
   isEncrypted,
   spaceID,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  isDataset: boolean;
+  IPNS: string;
+  EncryptedKeyCID: string;
+  currentCSV: string;
+  isEncrypted: boolean;
+  spaceID: string;
 }) => {
   const { address } = useAccount();
   const {
@@ -53,7 +62,10 @@ const UpdateIPNS = ({
 
   const handleMergeArrays = () => {
     const matcher = new ObjectMatcher(csvToObjectArray(currentCSV)[0]);
-    const merged = matcher.mergeMatching(newRows, csvToObjectArray(currentCSV));
+    const merged = matcher.mergeMatching(
+      newRows,
+      csvToObjectArray(currentCSV)
+    ) as any;
     setNewRows(merged);
     downloadCsv(merged, "merged.csv");
     console.log("Merged Array:", merged);
@@ -86,14 +98,7 @@ const UpdateIPNS = ({
                     </label>
                   </InputRightElement>
                 </InputGroup>
-                <Text
-                  cursor="pointer"
-                  color="white"
-                  ml="2"
-                  onClick={() =>
-                    document.getElementById("__file-upload").click()
-                  }
-                >
+                <Text cursor="pointer" color="white" ml="2">
                   {`Upload ${isDataset ? "dataset" : "code"} file`}
                 </Text>
               </FormControl>
@@ -101,7 +106,7 @@ const UpdateIPNS = ({
           </ModalBody>
           <ModalFooter>
             <Button
-              onClick={() => handleSubmit({ file })}
+              onClick={() => handleSubmit({ file: file ?? new File([], "") })}
               colorScheme="black"
               ml="1"
               className="bg-black/80 text-white"
