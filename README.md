@@ -20,7 +20,7 @@
 
 - **Access Control:** Datasets can be designated as PUBLIC, GROUPED-PUBLIC, PAID-GROUPED, or PAID-PRIVATE, allowing fine-grained control over data access and curation.
 
-- **Encryption:** Utilizes Lighthouse's encryption SDK to secure IPNS records, ensuring that only authorized curators can decrypt and modify dataset contents and associated code.
+- **Encryption:** Utilizes Lit Protocol to secure IPNS records, ensuring that only authorized curators can decrypt and modify dataset contents and associated code.
 
 - **IPFS/Filecoin** Integration: All data and code are stored on the IPFS and Filecoin networks, providing decentralized storage and immutable data integrity.
 
@@ -28,21 +28,20 @@
 
 - **Incentivization Mechanism:** Active users and subscribers are rewarded with QUADB tokens, encouraging engagement and contributions to the platform.
 
+- **Verification Mechanism (WIP):** A mechanism to incentivize good datasets and slash bad datasets using Prediction Markets
+
+
 ### 🧑‍💻 Acknowledgments & Technologies Used 🤖
 
 We would like to thank the following individuals and organizations for their contributions and support in developing QUADB:
 
-- LIGHTHOUSE(IPNS - IPFS - FILECOIN) 🔓
+- STORACHA(IPNS - IPFS - FILECOIN) 🔓
   - Storing and Encrypting Data on IPFS&Filecoin using the RAAS service. [code](https://github.com/nijoe1/QUADB/blob/main/app/utils/IPFS.js)
   - Making IPNS support multiple access to update records by encrypting and storing the Private key on tableland giving access only to dataset and code curators.
-- Ethereum Naming Service (ENS) 🔮
-  - Creating a graph of unified categories using ENSsubnames [code](https://github.com/nijoe1/QUADB/blob/main/contracts/contracts/libraries/ENS.sol)
-  - The Domain that the contract holds [link on sepolia ens](https://app.ens.domains/quadb.eth?tab=subnames)
-- MACIQV (Private Quadratic Voting) 
-  - On QUADB users that can prove that they are Humans either with **Worldcoin** or **ZK-Emain KYC** or **Twitter Verification** they will have power into the platform to vote privatly for the datasets they think that matter most and bring value to everyone.
-  - MACI QV contracts [link](https://github.com/nijoe1/QUADB/tree/main/MACIQV)
-- Worldcoin 🕸️
-  - Verify proof of humanity to let people vote on the zk QV round to fund the datasets that matter
+- FILECOIN Naming Service (FNS) 🔮
+  - Creating a graph of unified categories using FNSsubnames [code](https://github.com/nijoe1/QUADB/blob/main/contracts/contracts/libraries/FNS.sol)
+- Lit protocol 🔥
+  - Encryption of the files and the IPNS keys
 - Tableland Protocol 🕸️
   - Tableland Queries [code](https://github.com/nijoe1/QUADB/blob/main/app/utils/tableland.js)
 
@@ -54,7 +53,7 @@ We would like to thank the following individuals and organizations for their con
 
 - [Tableland Integration Contract](https://github.com/nijoe1/QUADB/blob/main/contracts/contracts/libraries/Tableland.sol)
 
-- [ENSIntegration Contract](https://github.com/nijoe1/QUADB/blob/main/contracts/contracts/libraries/ENS.sol)
+- [FNSIntegration Contract](https://github.com/nijoe1/QUADB/blob/main/contracts/contracts/libraries/FNS.sol)
 
 **Authors:**
 
