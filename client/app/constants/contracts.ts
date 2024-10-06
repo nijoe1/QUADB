@@ -1,15 +1,15 @@
-const QUADB = "0x119833Cd7bADE357132ec63A507e57114c1A3dE4";
+const QUADB = "0x120948a3df0eae291ac71c5d7297c3c710075c0f";
 
 export const ADDRESS = QUADB;
 export const CONTRACT_ADDRESSES = ADDRESS;
 
 export const CONTRACT_ADDRESS = {
-  "11155111": ADDRESS,
+  "314": ADDRESS,
   "314159": ADDRESS,
 };
 
 export const CONTRACT_ADDRESS_BY_NETWORK = {
-  "11155111": ADDRESS,
+  "314": ADDRESS,
   "314159": ADDRESS,
 };
 
@@ -87,17 +87,23 @@ export const CONTRACT_ABI = [
     type: "error",
   },
   {
-    inputs: [],
-    name: "QUADB_NODE",
-    outputs: [
+    anonymous: false,
+    inputs: [
       {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
+        indexed: true,
+        internalType: "address",
+        name: "previousOwner",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    name: "OwnershipTransferred",
+    type: "event",
   },
   {
     inputs: [],
@@ -117,9 +123,22 @@ export const CONTRACT_ABI = [
     name: "PUBLIC_RESOLVER",
     outputs: [
       {
-        internalType: "contract IENSResolver",
+        internalType: "contract IFNSResolver",
         name: "",
         type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "QUADB_NODE",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
       },
     ],
     stateMutability: "view",
@@ -130,7 +149,7 @@ export const CONTRACT_ABI = [
     name: "REGISTRAR",
     outputs: [
       {
-        internalType: "contract IENSRegistrar",
+        internalType: "contract IFNSRegistrar",
         name: "",
         type: "address",
       },
@@ -143,7 +162,7 @@ export const CONTRACT_ABI = [
     name: "REGISTRY",
     outputs: [
       {
-        internalType: "contract IENS",
+        internalType: "contract IFNS",
         name: "",
         type: "address",
       },
@@ -492,7 +511,7 @@ export const CONTRACT_ABI = [
         type: "address[]",
       },
     ],
-    name: "insertNewMerbers",
+    name: "insertNewMembers",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -609,6 +628,19 @@ export const CONTRACT_ABI = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "owner",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "bytes32",
@@ -635,6 +667,13 @@ export const CONTRACT_ABI = [
       },
     ],
     name: "removeMembers",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "renounceOwnership",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -675,6 +714,32 @@ export const CONTRACT_ABI = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
+    ],
+    name: "transferDomainOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
+    ],
+    name: "transferOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {

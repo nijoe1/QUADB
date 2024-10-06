@@ -22,7 +22,7 @@ abstract contract FNS is IERC721Receiver, Ownable {
     IFNSResolver public immutable PUBLIC_RESOLVER;
 
     bytes32 public QUADB_NODE;
-    bytes32 private BASE_NODE;
+    bytes32 private immutable BASE_NODE;
     uint256 public DOMAIN_ID;
 
     error NoInstanceAccess();
@@ -83,25 +83,16 @@ abstract contract FNS is IERC721Receiver, Ownable {
 
     function setQUADBNode(
         uint256 tokenId,
-        bytes32 baseNode,
         bytes32 node
     ) external onlyOwner {
         DOMAIN_ID = tokenId;
-        BASE_NODE = baseNode;
         QUADB_NODE = node;
-    }
-
-    function safeTransferDomainOwnership(
-        address newOwner
-    ) external onlyOwner{
-        REGISTRAR.safeTransferFrom(address(this), newOwner, DOMAIN_ID);
-        QUADB_NODE = bytes32(0);
     }
 
     function transferDomainOwnership(
         address newOwner
-    ) external onlyOwner {
-        REGISTRAR.transferFrom(address(this), newOwner, DOMAIN_ID);
+    ) external onlyOwner{
+        REGISTRAR.safeTransferFrom(address(this), newOwner, DOMAIN_ID);
         QUADB_NODE = bytes32(0);
     }
 

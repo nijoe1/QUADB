@@ -1,6 +1,8 @@
 import axios from "axios";
 import { tables } from "@/app/constants/TablelandTables";
-const TablelandGateway =
+const TablelandGateway = "https://tableland.network/api/v1/query?statement=";
+
+const TestnetTablelandGateway =
   "https://testnets.tableland.network/api/v1/query?statement=";
 
 export const getSpaces = async () => {
@@ -254,7 +256,7 @@ async function buildChildren(parentID, parentHierarchy, sampleSpacesData) {
       );
       const nodeType = childChildren.length ? "branch" : "leaf"; // Determine node type
       const childObject = {
-        name: childHierarchy + ".quadb.eth",
+        name: childHierarchy + ".quadb.fil",
         id: node.DBSpaceID,
         attributes: { nodeType: nodeType },
         children: childChildren,
@@ -269,7 +271,7 @@ export const constructObject = async () => {
   const sampleSpacesData = await getSpaces();
 
   const rootObject = {
-    name: "quadb.eth",
+    name: "quadb.fil",
     id: "0x1347af471e551e181d2bd1085b73bc585a504cc56c485cf21ab9fcae63880fbf",
     attributes: { nodeType: "root" },
     children: await buildChildren(
@@ -314,7 +316,7 @@ const buildHierarchy = (spaces, spaceID) => {
 };
 
 const transformCategory = (category) => {
-  return category.split(" > ").reverse().join(".") + ".QUADB.eth";
+  return category.split(" > ").reverse().join(".") + ".QUADB.fil";
 };
 
 // Function to fetch and categorize instances

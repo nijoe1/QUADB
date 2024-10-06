@@ -35,7 +35,7 @@ export function Benefits(): JSX.Element {
           Navigate through Databases easily
         </h2>
         <p className="text-base text-gray-700 md:text-lg">
-          Create hierarchical namespaces under the root QUADB.eth, facilitating
+          Create hierarchical namespaces under the root QUADB.fil, facilitating
           organization and categorization of datasets and codebases.
         </p>
       </div>

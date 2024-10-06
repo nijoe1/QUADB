@@ -44,8 +44,8 @@ export class Lit {
     this.litNodeClient.disconnect();
     this.instanceID = instanceID;
     this.contractAddress =
-      chain === "sepolia"
-        ? Contracts[11155111]
+      chain === "filecoin"
+        ? Contracts[314]
         : chain === "filecoin"
           ? Contracts[314159]
           : "";

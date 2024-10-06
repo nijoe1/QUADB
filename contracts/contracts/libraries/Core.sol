@@ -10,7 +10,7 @@ import {Tableland} from "./Tableland.sol";
 /**
  * @title Core
  * @dev Interface for the Ens system to support a decentralized Namespace of Database spaces
- * IPNS and Push protocol for code and space discussions
+ * IPNS for dynamic code and space updates
  * Tableland SQL in solidity for the databases and subspaces
  */
 

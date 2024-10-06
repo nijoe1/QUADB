@@ -20,7 +20,7 @@ const buildChildren = async (
       );
       const nodeType = (childChildren.length ? "branch" : "leaf") as any;
       const childObject = {
-        name: childHierarchy + ".quadb.eth",
+        name: childHierarchy + ".quadb.fil",
         id: node.DBSpaceID,
         attributes: { nodeType: nodeType },
         children: childChildren,
@@ -38,11 +38,11 @@ export const useFetchRootObject = () => {
       const sampleSpacesData = await getSpaces();
 
       const rootObject = {
-        name: "quadb.eth",
-        id: "0x1347af471e551e181d2bd1085b73bc585a504cc56c485cf21ab9fcae63880fbf",
+        name: "quadb.fil",
+        id: "0x3991c990740f74d9d194f79fecfb031206f5f8c77698f634d04f484f2904016e",
         attributes: { nodeType: "root" },
         children: await buildChildren(
-          "0x1347af471e551e181d2bd1085b73bc585a504cc56c485cf21ab9fcae63880fbf",
+          "0x3991c990740f74d9d194f79fecfb031206f5f8c77698f634d04f484f2904016e",
           "",
           sampleSpacesData
         ),

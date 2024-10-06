@@ -6,7 +6,7 @@ import Footer from "@/app/components/Menu/Footer";
 import "@rainbow-me/rainbowkit/styles.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider, http } from "wagmi";
-import { sepolia, filecoinCalibration } from "wagmi/chains";
+import { filecoin, filecoinCalibration } from "wagmi/chains";
 import {
   darkTheme,
   RainbowKitProvider,
@@ -14,7 +14,14 @@ import {
 } from "@rainbow-me/rainbowkit";
 import { Inter } from "next/font/google";
 
-const filecoin = {
+const _filecoin = {
+  ...filecoin,
+
+  iconUrl:
+    "https://gateway.lighthouse.storage/ipfs/QmXQMtADMsCqsYEvyuEA3PkFq2xtWAQetQFtkybjEXvk3Z",
+};
+
+const _filecoinCalibration = {
   ...filecoinCalibration,
 
   iconUrl:
@@ -24,10 +31,10 @@ const filecoin = {
 const config = getDefaultConfig({
   appName: "RainbowKit demo",
   projectId: "ad9d4173328447d73a95b113fec565eb",
-  chains: [filecoin, sepolia],
+  chains: [_filecoin, _filecoinCalibration],
   transports: {
-    [filecoinCalibration.id]: http(),
-    [sepolia.id]: http(),
+    [_filecoin.id]: http(),
+    [_filecoinCalibration.id]: http(),
   },
 });
 

@@ -2,10 +2,7 @@ require("hardhat-deploy");
 require("hardhat-deploy-ethers");
 require("@nomiclabs/hardhat-etherscan");
 
-
 const { ethers } = require("hardhat");
-const { Console } = require("console");
-const { get } = require("http");
 
 const private_key = network.config.accounts[0];
 const wallet = new ethers.Wallet(private_key, ethers.provider);
@@ -14,10 +11,13 @@ module.exports = async ({ deployments }) => {
   const { deploy } = deployments;
   console.log("Wallet+ Ethereum Address:", wallet.address);
 
-  const NAME_WRAPPER = "0x0635513f179D50A207757E05759CbD106d7dFcE8";
-  const PUBLIC_RESOLVER = "0x8FADE66B79cC9f707aB26799354482EB93a5B7dD";
+  const REGISTRY = "0x916915d0d41EaA8AAEd70b2A5Fb006FFc213961b";
+  const REGISTRAR = "0x45d9d6408d5159a379924cf423cb7e15C00fA81f";
+  const PUBLIC_RESOLVER = "0xed9bd04b1BB87Abe2EfF583A977514940c95699c";
+  const BASE_NODE =
+    "0x78f6b1389af563cc5c91f234ea46b055e49658d8b999eeb9e0baef7dbbc93fdb";
 
-  const IMPLEMENTATION = await deploy("GatedInstance", {
+  const GATED_IMPLEMENTATION = await deploy("GatedInstance", {
     from: wallet.address,
     args: [],
     log: true,
@@ -31,9 +31,11 @@ module.exports = async ({ deployments }) => {
   const _QUADB = await deploy("QUADB", {
     from: wallet.address,
     args: [
-      NAME_WRAPPER,
+      REGISTRY,
+      REGISTRAR,
       PUBLIC_RESOLVER,
-      IMPLEMENTATION.address,
+      BASE_NODE,
+      GATED_IMPLEMENTATION.address,
       SUBSCRIPTION_IMPLEMENTATION.address,
     ],
     log: true,
@@ -52,16 +54,33 @@ module.exports = async ({ deployments }) => {
   tx = await QUADB.tables(3);
   console.log(tx);
 
-  // const QUADB = QUADB_INSTANCE.attach(
-  //   "0xd115d13d491885909a0E21CA90B9406790F1502e"
-  // );
+  tx = await QUADB.tables(4);
+  console.log(tx);
 
-  // let tx = await QUADB.tables(0)
-  // console.log(tx);
+  tx = await QUADB.DOMAIN_ID();
+  console.log(tx);
 
-  // tx = await QUADB.createDBSpace("nick5", { gasLimit: 40000000 });
+  tx = await QUADB.QUADB_NODE();
+  console.log(tx);
 
-  // await tx.wait();
+  const tokenId =
+    "26039416339109659085808192207636894780389231748327146290141181226018817704302";
+  const node =
+    "0x3991c990740f74d9d194f79fecfb031206f5f8c77698f634d04f484f2904016e";
+
+  tx = await QUADB.setQUADBNode(tokenId, BASE_NODE, node, {
+    gasLimit: 40000000,
+  });
+
+  await tx.wait();
+
+  tx = await QUADB.DOMAIN_ID();
+  console.log(tx);
+
+  tx = await QUADB.QUADB_NODE();
+  console.log(tx);
+
+  console.log(ethers.utils.namehash("fevmquadb.fil"));
 
   // console.log(tx);
 
@@ -121,5 +140,5 @@ module.exports = async ({ deployments }) => {
   //   ],
   // });
   // const transferDomain = await QUADB.transferDomain(wallet.address);
-// await transferDomain.wait();};
-}
+  // await transferDomain.wait();};
+};
