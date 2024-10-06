@@ -24,7 +24,7 @@ import Loading from "@/app/components/Animation/Loading";
 import { useAccount } from "wagmi";
 import { isAddress } from "viem";
 
-const UserInstances = () => {
+export const UserInstances = () => {
   const { address } = useAccount();
   const router = useRouter();
   const userAddress = undefined;
@@ -201,5 +201,3 @@ const UserInstances = () => {
     </div>
   );
 };
-
-export default UserInstances;
