@@ -16,7 +16,7 @@
 
 ### Key Features
 
-- **Structured Namespace:** Users can create hierarchical namespaces under the root quadb.eth, facilitating organization and categorization of datasets and codebases.
+- **Structured Namespace:** Users can create hierarchical namespaces under the root quadb.fil, facilitating organization and categorization of datasets and codebases.
 
 - **Access Control:** Datasets can be designated as PUBLIC, GROUPED-PUBLIC, PAID-GROUPED, or PAID-PRIVATE, allowing fine-grained control over data access and curation.
 

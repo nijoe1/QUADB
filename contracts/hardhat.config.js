@@ -18,8 +18,7 @@ module.exports = {
       viaIR: true,
     },
   },
-  defaultNetwork: "sepolia",
-  // defaultNetwork: "calibration",
+  defaultNetwork: "filecoin",
 
   networks: {
     sepolia: {
@@ -31,6 +30,11 @@ module.exports = {
       url: "https://rpc.ankr.com/filecoin_testnet",
 
       // url: "https://filecoin-calibration.chainup.net/rpc/v1	",
+      accounts: [PRIVATE_KEY],
+    },
+    filecoin: {
+      chainId: 314,
+      url: "https://rpc.ankr.com/filecoin",
       accounts: [PRIVATE_KEY],
     },
     "local-tableland": {

@@ -9,19 +9,23 @@ import {Core} from "./libraries/Core.sol";
  * Where space and subSpaces can get created and anyone can
  * create instances inside a space and contribute to the public
  * this is possible by integrating tableland SQL in solidity
- * ENSsystem to support a decentralized Namespace of Database spaces
+ * FNS system to support a decentralized Namespace of Database spaces
  * IPNS and Push protocol for code and space discussions
  */
 contract QUADB is Core {
     constructor(
-        address _nameWrapper,
+        address _registry,
+        address _registrar,
         address _publicResolver,
+        bytes32 _baseNode,
         address _gateImplementation,
         address _subscriptionImplementation
     )
         Core(
-            _nameWrapper,
+            _registry,
+            _registrar,
             _publicResolver,
+            _baseNode,
             _gateImplementation,
             _subscriptionImplementation
         )
@@ -32,11 +36,11 @@ contract QUADB is Core {
      * @param _name The name of the new space
      */
     function createDBSpace(string calldata _name) public {
-        bytes32 _newDBSpace = createSubNode(BASE_NODE, _name);
+        bytes32 _newDBSpace = createSubNode(QUADB_NODE, _name);
 
         isType[_newDBSpace] = Types.SUBNODE;
 
-        spaceInsertion(_newDBSpace, BASE_NODE, _name);
+        spaceInsertion(_newDBSpace, QUADB_NODE, _name);
     }
 
     /**

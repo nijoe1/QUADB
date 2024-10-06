@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-interface IENSResolver {
+interface IFNSResolver {
     /**
      * Sets the text data associated with an ENS node and key.
      * May only be called by the owner of that node in the ENS registry.
@@ -35,7 +35,7 @@ interface IENSResolver {
     ) external view returns (string memory);
 }
 
-interface IENS {
+interface IFNS {
     function setSubnodeRecord(
         bytes32 node,
         bytes32 label,
@@ -45,7 +45,7 @@ interface IENS {
     ) external;
 }
 
-interface IENSRegistrar {
+interface IFNSRegistrar {
     function reclaim(uint256 id, address _owner) external;
 
     function transferFrom(address from, address to, uint256 tokenId) external;
