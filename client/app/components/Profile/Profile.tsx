@@ -17,7 +17,7 @@ const Profile = ({ onProfile }: { onProfile: any }) => {
   const handleCloseModal = () => {
     setIsOpen(false);
   };
-  const [profileInfo, setProfileInfo] = useState(null);
+  const [profileInfo, setProfileInfo] = useState<any>(null);
 
   useEffect(() => {
     async function getProfile() {}
@@ -39,14 +39,9 @@ const Profile = ({ onProfile }: { onProfile: any }) => {
         boxShadow="md"
       >
         <Box p="4" mb="4" className="flex flex-col items-center">
-          <img
-            src="./images/allo.jpg"
-            alt="Profile Image"
-            boxSize={["120px", "150px"]}
-            mb="4"
-          />
+          <img src="./images/allo.jpg" alt="Profile Image" />
           <div className="flex flex-wrap items-center">
-            <Text  fontWeight="bold" color="white">
+            <Text fontWeight="bold" color="white">
               {profileInfo?.name || "User Name"}
             </Text>
             {onProfile && (
