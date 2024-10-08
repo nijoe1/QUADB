@@ -1,13 +1,13 @@
 "use client";
 import React, { useState } from "react";
-import { Container } from "@/app/components/UI/container";
-import Logo from "@/app/components/Menu/NavbarLogo";
-import NavLinks, { NavLinksResponsive } from "@/app/components/Menu/NavLinks";
+import { Container } from "@/app/components/ui/container";
+import Logo from "@/app/components/menu/NavbarLogo";
+import NavLinks, { NavLinksResponsive } from "@/app/components/menu/NavLinks";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 export default function Navbar(): JSX.Element {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
-
+  
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };

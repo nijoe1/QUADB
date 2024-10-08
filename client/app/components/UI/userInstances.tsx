@@ -15,12 +15,12 @@ import {
   MenuItem,
 } from "@chakra-ui/react";
 import { FaEllipsisV } from "react-icons/fa";
-import { Container } from "@/app/components/UI/container";
+import { Container } from "@/app/components/ui/container";
 import { useRouter } from "next/navigation";
-import { getIpfsGatewayUri } from "@/app/lib/IPFS";
+import { getIpfsGatewayUri } from "@/app/lib/ipfs";
 import { getUserInstances } from "@/app/lib/tableland";
 import axios from "axios";
-import Loading from "@/app/components/Animation/Loading";
+import Loading from "@/app/components/animation/loading";
 import { useAccount } from "wagmi";
 import { isAddress } from "viem";
 

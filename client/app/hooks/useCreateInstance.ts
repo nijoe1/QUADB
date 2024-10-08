@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useToast } from "@chakra-ui/react";
 import { useMutation } from "@tanstack/react-query";
-import { createIPNSName, storachaUpload } from "@/app/lib/IPFS"; // Assume this exists
+import { createIPNSName, storachaUpload } from "@/app/lib/ipfs"; // Assume this exists
 import { CONTRACT_ABI, CONTRACT_ADDRESSES } from "@/app/constants/contracts"; // Assume this exists
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { Address, TransactionReceipt } from "viem";

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getUserCodes } from "@/app/lib/tableland";
-import { getIpfsGatewayUri, resolveIPNS } from "@/app/lib/IPFS";
+import { getIpfsGatewayUri, resolveIPNS } from "@/app/lib/ipfs";
 import makeBlockie from "ethereum-blockies-base64";
 import { isAddress } from "viem";
 import { useAccount } from "wagmi";

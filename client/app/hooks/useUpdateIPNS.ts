@@ -3,7 +3,7 @@ import {
   renewIPNSName,
   storachaUpload,
   UploadFileEncrypted,
-} from "@/app/lib/IPFS";
+} from "@/app/lib/ipfs";
 import { useToast } from "@chakra-ui/react";
 
 export const useUpdateIPNS = (

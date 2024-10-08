@@ -6,6 +6,8 @@ node_modules
 
 ./node_modules
 
+.eslintignore
+
 /.pnp
 .pnp.js
 .yarn/install-state.gz

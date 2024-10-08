@@ -1,11 +1,11 @@
 "use client";
 import React, { useState } from "react";
 import { Box, Flex, Select, useDisclosure } from "@chakra-ui/react";
-import { Container } from "@/app/components/UI/container";
+import { Container } from "@/app/components/ui/container";
 import Tree from "react-d3-tree";
 import { useRouter } from "next/navigation";
-import CreateSubSpaceModal from "@/app/components/Contracts/createSubSpace";
-import Loading from "@/app/components/Animation/Loading";
+import CreateSubSpaceModal from "@/app/components/contracts/createSubSpace";
+import Loading from "@/app/components/animation/loading";
 import useFetchTreeData from "@/app/hooks/useFetchTreeData"; // Importing the custom hook
 import { useWindowDimensions } from "@/app/hooks/useWindowDimensions"; // Importing the window dimensions hook
 import { useFetchRootObject } from "@/app/hooks/useFetchRootObject"; // Importing the root object hook

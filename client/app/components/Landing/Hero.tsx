@@ -1,7 +1,7 @@
 "use client";
-import { Button } from "@/app/components/UI/Button";
+import { Button } from "@/app/components/ui/Button";
 import { ArrowRightIcon } from "@chakra-ui/icons";
-import HeroAnimation from "@/app/components/Animation/HeroAnimation";
+import HeroAnimation from "@/app/components/animation/HeroAnimation";
 import Link from "next/link";
 
 export function Hero(): JSX.Element {

@@ -15,15 +15,15 @@ import {
   MenuList,
   MenuItem,
 } from "@chakra-ui/react";
-import { Container } from "@/app/components/UI/container";
-import CodeViewer from "./CodeViewer"; // Import CodeViewer component
-import CreateNewInstanceCode from "@/app/components/Contracts/createInstanceCode";
+import { Container } from "@/app/components/ui/container";
+import CodeViewer from "@/app/components/ui/CodeViewer"; // Import CodeViewer component
+import CreateNewInstanceCode from "@/app/components/contracts/createInstanceCode";
 import { FaEllipsisV } from "react-icons/fa";
 import { getInstanceCodes } from "@/app/lib/tableland";
-import Loading from "@/app/components/Animation/Loading";
-import { getIpfsGatewayUri, resolveIPNS } from "@/app/lib/IPFS";
+import Loading from "@/app/components/animation/loading";
+import { getIpfsGatewayUri, resolveIPNS } from "@/app/lib/ipfs";
 import { FaArrowLeft } from "react-icons/fa";
-import UpdateIPNS from "@/app/components/UI/UpdateIPNS";
+import UpdateIPNS from "@/app/components/ui/UpdateIPNS";
 import makeBlockie from "ethereum-blockies-base64";
 import router from "next/router";
 

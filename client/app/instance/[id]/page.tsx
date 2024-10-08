@@ -10,17 +10,24 @@ import {
   Button,
   useDisclosure,
 } from "@chakra-ui/react";
-import DatasetViewer from "@/app/components/UI/DatasetViewer";
-import InstanceCodes from "@/app/components/UI/InstanceCodes";
+import DatasetViewer from "@/app/components/ui/datasetViewer";
+import InstanceCodes from "@/app/components/ui/instanceCodes";
 import { useAccount } from "wagmi";
 import { useRouter } from "next/navigation";
-import { Container } from "@/app/components/UI/container";
+import { Container } from "@/app/components/ui/container";
 import CardItem from "@/app/components/Profile/CardItem";
-import Loading from "@/app/components/Animation/Loading";
+import Loading from "@/app/components/animation/loading";
 import useInstanceData from "@/app/hooks/useInstanceData";
+import { useChainName } from "@/app/hooks/useChainName";
+import Subscribe from "@/app/components/contracts/subscribe";
 
-const InstanceDetailsPage = ({ params: { id } }) => {
+const InstanceDetailsPage = ({
+  params: { id },
+}: {
+  params: { id: string };
+}) => {
   const router = useRouter();
+  const chainName = useChainName();
   const instanceID = id;
   const { address } = useAccount();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -40,7 +47,10 @@ const InstanceDetailsPage = ({ params: { id } }) => {
     return <div>Error loading instance data</div>;
   }
 
-  const { instance, instanceMembers } = data;
+  const hasAccess =
+    data?.instance?.creator?.toLowerCase() === address?.toLowerCase();
+
+  const { instance, instanceMembers } = data || {};
 
   return (
     <Container>
@@ -65,12 +75,11 @@ const InstanceDetailsPage = ({ params: { id } }) => {
                 }}
                 creator={instance?.creator}
               />
-              {!(
-                hasAccess ||
-                instanceMembers.find(
-                  (member) => member?.toLowerCase() === address?.toLowerCase()
-                )
-              ) && (
+              {!((hasAccess ||
+                instanceMembers?.find(
+                  (member: any) =>
+                    member?.toLowerCase() === address?.toLowerCase()
+                )) as boolean) && (
                 <div>
                   <Button
                     className="border-white border p-3 rounded-md "
@@ -126,12 +135,12 @@ const InstanceDetailsPage = ({ params: { id } }) => {
                         isEncrypted={instance?.price > 0}
                         spaceID={instanceID}
                         hasAccess={
-                          instance?.creator?.toLowerCase() ==
+                          (instance?.creator?.toLowerCase() ==
                             address?.toLowerCase() ||
-                          instanceMembers.find(
-                            (member) =>
-                              member?.toLowerCase() === address?.toLowerCase()
-                          )
+                            instanceMembers?.find(
+                              (member: any) =>
+                                member?.toLowerCase() === address?.toLowerCase()
+                            )) as boolean
                         }
                       />
                     </TabPanel>
@@ -139,12 +148,12 @@ const InstanceDetailsPage = ({ params: { id } }) => {
                     <TabPanel>
                       <InstanceCodes
                         hasAccess={
-                          instance?.creator?.toLowerCase() ==
+                          (instance?.creator?.toLowerCase() ==
                             address?.toLowerCase() ||
-                          instanceMembers.find(
-                            (member) =>
-                              member?.toLowerCase() === address?.toLowerCase()
-                          )
+                            instanceMembers?.find(
+                              (member: any) =>
+                                member?.toLowerCase() === address?.toLowerCase()
+                            )) as boolean
                         }
                         spaceID={instance?.spaceID}
                       />

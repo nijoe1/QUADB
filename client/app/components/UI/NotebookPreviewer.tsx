@@ -10,7 +10,7 @@ const IpynbRenderer = dynamic(
 );
 import "react-ipynb-renderer/dist/styles/monokai.css";
 
-function NotebookPreviewer({ code }: { code: any }) {
+export const NotebookPreviewer = ({ code }: { code: any }) => {
   const [notebookData, setNotebookData] = useState(null);
 
   useEffect(() => {
@@ -37,6 +37,6 @@ function NotebookPreviewer({ code }: { code: any }) {
       )}
     </div>
   );
-}
+};
 
 export default NotebookPreviewer;

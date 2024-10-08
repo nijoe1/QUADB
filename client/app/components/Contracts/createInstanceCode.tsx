@@ -20,7 +20,7 @@ import {
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { CONTRACT_ABI, CONTRACT_ADDRESSES } from "@/app/constants/contracts";
 import { useRouter } from "next/navigation";
-import { createIPNSName } from "@/app/lib/IPFS";
+import { createIPNSName } from "@/app/lib/ipfs";
 import { FaFileUpload } from "react-icons/fa";
 
 const CreateNewInstanceCode = ({

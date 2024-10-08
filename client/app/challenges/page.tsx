@@ -1,6 +1,6 @@
 "use client";
 
-import { Container } from "../components/UI/container";
+import { Container } from "../components/ui/container";
 
 export default function challenges() {
   return (

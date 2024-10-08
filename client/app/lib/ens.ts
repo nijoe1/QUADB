@@ -1,10 +1,10 @@
 import { ethers } from "ethers";
 
 // Function to generate token node
-export const getTokenNode = (_parentNode, characterName) => {
+export const getTokenNode = (_parentNode:string, subNode:string) => {
   const abi = new ethers.utils.AbiCoder();
   const parentNode = ethers.utils.namehash(_parentNode);
-  let subNodeBytes = stringToBytes(characterName);
+  let subNodeBytes = stringToBytes(subNode);
   const LabelHash = ethers.utils.keccak256(subNodeBytes);
 
   let newSubNodeBytes = abi.encode(
@@ -16,7 +16,7 @@ export const getTokenNode = (_parentNode, characterName) => {
 };
 
 // Function to convert string to bytes
-export const stringToBytes = (str) => {
+export const stringToBytes = (str:string) => {
   let bytes = Buffer.from(str);
   return (
     "0x" +
@@ -24,7 +24,7 @@ export const stringToBytes = (str) => {
   );
 };
 
-export const getInstanceID = (instanceID, IPNS) => {
+export const getInstanceID = (instanceID:string, IPNS:string) => {
   const abi = new ethers.utils.AbiCoder();
   console.log(ethers.utils.namehash("fil"));
 

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { getInstance, getInstanceMembers } from "@/app/lib/tableland";
-import { getIpfsGatewayUri, resolveIPNS } from "@/app/lib/IPFS";
+import { getIpfsGatewayUri, resolveIPNS } from "@/app/lib/ipfs";
 
 const fetchInstanceData = async (instanceID: string) => {
   const data = await getInstance(instanceID);

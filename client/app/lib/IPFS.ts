@@ -1,10 +1,11 @@
 import * as Name from "w3name";
 import { fromString as uint8ArrayFromString } from "uint8arrays/from-string";
 import { toString as uint8ArrayToString } from "uint8arrays/to-string";
-import { getInstanceID } from "./ENS";
+import { getInstanceID } from "@/app/lib/ens";
 import { Lit } from "@/app/lib/lit";
 import { config } from "dotenv";
 import { EncryptToJsonPayload } from "@lit-protocol/types";
+import { Bytes, ethers } from "ethers";
 config();
 
 function toFormData(data: string | File | Blob) {
@@ -123,6 +124,120 @@ export const createIPNSName = async ({
 };
 
 export const renewIPNSName = async ({
+  cid,
+  IPNS,
+  EncryptedKeyCID,
+  chain,
+}: {
+  cid: string;
+  IPNS: string;
+  EncryptedKeyCID: string;
+  chain: string;
+}) => {
+  const name = Name.parse(IPNS);
+
+  const lit = new Lit(chain);
+
+  const data = (await fetchIPFS(EncryptedKeyCID)) as EncryptToJsonPayload;
+
+  const jsonBlob = await lit.decrypt(data, undefined);
+
+  if (!jsonBlob) {
+    throw new Error("Failed to decrypt");
+  }
+
+  // Create a File object from the Blob
+  const jsonFile = new File([jsonBlob.decryptedString], `type.json`, {
+    type: "application/json",
+  });
+
+  const key = JSON.parse(await jsonFile.text()).key;
+  console.log("KEY", key);
+
+  const revision = await Name.resolve(name);
+  console.log("Resolved value:", revision.value);
+
+  let nextRevision = await Name.increment(revision, cid);
+
+  const IPNSKey = uint8ArrayFromString(key, "base64");
+
+  const nameKey = await Name.from(IPNSKey);
+
+  await Name.publish(nextRevision, nameKey.key);
+};
+
+interface DataStructure {
+  Updates: (newUpdate | oldUpdate)[];
+}
+
+interface newUpdate {
+  data: string | File | Blob | EncryptToJsonPayload | JSON;
+  signatures: string[];
+  Timestamp: string;
+}
+
+interface oldUpdate {
+  oldCID: string;
+}
+
+export const updateStructure = async ({
+  oldCID,
+  newData,
+  signatures,
+  curators,
+  quorum,
+}: {
+  oldCID: string;
+  newData: string;
+  signatures: string[];
+  curators: string[];
+  quorum: number;
+}) => {
+  const passesValidation = await validateSignatures({
+    data: newData,
+    signatures,
+    curators,
+    quorum,
+  });
+  if (!passesValidation) {
+    throw new Error("Invalid signatures");
+  }
+  const update: DataStructure = {
+    Updates: [
+      {
+        oldCID,
+      },
+      {
+        data: newData,
+        signatures,
+        Timestamp: new Date().toISOString(),
+      },
+    ],
+  };
+  const updateFile = new File([JSON.stringify(update)], "update.json");
+  const updateCID = await storachaUpload(updateFile);
+  return updateCID;
+};
+
+export const validateSignatures = async ({
+  data,
+  signatures,
+  curators,
+  quorum,
+}: {
+  data: Bytes | string;
+  signatures: string[];
+  curators: string[];
+  quorum: number;
+}) => {
+  const validSignatures = signatures.filter((signature) => {
+    const signer = ethers.utils.verifyMessage(data, signature);
+    return curators.includes(signer);
+  });
+  return validSignatures.length >= quorum;
+};
+
+export const validateRenewIPNSName = async ({
   cid,
   IPNS,
   EncryptedKeyCID,

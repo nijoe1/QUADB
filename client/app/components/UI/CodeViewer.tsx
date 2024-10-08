@@ -11,7 +11,7 @@ import {
   Image,
   Badge,
 } from "@chakra-ui/react";
-import NotebookPreviewer from "./NotebookPreviewer";
+import { NotebookPreviewer } from "./NotebookPreviewer";
 import { useRouter } from "next/router";
 import { Button } from "./Button";
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getSpaceInstances } from "@/app/lib/tableland";
-import { getIpfsGatewayUri } from "@/app/lib/IPFS";
+import { getIpfsGatewayUri } from "@/app/lib/ipfs";
 import axios from "axios";
 
 const useFetchSpaceInstances = (spaceID: string) => {
