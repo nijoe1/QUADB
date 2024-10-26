@@ -1,21 +1,22 @@
-// hooks/useCreateInstance.ts
-
 import { useState } from "react";
-import { useToast } from "@chakra-ui/react";
 import { useMutation } from "@tanstack/react-query";
-import { createIPNSName, storachaUpload } from "@/app/lib/ipfs"; // Assume this exists
-import { CONTRACT_ABI, CONTRACT_ADDRESSES } from "@/app/constants/contracts"; // Assume this exists
+import {
+  createIPNSName,
+  createIPNSNameWithCID,
+  storachaUpload,
+} from "@/app/lib/ipfs"; // Assume these functions exist
+import { CONTRACT_ABI, CONTRACT_ADDRESSES } from "@/app/constants/contracts"; // Assume these constants exist
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { Address, TransactionReceipt } from "viem";
+import { useToast } from "@/app/hooks/useToast";
+import { useUploadFile } from "@/app/hooks/lighthouse/useUpload";
 
-// Define types for form data
 export interface FormData {
   name: string;
   about: string;
-  image: File | null;
-  price: number;
-  members: `0x${string}`[];
-  file: File | null;
+  image: string;
+  members?: `0x${string}`[];
+  file: string;
 }
 
 interface UseCreateInstanceProps {
@@ -32,95 +33,96 @@ export const useCreateInstance = ({
   const { data: walletClient } = useWalletClient();
   const toast = useToast();
 
-  const [isUploading, setIsUploading] = useState<boolean>(false);
-  const [isProcessingTransaction, setIsProcessingTransaction] =
-    useState<boolean>(false);
+  const { mutateAsync: uploadFile } = useUploadFile();
 
-  // Upload metadata (name, about, image)
-  const uploadMetadata = async (formData: FormData, address: Address) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const uploadMetadata = async (formData: FormData) => {
     const metadata = {
       name: formData.name,
       about: formData.about,
-      imageUrl: formData.image ? URL.createObjectURL(formData.image) : null,
+      // Convert image to base64
+      imageUrl: formData.image,
     };
-    const jsonBlob = new Blob([JSON.stringify(metadata)], {
+    const metadataFile = new File([JSON.stringify(metadata)], "metadata.json", {
       type: "application/json",
     });
-    const jsonFile = new File([jsonBlob], `metadata.json`, {
-      type: "application/json",
-    });
-    const metadataCID = await storachaUpload(jsonFile);
-    return metadataCID;
+    return await uploadFile({ files: [metadataFile] });
   };
-
-  // Create IPNS for the dataset
-  const createIPNS = async (formData: FormData, spaceID: string) => {
-    const isEncrypted = formData.price > 0;
-    return await createIPNSName({
-      file: formData.file as File,
-      chain: "ethereum",
-      spaceID,
-      isEncrypted,
-    });
+  const base64ToBlob = (base64: string, type: string) => {
+    const byteCharacters = atob(base64.split(",")[1]);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    return new File([byteArray], "file", { type });
   };
-
-  // Define mutation with correct types
   const mutation = useMutation<TransactionReceipt, Error, FormData>({
-    mutationFn: async (formData: FormData) => {
-      if (!walletClient || !publicClient) throw new Error("Client not found");
+    mutationFn: async (formData) => {
+      if (!walletClient || !publicClient || !account) {
+        throw new Error("Wallet not connected");
+      }
 
-      setIsUploading(true);
-      const metadataCID = await uploadMetadata(formData, account as Address);
-      const res = await createIPNS(formData, spaceID);
+      setIsLoading(true);
+      try {
+        // Upload metadata and file
+        const metadataCID = await uploadMetadata(formData);
+        console.log("Metadata CID", metadataCID);
 
-      const data = await publicClient.simulateContract({
-        account,
-        address: CONTRACT_ADDRESSES,
-        abi: CONTRACT_ABI,
-        functionName: "createSpaceInstance",
-        args: [
+        const fileCID = await uploadFile({
+          files: [base64ToBlob(formData.file, "text/csv")],
+        });
+
+        const ipnsResult = await createIPNSNameWithCID({
+          cid: fileCID ?? "",
+          chain: "filecoin",
           spaceID,
-          BigInt(0),
-          formData.members,
-          metadataCID.Hash,
-          "chatID",
-          res.name,
-          res.cid,
-        ],
-      });
+        });
 
-      setIsProcessingTransaction(true);
+        console.log("IPNS Result", ipnsResult);
 
-      const hash = await walletClient.writeContract(data.request);
-      const transaction = await publicClient.waitForTransactionReceipt({
-        hash,
-      });
+        // Simulate contract call
+        const simulation = await publicClient.simulateContract({
+          account,
+          address: CONTRACT_ADDRESSES as Address,
+          abi: CONTRACT_ABI,
+          functionName: "createSpaceInstance",
+          args: [
+            spaceID,
+            BigInt(0),
+            formData.members || [],
+            metadataCID,
+            "chatID",
+            ipnsResult.name,
+            ipnsResult.cid,
+          ],
+        });
 
-      return transaction;
+        // Send transaction
+        const hash = await walletClient.writeContract(simulation.request);
+        return await publicClient.waitForTransactionReceipt({ hash });
+      } finally {
+        setIsLoading(false);
+      }
     },
-
     onSuccess: () => {
-      setIsProcessingTransaction(false);
       toast({
-        title: "Dataset created",
-        description: "Your dataset has been created successfully",
-        status: "success",
-        duration: 9000,
-        isClosable: true,
+        title: "Dataset Created",
+        message: "Your dataset has been created successfully.",
+        type: "success",
+        duration: 5000,
       });
       onClose();
     },
-    onError: (error: any) => {
-      setIsProcessingTransaction(false);
+    onError: (error) => {
       toast({
         title: "Error",
-        description: `Error occurred: ${error.message}`,
-        status: "error",
-        duration: 9000,
-        isClosable: true,
+        message: `An error occurred: ${error.message}`,
+        type: "error",
+        duration: 5000,
       });
     },
   });
 
-  return { mutation, isUploading, isProcessingTransaction };
+  return { mutation, isLoading };
 };

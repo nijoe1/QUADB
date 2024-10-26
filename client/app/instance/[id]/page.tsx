@@ -52,6 +52,8 @@ const InstanceDetailsPage = ({
 
   const { instance, instanceMembers } = data || {};
 
+  console.log(instance);
+
   return (
     <Container>
       <div>

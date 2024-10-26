@@ -6,29 +6,16 @@ import { Lit } from "@/app/lib/lit";
 import { config } from "dotenv";
 import { EncryptToJsonPayload } from "@lit-protocol/types";
 import { Bytes, ethers } from "ethers";
+import { uploadData } from "@/app/lib/upload";
 config();
 
-function toFormData(data: string | File | Blob) {
-  const formData = new FormData();
-
-  if (!(data instanceof File)) {
-    const blob = new Blob([JSON.stringify(data)], {
-      type: "application/json",
-    });
-    data = new File([blob], "metadata.json");
-  }
-
-  formData.append("file", data);
-  return formData;
-}
-
 export const storachaUpload = async (file: string | File | Blob) => {
-  const res = await fetch(`/api/ipfs`, {
-    method: "POST",
-    body: toFormData(file),
-  });
-  const cid = await res.json();
-  return cid.cid;
+  const res = await uploadData(file);
+  if (res.type === "success") {
+    return res.value;
+  } else {
+    throw new Error("Failed to upload to storacha");
+  }
 };
 
 export const resolveIPNSName = async (IPNS: string) => {
@@ -71,15 +58,16 @@ export const encryptIPNSKey = async ({
   spaceID: string;
 }) => {
   const lit = new Lit(chain, spaceID);
-  const encryptedPayload = JSON.stringify(
-    (
-      await lit.encryptWithViewAccess({
-        message: IPNSPK,
-      })
-    ).jsonPayload
-  );
+  console.log("IPNSPK: ", IPNSPK);
+  const payload = (
+    await lit.encryptWithMutateAccess({
+      message: IPNSPK,
+    })
+  ).jsonPayload;
+  console.log("payload: ", payload);
+  const encryptedPayload = JSON.stringify(payload);
 
-  const encryptedFile = new File([encryptedPayload], "encryptedFile");
+  const encryptedFile = new File([encryptedPayload], "encryptedFile.json");
   let cid = await storachaUpload(encryptedFile);
   return cid as string;
 };
@@ -105,16 +93,22 @@ export const createIPNSName = async ({
   const name = await Name.create();
   console.log("created new name: ", name.toString());
   const instanceID = getInstanceID(spaceID, name.toString());
+  console.log("instanceID: ", instanceID);
+  console.log("cid: ", cid);
+
   const revision = await Name.v0(name, cid);
+  console.log("revision: ", revision);
   await Name.publish(revision, name.key);
 
   const byteString = uint8ArrayToString(name.key.bytes, "base64");
-
+  console.log("byteString: ", byteString);
   const encryptedKeyCid = await encryptIPNSKey({
     IPNSPK: byteString,
     spaceID: instanceID,
     chain,
   });
+
+  console.log("encryptedKeyCid: ", encryptedKeyCid);
 
   return {
     instanceID: instanceID,
@@ -122,7 +116,42 @@ export const createIPNSName = async ({
     cid: encryptedKeyCid,
   };
 };
+export const createIPNSNameWithCID = async ({
+  cid,
+  spaceID,
+  chain,
+}: {
+  cid: string;
+  spaceID: string;
+  chain: string;
+}) => {
+  // https://www.npmjs.com/package/w3name
+  const name = await Name.create();
+  console.log("created new name: ", name.toString());
+  const instanceID = getInstanceID(spaceID, name.toString());
+  console.log("instanceID: ", instanceID);
+  console.log("cid: ", cid);
 
+  const revision = await Name.v0(name, cid);
+  console.log("revision: ", revision);
+  await Name.publish(revision, name.key);
+
+  const byteString = uint8ArrayToString(name.key.bytes, "base64");
+  console.log("byteString: ", byteString);
+  const encryptedKeyCid = await encryptIPNSKey({
+    IPNSPK: byteString,
+    spaceID: instanceID,
+    chain,
+  });
+
+  console.log("encryptedKeyCid: ", encryptedKeyCid);
+
+  return {
+    instanceID: instanceID,
+    name: name.toString(),
+    cid: encryptedKeyCid,
+  };
+};
 export const renewIPNSName = async ({
   cid,
   IPNS,
@@ -326,9 +355,9 @@ export const fetchAndParseCSV = async (cid: string, isEncrypted: boolean) => {
   }
 };
 
-export const getIpfsGatewayUri = (cid: string) => {
-  const LIGHTHOUSE_IPFS_GATEWAY = "https://w3s.link/ipfs/{cid}";
-  return LIGHTHOUSE_IPFS_GATEWAY.replace("{cid}", cid);
+export const getIpfsGatewayUri = (cid: string, path?: string) => {
+  const LIGHTHOUSE_IPFS_GATEWAY = "https://ipfs.io/ipfs/{cid}";
+  return LIGHTHOUSE_IPFS_GATEWAY.replace("{cid}", cid) + (path ? path : "");
 };
 
 export const getIpfsCID = (ipfsCIDLink: string) => {

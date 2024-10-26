@@ -63,6 +63,7 @@ export const getSpaceInstances = async (spaceID) => {
     const fullUrl = `${TablelandGateway}${encodeURIComponent(query)}`;
 
     const result = await axios.get(fullUrl);
+    console.log(result.data);
     return result.data;
   } catch (err) {
     console.error(err);

@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     const proof = await Proof.parse(process.env.PROOF!);
     const space = await client.addSpace(proof);
     await client.setCurrentSpace(space.did());
-    const directoryCid = await client.uploadDirectory([file]);
+    const directoryCid = await client.uploadFile(file);
     return NextResponse.json({ cid: directoryCid.toString() }, { status: 200 });
   } catch (e) {
     console.log(e);

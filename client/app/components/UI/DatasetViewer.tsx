@@ -70,19 +70,36 @@ const DatasetViewer = ({
   const fetchCsvData = async () => {
     try {
       const response = (await IPFS.fetchIPFS(cid)) as any;
+      console.log("Response:", response);
       if (!response.ok) {
         throw new Error("Failed to fetch CSV file");
       }
       if (!isEncrypted) {
-        const text = await response.text();
-        setCsvText(text);
-        const parsedData = customCsvParser(text);
-        if (parsedData) {
-          setCsvData(parsedData);
-          setFetched(true);
-        } else {
-          throw new Error("Failed to parse CSV file");
+        const base64CSV = await response.text();
+        const bytes = atob(base64CSV);
+        const byteArray = new Uint8Array(bytes.length);
+        for (let i = 0; i < bytes.length; i++) {
+          byteArray[i] = bytes.charCodeAt(i);
         }
+        const blob = new Blob([byteArray], { type: "text/csv" });
+        console.log("Blob:", blob);
+        const file = new File([blob], "data.csv", { type: "text/csv" });
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const text = event.target?.result as string;
+          console.log("Text:", text);
+          setCsvText(text);
+          const parsedData = customCsvParser(text);
+          if (parsedData) {
+            setCsvData(parsedData);
+            setFetched(true);
+          } else {
+            throw new Error("Failed to parse CSV file");
+          }
+        };
+
+        reader.readAsText(file);
       } else {
         let blobResponse;
         try {
@@ -117,7 +134,7 @@ const DatasetViewer = ({
     } catch (error) {
       toast({
         title: "Error",
-        description: error as any,
+        description: "error",
         status: "error",
         duration: 3000,
         isClosable: true,

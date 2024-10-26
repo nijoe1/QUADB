@@ -142,10 +142,7 @@ export class Lit {
   }) {
     await this.litNodeClient.disconnect();
     await this.litNodeClient.connect();
-    if (!message && !file) {
-      throw new Error("Either message or file must be provided");
-    }
-    if (File) {
+    if (file) {
       // Encrypt the message
       const encryptedString = await LitJsSdk.encryptToJson({
         evmContractConditions: this.viewAccessControlConditions(),
@@ -185,10 +182,7 @@ export class Lit {
   }) {
     await this.litNodeClient.disconnect();
     await this.litNodeClient.connect();
-    if (!message && !file) {
-      throw new Error("Either message or file must be provided");
-    }
-    if (File) {
+    if (file) {
       // Encrypt the message
       const encryptedString = await LitJsSdk.encryptToJson({
         evmContractConditions: this.mutateAccessControlConditions(),
