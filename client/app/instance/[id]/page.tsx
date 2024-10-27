@@ -10,16 +10,16 @@ import {
   Button,
   useDisclosure,
 } from "@chakra-ui/react";
-import DatasetViewer from "@/app/components/ui/datasetViewer";
-import InstanceCodes from "@/app/components/ui/instanceCodes";
+import DatasetViewer from "@/components/ui/datasetViewer";
+import InstanceCodes from "@/components/ui/instanceCodes";
 import { useAccount } from "wagmi";
 import { useRouter } from "next/navigation";
-import { Container } from "@/app/components/ui/container";
-import CardItem from "@/app/components/Profile/CardItem";
-import Loading from "@/app/components/animation/loading";
-import useInstanceData from "@/app/hooks/useInstanceData";
-import { useChainName } from "@/app/hooks/useChainName";
-import Subscribe from "@/app/components/contracts/subscribe";
+import { Container } from "@/components/ui/container";
+import CardItem from "@/components/Profile/CardItem";
+import Loading from "@/components/animation/loading";
+import useInstanceData from "@/hooks/useInstanceData";
+import { useChainName } from "@/hooks/useChainName";
+import Subscribe from "@/components/contracts/subscribe";
 
 const InstanceDetailsPage = ({
   params: { id },

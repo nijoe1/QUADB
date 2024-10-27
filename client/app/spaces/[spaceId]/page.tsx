@@ -17,11 +17,11 @@ import {
   MenuItem,
 } from "@chakra-ui/react";
 import { FaEllipsisV } from "react-icons/fa";
-import { Container } from "@/app/components/ui/container";
+import { Container } from "@/components/ui/container";
 import { useRouter } from "next/navigation";
-import { CreateNewInstance } from "@/app/components/contracts/createNewInstance";
-import Loading from "@/app/components/animation/loading";
-import useFetchSpaceInstances from "@/app/hooks/useFetchSpaceInstances"; // Importing the custom hook
+import { CreateNewInstance } from "@/components/contracts/createNewInstance";
+import Loading from "@/components/animation/loading";
+import useFetchSpaceInstances from "@/hooks/useFetchSpaceInstances"; // Importing the custom hook
 
 const SingleSpacePage = ({
   params: { spaceId },
