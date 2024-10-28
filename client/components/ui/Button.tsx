@@ -38,7 +38,7 @@ const button = tv({
 });
 
 const ButtonComponent = createComponent("button", button);
-
+// @ts-ignore
 export const IconButton = forwardRef(function IconButton(
   {
     children,

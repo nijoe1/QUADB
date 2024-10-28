@@ -35,7 +35,7 @@ export function Hero(): JSX.Element {
               </Link>
               <Button
                 variant={"outline"}
-                onClick={(e) => {
+                onClick={(e: any) => {
                   e.preventDefault();
                   scrollToSection("how-it-works");
                 }}

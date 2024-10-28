@@ -213,6 +213,7 @@ export function FieldArray<S extends z.Schema>({
 
           <div className="flex justify-end">
             <IconButton
+              // @ts-ignore
               tabIndex={-1}
               type="button"
               variant="ghost"
@@ -223,13 +224,15 @@ export function FieldArray<S extends z.Schema>({
         </div>
       ))}
       <div className="flex justify-end">
+        {/* @ts-ignore */}
         <IconButton
           type="button"
           size="sm"
           icon={PlusIcon}
+          className="text-white"
           onClick={() => append({})}
         >
-          Add row
+          Add curator
         </IconButton>
       </div>
     </div>
@@ -395,6 +398,7 @@ export function Form<T extends FieldValues>({
   children,
 }: FormProps<T>) {
   const methods = useForm<T>({
+    // @ts-ignore
     resolver: zodResolver(schema),
     defaultValues: defaultValues as DefaultValues<T>,
     mode: "onBlur",

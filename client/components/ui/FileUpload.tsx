@@ -19,6 +19,7 @@ export function FileUpload({ name, className }: Props) {
         return (
           <div className={clsx("relative overflow-hidden", className)}>
             <IconButton
+              // @ts-ignore
               onClick={() => ref.current?.click()}
               icon={FileIcon}
               className="absolute bottom-1 right-1 fill-white bg-transparent"

@@ -20,6 +20,8 @@ import Loading from "@/components/animation/loading";
 import useInstanceData from "@/hooks/useInstanceData";
 import { useChainName } from "@/hooks/useChainName";
 import Subscribe from "@/components/contracts/subscribe";
+import { getInstanceID } from "@/lib/ens";
+import { get } from "http";
 
 const InstanceDetailsPage = ({
   params: { id },
@@ -53,6 +55,14 @@ const InstanceDetailsPage = ({
   const { instance, instanceMembers } = data || {};
 
   console.log(instance);
+
+  console.log(
+    "ComputedUID :",
+    getInstanceID(
+      "0x68549bf3727c08def1015d6ba233b2c3115f0e8a45131fa4ce3cf39024575f73",
+      "k51qzi5uqu5dm8riqa0ha658ilniqvr0gpn18a3j48pj4e3ln4a511icar1bo0"
+    )
+  );
 
   return (
     <Container>
@@ -136,14 +146,14 @@ const InstanceDetailsPage = ({
                         EncryptedKeyCID={instance?.IPNSEncryptedKey}
                         isEncrypted={instance?.price > 0}
                         spaceID={instanceID}
-                        hasAccess={
-                          (instance?.creator?.toLowerCase() ==
-                            address?.toLowerCase() ||
-                            instanceMembers?.find(
-                              (member: any) =>
-                                member?.toLowerCase() === address?.toLowerCase()
-                            )) as boolean
-                        }
+                        // hasAccess={
+                        //   (instance?.creator?.toLowerCase() ==
+                        //     address?.toLowerCase() ||
+                        //     instanceMembers?.find(
+                        //       (member: any) =>
+                        //         member?.toLowerCase() === address?.toLowerCase()
+                        //     )) as boolean
+                        // }
                       />
                     </TabPanel>
 

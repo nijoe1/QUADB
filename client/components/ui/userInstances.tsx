@@ -17,8 +17,8 @@ import {
 import { FaEllipsisV } from "react-icons/fa";
 import { Container } from "@/components/ui/container";
 import { useRouter } from "next/navigation";
-import { getIpfsGatewayUri } from "@/app/lib/ipfs";
-import { getUserInstances } from "@/app/lib/tableland";
+import { getIpfsGatewayUri } from "@/lib/ipfs";
+import { getUserInstances } from "@/lib/tableland";
 import axios from "axios";
 import Loading from "@/components/animation/loading";
 import { useAccount } from "wagmi";

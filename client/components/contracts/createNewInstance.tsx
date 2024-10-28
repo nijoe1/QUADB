@@ -1,30 +1,23 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { z } from "zod";
-import { useLocalStorage } from "react-use";
 import { FormData, useCreateInstance } from "@/hooks/useCreateInstance";
 import { toast } from "sonner";
 import {
-  ErrorMessage,
   Form,
   FormControl,
   FormSection,
   Input,
-  Label,
-  deserializeFormValues,
   Textarea,
+  FieldArray,
 } from "@/components/ui/Form";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "../ui/Button";
 import { ImageUpload } from "../ui/ImageUpload";
 import { FileUpload } from "../ui/FileUpload";
 import localforage from "localforage";
-import {
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalOverlay,
-} from "@chakra-ui/react";
+import { Modal, ModalContent, ModalOverlay } from "@chakra-ui/react";
+import { isAddress } from "viem";
+import { notification } from "@/hooks/utils/notification";
 
 interface CreateNewInstanceProps {
   isOpen: boolean;
@@ -39,6 +32,17 @@ const CreateNewInstanceSchema = z.object({
   file: z
     .any()
     .refine((file) => file instanceof File, "Dataset file is required"),
+  members: z
+    .array(
+      z
+        .string()
+        .refine(
+          (member: string) => isAddress(member),
+          "Each member must be a valid Ethereum address"
+        )
+    )
+    .optional(),
+  isPrivate: z.boolean().optional(),
 });
 
 const fileToBase64 = (file: any) => {
@@ -76,6 +80,7 @@ export function CreateNewInstance({
       <ModalOverlay />
       <ModalContent className="flex flex-col items-center w-[300px]">
         <Form
+          // @ts-ignore
           schema={CreateNewInstanceSchema}
           defaultValues={{
             name: "",
@@ -86,6 +91,7 @@ export function CreateNewInstance({
           persistKey="instance-draft"
           onSubmit={async (formData: FormData) => {
             console.log("Form Data", formData);
+            notification.info("Creating dataset...");
             // Convert image to base64
             const fileImage = formData.image;
             const fileData = formData.file;
@@ -147,6 +153,19 @@ export function CreateNewInstance({
                     </FormControl>
                   </div>
                 </div>
+                <FieldArray
+                  name="members"
+                  renderField={(field, index) => (
+                    <FormControl
+                      key={field.id}
+                      name={field.id}
+                      className="w-full"
+                    >
+                      <Input type="text" placeholder="Ethereum Address" />
+                    </FormControl>
+                  )}
+                  hint="Add curators to this dataset"
+                />
               </FormSection>
 
               {/* Action Buttons */}

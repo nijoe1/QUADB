@@ -4,8 +4,18 @@ import axios from "axios";
 import { Hex, WalletClient } from "viem";
 import { notification } from "@/hooks/utils/notification";
 
+export const LighthouseChains = {
+  314: {
+    name: "Filecoin",
+  },
+  314159: {
+    name: "Filecoin_Testnet",
+  },
+};
+
 export const getIpfsGatewayUri = (cid: string) => {
-  const LIGHTHOUSE_IPFS_GATEWAY = "https://gateway.lighthouse.storage/ipfs/{cid}";
+  const LIGHTHOUSE_IPFS_GATEWAY =
+    "https://gateway.lighthouse.storage/ipfs/{cid}";
   return LIGHTHOUSE_IPFS_GATEWAY.replace("{cid}", cid);
 };
 
@@ -14,11 +24,17 @@ export const getIpfsCID = (ipfsCIDLink: string) => {
   return ipfsCIDLink.replace(LIGHTHOUSE_IPFS_GATEWAY, "");
 };
 
-export const generateLighthouseJWT = async (userAddress: string, signEncryption: string) => {
+export const generateLighthouseJWT = async (
+  userAddress: string,
+  signEncryption: string
+) => {
   const response = await getJWT(userAddress, signEncryption);
   if (response.JWT) {
     console.log("JWT", response.JWT);
-    localStorage.setItem(`lighthouse-jwt-${userAddress.toLowerCase()}`, response.JWT);
+    localStorage.setItem(
+      `lighthouse-jwt-${userAddress.toLowerCase()}`,
+      response.JWT
+    );
     return response.JWT;
   }
 
@@ -38,19 +54,28 @@ export const getLighthouseJWT = (userAddress: string) => {
 export const getLighthouseAPIKey = (userAddress: string) => {
   let apiKey: string | null = null;
   try {
-    apiKey = localStorage.getItem(`lighthouse-api-key-${userAddress.toLowerCase()}`);
+    apiKey = localStorage.getItem(
+      `lighthouse-api-key-${userAddress.toLowerCase()}`
+    );
   } catch (e) {}
   return apiKey;
 };
 
-export const getUserAPIKey = async (address: Hex, walletClient: WalletClient) => {
+export const getUserAPIKey = async (
+  address: Hex,
+  walletClient: WalletClient
+) => {
   const addressLowerCase = address.toLowerCase();
   let apiKey = getLighthouseAPIKey(address);
   if (!apiKey) {
     try {
-      let notificationId = notification.info("Sign in to Lighthouse to upload files");
+      let notificationId = notification.info(
+        "Sign in to Lighthouse to upload files"
+      );
       const verificationMessage = (
-        await axios.get(`https://api.lighthouse.storage/api/auth/get_message?publicKey=${addressLowerCase}`)
+        await axios.get(
+          `https://api.lighthouse.storage/api/auth/get_message?publicKey=${addressLowerCase}`
+        )
       ).data;
       notification.remove(notificationId);
       notificationId = notification.loading("Signing message...");
@@ -58,7 +83,10 @@ export const getUserAPIKey = async (address: Hex, walletClient: WalletClient) =>
         account: address,
         message: verificationMessage,
       });
-      const response = await lighthouse.getApiKey(addressLowerCase, signedMessage);
+      const response = await lighthouse.getApiKey(
+        addressLowerCase,
+        signedMessage
+      );
       notification.success("Signed in to Lighthouse");
       notification.remove(notificationId);
       apiKey = response.data.apiKey;
@@ -74,7 +102,8 @@ export const getUserAPIKey = async (address: Hex, walletClient: WalletClient) =>
 export const getUserJWT = async (address: Hex, walletClient: WalletClient) => {
   let jwt = getLighthouseJWT(address);
   if (!jwt) {
-    const messageToSign = (await lighthouse.getAuthMessage(address)).data.message;
+    const messageToSign = (await lighthouse.getAuthMessage(address)).data
+      .message;
     if (!messageToSign) {
       notification.error("Error signing in to Lighthouse");
       throw new Error("Error signing in to Lighthouse");
@@ -86,4 +115,64 @@ export const getUserJWT = async (address: Hex, walletClient: WalletClient) => {
     jwt = await generateLighthouseJWT(address, signedMessage);
   }
   return jwt;
+};
+
+export const getViewConditions = ({
+  contractAddress,
+  chainID,
+  instanceID,
+}: {
+  contractAddress: string;
+  chainID: number;
+  instanceID: string;
+}) => {
+  return {
+    conditions: [
+      {
+        id: 1,
+        chain: LighthouseChains[chainID as keyof typeof LighthouseChains]?.name,
+        method: "hasViewAccess",
+        standardContractType: "Custom",
+        contractAddress: `${contractAddress}`,
+        returnValueTest: {
+          comparator: "==",
+          value: "true",
+        },
+        parameters: [`${instanceID}`, ":userAddress"],
+        inputArrayType: ["bytes32", "address"],
+        outputType: "bool",
+      },
+    ],
+    aggregator: "([1])",
+  };
+};
+
+export const getMutateConditions = ({
+  contractAddress,
+  chainID,
+  instanceID,
+}: {
+  contractAddress: string;
+  chainID: number;
+  instanceID: string;
+}) => {
+  return {
+    conditions: [
+      {
+        id: 1,
+        chain: LighthouseChains[chainID as keyof typeof LighthouseChains]?.name,
+        method: "hasMutateAccess",
+        standardContractType: "Custom",
+        contractAddress: `${contractAddress}`,
+        returnValueTest: {
+          comparator: "==",
+          value: "true",
+        },
+        parameters: [`${instanceID}`, ":userAddress"],
+        inputArrayType: ["bytes32", "address"],
+        outputType: "bool",
+      },
+    ],
+    aggregator: "([1])",
+  };
 };

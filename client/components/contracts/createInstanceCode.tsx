@@ -20,9 +20,9 @@ import {
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { CONTRACT_ABI, CONTRACT_ADDRESSES } from "@/constants/contracts";
 import { useRouter } from "next/navigation";
-import { createIPNSName } from "@/lib/ipfs";
-import { useCreateIPNS } from "@/hooks/useIPNS";
+import { useCreateIPNS } from "@/hooks/lighthouse/useIPNS";
 import { FaFileUpload } from "react-icons/fa";
+import { Address } from "viem";
 
 const CreateNewInstanceCode = ({
   isOpen,
@@ -81,11 +81,9 @@ const CreateNewInstanceCode = ({
   const createIPNS = async () => {
     const response = await createIPNSName({
       file: formData.file ?? (new File([""], "") as File),
+      address: account as Address,
       spaceID,
       isEncrypted: false,
-      chain: chainID?.toString() ?? "",
-      address,
-      walletClient,
     });
     return response;
   };

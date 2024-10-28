@@ -24,7 +24,6 @@ export const useCreateInstance = ({
   onClose,
   spaceID,
 }: UseCreateInstanceProps) => {
-
   console.log("spaceID", spaceID);
   const { address: account } = useAccount();
   const publicClient = usePublicClient();
@@ -38,7 +37,6 @@ export const useCreateInstance = ({
     const metadata = {
       name: formData.name,
       about: formData.about,
-      // Convert image to base64
       imageUrl: formData.image,
     };
     const metadataFile = new File([JSON.stringify(metadata)], "metadata.json", {
@@ -63,24 +61,17 @@ export const useCreateInstance = ({
 
       setIsLoading(true);
       try {
-        // Upload metadata and file
         const metadataCID = await uploadMetadata(formData);
-        console.log("Metadata CID", metadataCID);
-
         const fileCID = await uploadFile({
           files: [base64ToBlob(formData.file, "text/csv")],
         });
 
         const ipnsResult = await createIPNSNameWithCID({
           cid: fileCID ?? "",
-          chain: "filecoin",
           spaceID,
           address: account,
           walletClient,
         });
-
-        console.log("IPNS Result", ipnsResult);
-
         // Simulate contract call
         const simulation = await publicClient.simulateContract({
           account,

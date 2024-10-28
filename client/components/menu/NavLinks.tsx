@@ -101,8 +101,8 @@ const links: link[] = [
     href: "/spaces",
   },
   {
-    text: "Challenges",
-    href: "/challenges",
+    text: "Data Quests",
+    href: "/quests",
   },
   // {
   //   text: "Profile",

@@ -70,6 +70,7 @@ export function ImageUpload({ name, className }: Props) {
 
       {/* IconButton */}
       <IconButton
+        // @ts-ignore
         onClick={handleClick}
         icon={ImageIcon}
         className="absolute bottom-1 right-1 z-10"

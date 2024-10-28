@@ -2,80 +2,57 @@ import * as Name from "w3name";
 import { fromString as uint8ArrayFromString } from "uint8arrays/from-string";
 import { toString as uint8ArrayToString } from "uint8arrays/to-string";
 import { getInstanceID } from "@/lib/ens";
-import { Lit } from "@/lib/lit";
 import { config } from "dotenv";
 import { EncryptToJsonPayload } from "@lit-protocol/types";
-import { Bytes, ethers, Wallet } from "ethers";
-import { uploadFiles } from "../hooks/lighthouse";
-import { getUserAPIKey } from "../hooks/lighthouse/utils";
-import { Address, WalletClient } from "viem";
+import { Bytes, ethers } from "ethers";
+import {
+  getMutateConditions,
+  getUserAPIKey,
+  getUserJWT,
+  getViewConditions,
+} from "../hooks/lighthouse/utils";
+import { Address, Hex, WalletClient } from "viem";
+import { decrypt, uploadFiles, uploadFilesEncrypted } from "@/hooks/lighthouse";
+import { QUADB } from "@/constants/contracts";
 config();
 
 export const resolveIPNSName = async (IPNS: string) => {
   const name = Name.parse(IPNS);
   const revision = await Name.resolve(name);
-  console.log("Resolved value:", revision.value);
   return revision.value;
-};
-
-export const UploadFileEncrypted = async ({
-  file,
-  spaceID,
-  chain,
-  address,
-  walletClient,
-}: {
-  file: File;
-  spaceID: string;
-  chain: string;
-  address: Address;
-  walletClient: WalletClient;
-}) => {
-  const lit = new Lit(chain, spaceID);
-  const encryptedPayload = JSON.stringify(
-    (
-      await lit.encryptWithViewAccess({
-        file,
-      })
-    ).jsonPayload
-  );
-
-  const encryptedFile = new File([encryptedPayload], "encryptedFile");
-  let cid = await uploadFiles(
-    [encryptedFile],
-    await getUserAPIKey(address, walletClient)
-  );
-  return cid;
 };
 
 export const encryptIPNSKey = async ({
   IPNSPK,
-  chain,
   spaceID,
   address,
   walletClient,
 }: {
   IPNSPK: string;
-  chain: string;
   spaceID: string;
-  address: Address;
+  address: Hex;
   walletClient: WalletClient;
 }) => {
-  const lit = new Lit(chain, spaceID);
-  console.log("IPNSPK: ", IPNSPK);
-  const payload = (
-    await lit.encryptWithMutateAccess({
-      message: IPNSPK,
-    })
-  ).jsonPayload;
-  console.log("payload: ", payload);
+  const payload = {
+    message: IPNSPK,
+  };
   const encryptedPayload = JSON.stringify(payload);
 
+  const mutateAccessControlConditions = getMutateConditions({
+    contractAddress: QUADB,
+    chainID: 314,
+    instanceID: spaceID,
+  });
+
   const encryptedFile = new File([encryptedPayload], "encryptedFile.json");
-  let cid = await uploadFiles(
-    [encryptedFile],
-    await getUserAPIKey(address, walletClient)
-  );
+  let cid = await uploadFilesEncrypted({
+    files: [encryptedFile],
+    apiKey: await getUserAPIKey(address, walletClient),
+    userAddress: address,
+    jwt: (await getUserJWT(address, walletClient)) as string,
+    conditions: mutateAccessControlConditions.conditions,
+    aggregator: mutateAccessControlConditions.aggregator,
+  });
   return cid as string;
 };
 
@@ -83,52 +60,45 @@ export const createIPNSName = async ({
   file,
   spaceID,
   isEncrypted,
-  chain,
   address,
   walletClient,
 }: {
   file: File;
-  spaceID: string;
+  spaceID: Hex;
   isEncrypted: boolean;
-  chain: string;
   address: Address;
   walletClient: WalletClient;
 }) => {
-  let cid;
+  let cid: string | null = null;
   if (isEncrypted) {
-    cid = await UploadFileEncrypted({
-      file,
-      spaceID,
-      chain,
-      address,
-      walletClient,
+    const viewAccessControlConditions = getViewConditions({
+      contractAddress: QUADB,
+      chainID: 314,
+      instanceID: spaceID,
+    });
+    cid = await uploadFilesEncrypted({
+      files: [file],
+      apiKey: await getUserAPIKey(address, walletClient),
+      userAddress: address,
+      jwt: (await getUserJWT(address, walletClient)) as string,
+      conditions: viewAccessControlConditions.conditions,
+      aggregator: viewAccessControlConditions.aggregator,
     });
   } else {
     cid = await uploadFiles([file], await getUserAPIKey(address, walletClient));
   }
   // https://www.npmjs.com/package/w3name
   const name = await Name.create();
-  console.log("created new name: ", name.toString());
   const instanceID = getInstanceID(spaceID, name.toString());
-  console.log("instanceID: ", instanceID);
-  console.log("cid: ", cid);
-
-  const revision = await Name.v0(name, cid);
-  console.log("revision: ", revision);
+  const revision = await Name.v0(name, cid ?? "");
   await Name.publish(revision, name.key);
-
   const byteString = uint8ArrayToString(name.key.bytes, "base64");
-  console.log("byteString: ", byteString);
   const encryptedKeyCid = await encryptIPNSKey({
     IPNSPK: byteString,
     spaceID: instanceID,
-    chain,
     address,
     walletClient,
   });
-
-  console.log("encryptedKeyCid: ", encryptedKeyCid);
-
   return {
     instanceID: instanceID,
     name: name.toString(),
@@ -138,42 +108,29 @@ export const createIPNSName = async ({
 export const createIPNSNameWithCID = async ({
   cid,
   spaceID,
-  chain,
   address,
   walletClient,
 }: {
   cid: string;
-  spaceID: string;
-  chain: string;
+  spaceID: Hex;
   address: Address;
   walletClient: WalletClient;
 }) => {
   // https://www.npmjs.com/package/w3name
   const name = await Name.create();
-  console.log("created new name: ", name.toString());
-  const instanceID = getInstanceID(spaceID, name.toString());
-  console.log("instanceID: ", instanceID);
-  console.log("cid: ", cid);
-
+  const instanceID = getInstanceID(spaceID, name.toString().toLowerCase());
   const revision = await Name.v0(name, cid);
-  console.log("revision: ", revision);
   await Name.publish(revision, name.key);
-
   const byteString = uint8ArrayToString(name.key.bytes, "base64");
-  console.log("byteString: ", byteString);
   const encryptedKeyCid = await encryptIPNSKey({
     IPNSPK: byteString,
     spaceID: instanceID,
-    chain,
     address,
     walletClient,
   });
-
-  console.log("encryptedKeyCid: ", encryptedKeyCid);
-
   return {
     instanceID: instanceID,
-    name: name.toString(),
+    name: name.toString().toLowerCase(),
     cid: encryptedKeyCid,
   };
 };
@@ -181,44 +138,26 @@ export const renewIPNSName = async ({
   cid,
   IPNS,
   EncryptedKeyCID,
-  chain,
+  address,
+  jwt,
 }: {
   cid: string;
   IPNS: string;
   EncryptedKeyCID: string;
-  chain: string;
+  address: Address;
+  jwt: string;
 }) => {
   const name = Name.parse(IPNS);
-
-  const lit = new Lit(chain);
-
-  const data = (await fetchIPFS(EncryptedKeyCID)) as EncryptToJsonPayload;
-
-  console.log("data: ", data);
-
-  const jsonBlob = await lit.decrypt(data, undefined);
-
-  if (!jsonBlob) {
-    throw new Error("Failed to decrypt");
-  }
-
-  // Create a File object from the Blob
-  const jsonFile = new File([jsonBlob.decryptedString], `type.json`, {
+  const jsonBlob = await decrypt(EncryptedKeyCID, address, jwt);
+  console.log("jsonBlob", jsonBlob);
+  const jsonFile = new File([jsonBlob], `type.json`, {
     type: "application/json",
   });
-
-  const key = JSON.parse(await jsonFile.text()).key;
-  console.log("KEY", key);
-
+  const key = JSON.parse(await jsonFile.text()).message;
   const revision = await Name.resolve(name);
-  console.log("Resolved value:", revision.value);
-
   let nextRevision = await Name.increment(revision, cid);
-
   const IPNSKey = uint8ArrayFromString(key, "base64");
-
   const nameKey = await Name.from(IPNSKey);
-
   await Name.publish(nextRevision, nameKey.key);
 };
 
@@ -301,45 +240,32 @@ export const validateSignatures = async ({
 };
 
 export const validateRenewIPNSName = async ({
+  address,
   cid,
   IPNS,
   EncryptedKeyCID,
-  chain,
+  jwt,
 }: {
+  address: Address;
   cid: string;
   IPNS: string;
   EncryptedKeyCID: string;
-  chain: string;
+  jwt: string;
 }) => {
   const name = Name.parse(IPNS);
-
-  const lit = new Lit(chain);
-
-  const data = (await fetchIPFS(EncryptedKeyCID)) as EncryptToJsonPayload;
-
-  const jsonBlob = await lit.decrypt(data, undefined);
-
+  const jsonBlob = await decrypt(EncryptedKeyCID, address, jwt);
   if (!jsonBlob) {
     throw new Error("Failed to decrypt");
   }
-
   // Create a File object from the Blob
-  const jsonFile = new File([jsonBlob.decryptedString], `type.json`, {
+  const jsonFile = new File([jsonBlob], `type.json`, {
     type: "application/json",
   });
-
-  const key = JSON.parse(await jsonFile.text()).key;
-  console.log("KEY", key);
-
+  const key = JSON.parse(await jsonFile.text()).message;
   const revision = await Name.resolve(name);
-  console.log("Resolved value:", revision.value);
-
   let nextRevision = await Name.increment(revision, cid);
-
   const IPNSKey = uint8ArrayFromString(key, "base64");
-
   const nameKey = await Name.from(IPNSKey);
-
   await Name.publish(nextRevision, nameKey.key);
 };
 
@@ -355,7 +281,12 @@ export const fetchIPFS = async (cid: string) => {
   return data;
 };
 
-export const fetchAndParseCSV = async (cid: string, isEncrypted: boolean) => {
+export const fetchAndParseCSV = async (
+  cid: string,
+  isEncrypted: boolean,
+  address: string,
+  jwt: string
+) => {
   const customCsvParser = (csvString: any) => {
     const rows = csvString.split("\n").map((row: any) => row.split(","));
     const headers = rows[0];
@@ -370,21 +301,12 @@ export const fetchAndParseCSV = async (cid: string, isEncrypted: boolean) => {
   };
   const data = await fetchIPFS(cid);
   if (isEncrypted) {
-    const lit = new Lit("ethereum");
-    const decryptedBlob = await lit.decrypt(data, undefined);
-    if (!decryptedBlob) {
-      throw new Error("Failed to decrypt");
-    }
-    const decryptedFile = new File(
-      [decryptedBlob.decryptedString],
-      "decrypted.csv",
-      {
-        type: "text/csv",
-      }
-    );
+    const decryptedFile = await decrypt(cid, address, jwt);
     const decryptedText = await decryptedFile.text();
     return customCsvParser(decryptedText);
   } else {
+    const data = await fetchIPFS(cid);
+
     return customCsvParser(data);
   }
 };

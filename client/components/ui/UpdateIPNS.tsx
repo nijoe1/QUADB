@@ -19,7 +19,7 @@ import {
 import { useAccount } from "wagmi";
 import { FaFileUpload } from "react-icons/fa";
 import { ObjectMatcher } from "@/lib/merge";
-import { useUpdateIPNS } from "@/hooks/useIPNS";
+import { useUpdateIPNS } from "@/hooks/lighthouse/useIPNS";
 import { useCSVHandler } from "@/hooks/useCSVHandler";
 
 const UpdateIPNS = ({

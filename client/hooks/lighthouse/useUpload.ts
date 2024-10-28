@@ -1,5 +1,6 @@
-import { uploadFiles } from "./index";
-import { getUserAPIKey } from "./utils";
+import { accessControlConditions } from "../lighthouse/types";
+import { uploadFiles, uploadFilesEncrypted } from "./index";
+import { getUserAPIKey, getUserJWT } from "./utils";
 import { useMutation } from "@tanstack/react-query";
 import { useAccount, useWalletClient } from "wagmi";
 import { notification } from "@/hooks/utils/notification";
@@ -19,7 +20,39 @@ export const useUploadFile = () => {
   });
 };
 
-
+export const useUploadEncryptedFile = () => {
+  const { data: walletClient } = useWalletClient();
+  const { address } = useAccount();
+  return useMutation({
+    mutationFn: async ({
+      files,
+      accessControlConditions,
+    }: {
+      files: File[];
+      accessControlConditions: {
+        conditions: accessControlConditions[];
+        aggregate: string;
+      };
+    }) => {
+      if (!walletClient || !address) {
+        throw new Error("Wallet client not found");
+      }
+      const apiKey = await getUserAPIKey(address, walletClient);
+      const jwt = await getUserJWT(address, walletClient);
+      if (!jwt) {
+        throw new Error("Error signing in to Lighthouse");
+      }
+      return uploadFilesEncrypted({
+        files: files,
+        apiKey,
+        userAddress: address,
+        jwt,
+        conditions: accessControlConditions.conditions,
+        aggregator: accessControlConditions.aggregate,
+      });
+    },
+  });
+};
 
 type UploadOptions = {
   onUploadSuccess?: (cid: string) => void;
@@ -49,8 +82,43 @@ export const useLighthouseFilesUpload = (options?: UploadOptions) => {
         options.onUploadError(error);
       }
     }
-
   };
   return uploadFile;
 };
 
+export const useLighthouseEncryptedFilesUpload = (options?: UploadOptions) => {
+  const mutation = useUploadEncryptedFile();
+  const uploadFile = async (
+    files: File[],
+    accessControlConditions: {
+      conditions: accessControlConditions[];
+      aggregate: string;
+    }
+  ) => {
+    let notificationId = null;
+    const msg = files.length > 1 ? "files" : "file";
+
+    try {
+      notificationId = notification.loading(`Uploading Encrypted ${msg}...`);
+      const cid = await mutation.mutateAsync({
+        files,
+        accessControlConditions,
+      });
+      notification.remove(notificationId);
+      notification.success(`${msg} uploaded successfully!`);
+      if (options?.onUploadSuccess) {
+        options.onUploadSuccess(cid || "");
+      }
+    } catch (error: any) {
+      if (notificationId) {
+        notification.remove(notificationId);
+      }
+      const message = error?.message || `${msg} upload failed`;
+      notification.error(message);
+      if (options?.onUploadError) {
+        options.onUploadError(error);
+      }
+    }
+  };
+  return uploadFile;
+};
