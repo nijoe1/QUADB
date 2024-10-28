@@ -27,13 +27,13 @@ abstract contract Tableland {
         "db_spaces_instances";
 
     string internal constant DBSPACES_INSTANCES_SCHEMA =
-        "InstanceID text, instanceOfSpace text, instanceType text, metadataCID text, chatID text, IPNS text, IPNSEncryptedKey text, gatedContract text, price text, creator text";
+        "InstanceID text, instanceOfSpace text, instanceType text, metadataCID text, IPNS text, IPNSEncryptedKey text, gatedContract text, price text, creator text";
 
     string internal constant DB_INSTANCES_CODES_TABLE_PREFIX =
         "instances_codes";
 
     string internal constant DB_INSTANCES_CODES_SCHEMA =
-        "InstanceID text, codeID text, name text, about text, chatID text, IPNS text, IPNSEncryptedKey text, creator text";
+        "InstanceID text, codeID text, name text, about text, IPNS text, IPNSEncryptedKey text, creator text";
 
     string internal constant SUBSCRIPTIONS_TABLE_PREFIX = "subscriptions";
 
@@ -149,7 +149,6 @@ abstract contract Tableland {
      * @param {string} name - Name of the instance.
      * @param {string} about - About of the instance.
      * @param {string} img - Image of the instance.
-     * @param {string} chatID - Chat ID of the instance.
      * @param {string} IPNS - IPNS of the instance.
      * @param {string} IPNSEncryptedKey - Creator of the instance.
      */
@@ -161,7 +160,6 @@ abstract contract Tableland {
         address _gatedContract,
         uint256 price,
         string memory metadataCID,
-        string memory chatID,
         string memory IPNS,
         string memory IPNSEncryptedKey
     ) internal {
@@ -170,7 +168,7 @@ abstract contract Tableland {
             SQLHelpers.toInsert(
                 DBSPACES_INSTANCES_TABLE_PREFIX,
                 tableIDs[1],
-                "InstanceID, instanceOfSpace, instanceType, metadataCID, chatID, IPNS, IPNSEncryptedKey, gatedContract, price, creator",
+                "InstanceID, instanceOfSpace, instanceType, metadataCID, IPNS, IPNSEncryptedKey, gatedContract, price, creator",
                 string.concat(
                     SQLHelpers.quote(bytes32ToString(_instanceID)),
                     ",",
@@ -179,8 +177,6 @@ abstract contract Tableland {
                     SQLHelpers.quote(Strings.toString(_lockType)),
                     ",",
                     SQLHelpers.quote(metadataCID),
-                    ",",
-                    SQLHelpers.quote(chatID),
                     ",",
                     SQLHelpers.quote(IPNS),
                     ",",
@@ -201,7 +197,6 @@ abstract contract Tableland {
      * @param {bytes32} InstanceID - Instance ID.
      * @param {string} name - Name of the instance code.
      * @param {string} about - About of the instance code.
-     * @param {string} chatID - Chat ID of the instance code.
      * @param {string} codeIPNS - IPNS of the instance code.
      * @param {string} IPNSEncryptedKey - Creator of the instance code.
      */
@@ -211,7 +206,6 @@ abstract contract Tableland {
         bytes32 _codeID,
         string memory name,
         string memory about,
-        string memory chatID,
         string memory codeIPNS,
         string memory IPNSEncryptedKey
     ) internal {
@@ -220,7 +214,7 @@ abstract contract Tableland {
             SQLHelpers.toInsert(
                 DB_INSTANCES_CODES_TABLE_PREFIX,
                 tableIDs[2],
-                "InstanceID, codeID, name, about, chatID, IPNS, IPNSEncryptedKey, creator",
+                "InstanceID, codeID, name, about, IPNS, IPNSEncryptedKey, creator",
                 string.concat(
                     SQLHelpers.quote(bytes32ToString(_instanceID)),
                     ",",
@@ -229,8 +223,6 @@ abstract contract Tableland {
                     SQLHelpers.quote(name),
                     ",",
                     SQLHelpers.quote(about),
-                    ",",
-                    SQLHelpers.quote(chatID),
                     ",",
                     SQLHelpers.quote(codeIPNS),
                     ",",
