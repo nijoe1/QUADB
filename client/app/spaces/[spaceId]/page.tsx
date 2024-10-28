@@ -17,11 +17,11 @@ import {
   MenuItem,
 } from "@chakra-ui/react";
 import { FaEllipsisV } from "react-icons/fa";
-import { Container } from "@/app/components/ui/container";
+import { Container } from "@/components/ui/container";
 import { useRouter } from "next/navigation";
-import { CreateNewInstance } from "@/app/components/contracts/createNewInstance";
-import Loading from "@/app/components/animation/loading";
-import useFetchSpaceInstances from "@/app/hooks/useFetchSpaceInstances"; // Importing the custom hook
+import { CreateNewInstance } from "@/components/contracts/createNewInstance";
+import Loading from "@/components/animation/loading";
+import useFetchSpaceInstances from "@/hooks/useFetchSpaceInstances"; // Importing the custom hook
 
 const SingleSpacePage = ({
   params: { spaceId },
@@ -34,6 +34,8 @@ const SingleSpacePage = ({
 
   // Using the custom hook to fetch instances
   const { instances, fetched } = useFetchSpaceInstances(spaceID);
+
+  console.log(instances);
 
   const handleNewClick = () => {
     onOpen();
@@ -75,9 +77,9 @@ const SingleSpacePage = ({
             >
               {Object.entries(instances).map(
                 ([type, instanceArray]) =>
-                  instanceArray &&
-                  Object(instanceArray).keys().lenght > 0 &&
-                  Object(instanceArray).map((instance: any) => (
+                  Array.isArray(instanceArray) &&
+                  instanceArray.length > 0 &&
+                  instanceArray.map((instance) => (
                     <GridItem key={instance.InstanceID}>
                       <Box
                         pb="4"
@@ -173,7 +175,7 @@ const SingleSpacePage = ({
                             color="white"
                             mb="1"
                           >
-                            {instance.metadata.name.slice(0, 30)}
+                            {instance.metadata?.name?.slice(0, 30)}
                           </Text>
                           <Text
                             fontSize="xs"
@@ -181,7 +183,7 @@ const SingleSpacePage = ({
                             color="white"
                             mb="1"
                           >
-                            {instance.metadata.about.slice(0, 50)}
+                            {instance.metadata?.about?.slice(0, 50)}
                           </Text>
                         </Box>
                       </Box>

@@ -1,6 +1,6 @@
 "use client";
-import { Benefits, Hero, HowItWorks } from "@/app/components/landing";
-import { Container } from "@/app/components/ui/container";
+import { Benefits, Hero, HowItWorks } from "@/components/landing";
+import { Container } from "@/components/ui/container";
 import { useEffect } from "react";
 
 export default function LandingPage(): JSX.Element {

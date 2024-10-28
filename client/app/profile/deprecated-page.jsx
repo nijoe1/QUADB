@@ -1,10 +1,10 @@
 "use client";
 import React from "react";
 import { Box, Tabs, TabList, TabPanels, TabPanel, Tab } from "@chakra-ui/react";
-import Profile from "@/app/components/Profile/Profile";
-import UserInstances from "@/app/components/ui/userInstances";
-import UserCodes from "@/app/components/ui/UserCodes";
-import { Container } from "@/app/components/ui/container";
+import Profile from "@/components/Profile/Profile";
+import UserInstances from "@/components/ui/userInstances";
+import UserCodes from "@/components/ui/UserCodes";
+import { Container } from "@/components/ui/container";
 const ProfilePage = () => {
   return (
     <Container>

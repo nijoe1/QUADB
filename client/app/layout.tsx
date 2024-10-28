@@ -1,8 +1,8 @@
 "use client";
 import "@/styles/globals.css";
 import { ChakraProvider } from "@chakra-ui/react";
-import Navbar from "@/app/components/menu/Navbar";
-import Footer from "@/app/components/menu/Footer";
+import Navbar from "@/components/menu/Navbar";
+import Footer from "@/components/menu/Footer";
 import "@rainbow-me/rainbowkit/styles.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider, http } from "wagmi";
@@ -64,8 +64,11 @@ export default function RootLayout({
                 modalSize="compact"
               >
                 <Navbar />
-                <main>{children}</main>
-                <Footer />
+                <main className="flex-grow h-full min-h-svh">{children}</main>
+
+                <div>
+                  <Footer />
+                </div>
               </RainbowKitProvider>
             </QueryClientProvider>
           </WagmiProvider>
