@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useState, useEffect, use } from "react";
 import {
   Box,
@@ -24,7 +24,7 @@ import { useAccount } from "wagmi";
 import makeBlockie from "ethereum-blockies-base64";
 import { useRouter } from "next/navigation";
 
-const CardItem = ({ profileInfo, creator }) => {
+export const CardItem = ({ profileInfo, creator }) => {
   const router = useRouter();
   const { address } = useAccount();
   const [showModal, setShowModal] = useState(false);
@@ -40,7 +40,7 @@ const CardItem = ({ profileInfo, creator }) => {
   };
 
   const fetchProfileInfo = async () => {
-    return 
+    return;
   };
 
   useEffect(() => {
@@ -142,7 +142,6 @@ const CardItem = ({ profileInfo, creator }) => {
                             onClick={() => {
                               router.push({
                                 pathname: "/profile" + contributor?.address,
-                                
                               });
                             }}
                           >
@@ -170,5 +169,3 @@ const CardItem = ({ profileInfo, creator }) => {
     </div>
   );
 };
-
-export default CardItem;
