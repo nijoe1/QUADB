@@ -12,7 +12,7 @@ import {
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { formatEther } from "viem";
 import { CONTRACT_ABI, CONTRACT_ADDRESSES } from "@/constants/contracts";
-const Subscribe = ({
+export const Subscribe = ({
   isOpen,
   onClose,
   instanceID,
@@ -103,5 +103,3 @@ const Subscribe = ({
     </Modal>
   );
 };
-
-export default Subscribe;

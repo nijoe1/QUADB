@@ -19,7 +19,6 @@ import {
   useFieldArray,
   DefaultValues,
 } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 import { createComponent } from ".";
 import { cn } from "@//utils/classNames";
@@ -399,7 +398,7 @@ export function Form<T extends FieldValues>({
 }: FormProps<T>) {
   const methods = useForm<T>({
     // @ts-ignore
-    resolver: zodResolver(schema),
+    resolver: (schema),
     defaultValues: defaultValues as DefaultValues<T>,
     mode: "onBlur",
   });
