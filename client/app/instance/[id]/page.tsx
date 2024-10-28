@@ -21,7 +21,6 @@ import useInstanceData from "@/hooks/useInstanceData";
 import { useChainName } from "@/hooks/useChainName";
 import Subscribe from "@/components/contracts/subscribe";
 import { getInstanceID } from "@/lib/ens";
-import { get } from "http";
 
 const InstanceDetailsPage = ({
   params: { id },
