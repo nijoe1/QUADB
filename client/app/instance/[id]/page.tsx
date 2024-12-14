@@ -19,7 +19,7 @@ import { CardItem } from "@/components/Profile/CardItem";
 import Loading from "@/components/animation/loading";
 import useInstanceData from "@/hooks/useInstanceData";
 import { useChainName } from "@/hooks/useChainName";
-import {Subscribe} from "@/components/contracts/subscribe";
+import { Subscribe } from "@/components/contracts/subscribe";
 import { getInstanceID } from "@/lib/ens";
 
 const InstanceDetailsPage = ({
