@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Box, Image, Text, Badge, Button, IconButton } from "@chakra-ui/react";
 import { useAccount } from "wagmi";
-import UpdateProfile from "@/components/Profile/UpdateProfile";
+import UpdateProfile from "../../components/Profile/UpdateProfile";
 import { FaEdit } from "react-icons/fa";
 import { isAddress } from "viem";
 // Inside your component:

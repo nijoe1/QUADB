@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { Box, Tabs, TabList, TabPanels, TabPanel, Tab } from "@chakra-ui/react";
-import Profile from "@/components/Profile/Profile";
+import Profile from "../../../components/Profile/CardItem/Profile";
 import UserInstances from "@/components/ui/userInstances";
 import UserCodes from "@/components/ui/UserCodes";
 import { Container } from "@/components/ui/container";
