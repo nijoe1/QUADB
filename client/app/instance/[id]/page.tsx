@@ -15,7 +15,7 @@ import InstanceCodes from "@/components/ui/instanceCodes";
 import { useAccount } from "wagmi";
 import { useRouter } from "next/navigation";
 import { Container } from "@/components/ui/container";
-import { CardItem } from "@/components/Profile/CardItem";
+// import { CardItem } from "@/components/Profile/CardItem";
 import Loading from "@/components/animation/loading";
 import useInstanceData from "@/hooks/useInstanceData";
 import { useChainName } from "@/hooks/useChainName";
@@ -76,7 +76,7 @@ const InstanceDetailsPage = ({
               mb={4}
               p={["2", "4"]}
             >
-              <CardItem
+              {/* <CardItem
                 profileInfo={{
                   name: instance?.metadata?.name || "Instance Name",
                   desc: instance?.metadata?.about || "Instance Description",
@@ -85,7 +85,7 @@ const InstanceDetailsPage = ({
                   creator: instance?.creator,
                 }}
                 creator={instance?.creator}
-              />
+              /> */}
               {!((hasAccess ||
                 instanceMembers?.find(
                   (member: any) =>
