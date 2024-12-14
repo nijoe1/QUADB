@@ -3,7 +3,6 @@ import { fromString as uint8ArrayFromString } from "uint8arrays/from-string";
 import { toString as uint8ArrayToString } from "uint8arrays/to-string";
 import { getInstanceID } from "@/lib/ens";
 import { config } from "dotenv";
-import { EncryptToJsonPayload } from "@lit-protocol/types";
 import { Bytes, ethers } from "ethers";
 import {
   getMutateConditions,
@@ -166,7 +165,7 @@ interface DataStructure {
 }
 
 interface newUpdate {
-  data: string | File | Blob | EncryptToJsonPayload | JSON;
+  data: string | File | Blob | JSON;
   signatures: string[];
   Timestamp: string;
 }
