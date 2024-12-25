@@ -22,6 +22,8 @@ const deployQUADB: DeployFunction = async function (
   const PUBLIC_RESOLVER = "0xed9bd04b1BB87Abe2EfF583A977514940c95699c";
   const BASE_NODE = ethers.namehash("fil");
   const QUADB_NODE = ethers.namehash("testquadb.fil");
+
+  console.log("QUADB_NODE : ", QUADB_NODE);
   // convert bytes32 to uint
 
   const QUADB_TOKEN_ID = BigInt(keccak256(Buffer.from("testquadb")));
@@ -71,13 +73,13 @@ const deployQUADB: DeployFunction = async function (
   tx = await QUADB.tables(4);
   console.log(tx);
 
-  const setQUADBNode = await QUADB.setQUADBNode(
-    QUADB_TOKEN_ID,
-    BASE_NODE,
-    QUADB_NODE
-  );
+  //   const setQUADBNode = await QUADB.setQUADBNode(
+  //     QUADB_TOKEN_ID,
+  //     BASE_NODE,
+  //     QUADB_NODE
+  //   );
 
-  await setQUADBNode.wait();
+  //   await setQUADBNode.wait();
 
   console.log("🚀 QUADB deployed at: ", await QUADB.getAddress());
   const QUADBAddress = await QUADB.getAddress();

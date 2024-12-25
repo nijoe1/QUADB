@@ -7,9 +7,14 @@ const buildChildren = async (
   sampleSpacesData: any
 ) => {
   const children = [];
+  const addedChildrenIDs = new Set(); // Track added children IDs
+
   sampleSpacesData = sampleSpacesData ? sampleSpacesData : [];
   for (const node of sampleSpacesData) {
-    if (node.DBSubSpaceOfID.toLowerCase() === parentID.toLowerCase()) {
+    if (
+      node.DBSubSpaceOfID.toLowerCase() === parentID.toLowerCase() &&
+      !addedChildrenIDs.has(node.DBSpaceID) // Check if child is already added
+    ) {
       const childHierarchy = parentHierarchy
         ? `${node.DBSubSpaceName}.${parentHierarchy}`
         : node.DBSubSpaceName;
@@ -26,6 +31,7 @@ const buildChildren = async (
         children: childChildren,
       } as any;
       children.push(childObject);
+      addedChildrenIDs.add(node.DBSpaceID); // Add child ID to the set
     }
   }
   return children;
@@ -39,10 +45,10 @@ export const useFetchRootObject = () => {
 
       const rootObject = {
         name: "quadb.fil",
-        id: "0x3991c990740f74d9d194f79fecfb031206f5f8c77698f634d04f484f2904016e",
+        id: "0x458944be4bb2e02ee48674d6dc056b51a852cdf857c2e5c624fb8d135879e28e",
         attributes: { nodeType: "root" },
         children: await buildChildren(
-          "0x3991c990740f74d9d194f79fecfb031206f5f8c77698f634d04f484f2904016e",
+          "0x458944be4bb2e02ee48674d6dc056b51a852cdf857c2e5c624fb8d135879e28e",
           "",
           sampleSpacesData
         ),

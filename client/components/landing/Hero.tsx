@@ -87,7 +87,7 @@ export function Hero(): JSX.Element {
                 <li>
                   <img
                     src="/images/lighthouse-storage.png"
-                    alt="lighthouse"
+                    alt="lit"
                     className="h-[60px] rounded-full"
                   />
                 </li>

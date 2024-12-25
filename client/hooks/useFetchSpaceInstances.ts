@@ -24,7 +24,12 @@ const useFetchSpaceInstances = (spaceID: string) => {
   };
 
   const fetchInstances = async () => {
-    const data = (await getSpaceInstances(spaceID))[0]?.instances;
+    const data = await getSpaceInstances(spaceID);
+    if (!data) {
+      return [];
+    }
+    const instances = data[0]?.instances;
+
     const dataObj = {} as any;
     for (const key in data) {
       if (

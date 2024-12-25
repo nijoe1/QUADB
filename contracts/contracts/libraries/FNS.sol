@@ -25,10 +25,12 @@ abstract contract FNS is IERC721Receiver, Ownable {
     bytes32 private BASE_NODE;
     uint256 public DOMAIN_ID;
 
+    mapping(bytes32 => mapping(string => bool)) public subNodes;
+
     error NoInstanceAccess();
     error InvalidTokenAmount();
     error InvalidTokenSender();
-
+    error SubNodeAlreadyExists();
     constructor(
         address _registry,
         address _registrar,
@@ -52,6 +54,12 @@ abstract contract FNS is IERC721Receiver, Ownable {
         string memory subNode
     ) internal returns (bytes32 newSubNode) {
         bytes32 label = keccak256(bytes(subNode));
+
+        if (subNodes[parentNode][subNode]) {
+            revert SubNodeAlreadyExists();
+        }
+
+        subNodes[parentNode][subNode] = true;
 
         REGISTRY.setSubnodeRecord(
             // Gaming character subnode
