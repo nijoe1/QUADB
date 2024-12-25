@@ -19,7 +19,7 @@ function QUADBLogo(): JSX.Element {
       width="29pt"
       height="29pt"
       viewBox="0 0 638 631"
-      enable-background="new 0 0 638 631"
+      enableBackground="new 0 0 638 631"
     >
       <path
         fill="#F6F6F6"

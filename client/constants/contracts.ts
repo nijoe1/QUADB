@@ -1,4 +1,4 @@
-export const QUADB = "0x120948a3df0eae291ac71c5d7297c3c710075c0f";
+export const QUADB = "0x80821b27eb1e7C49ff3C63c495c2C0D917b85bd1";
 
 export const ADDRESS = QUADB;
 export const CONTRACT_ADDRESSES = ADDRESS;

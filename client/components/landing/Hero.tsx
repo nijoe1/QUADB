@@ -86,19 +86,11 @@ export function Hero(): JSX.Element {
                 </li>
                 <li>
                   <img
-                    src="/images/lit-logo.jpeg"
-                    alt="lit"
+                    src="/images/lighthouse-storage.png"
+                    alt="lighthouse"
                     className="h-[60px] rounded-full"
                   />
                 </li>
-
-                {/* <li>
-                  <img
-                    src="/images/worldcoin.jpeg"
-                    alt="push"
-                    className="h-[65px]  scale-90 rounded-md"
-                  />
-                </li> */}
               </ul>
             </div>
           </div>

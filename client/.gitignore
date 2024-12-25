@@ -12,6 +12,8 @@ node_modules
 .pnp.js
 .yarn/install-state.gz
 
+typechain-types
+
 # testing
 /coverage
 

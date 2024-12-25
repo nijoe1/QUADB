@@ -92,16 +92,18 @@ abstract contract FNS is IERC721Receiver, Ownable {
     }
 
     function safeTransferDomainOwnership(
+        address contractAddress,
         address newOwner
     ) external onlyOwner{
-        REGISTRAR.safeTransferFrom(address(this), newOwner, DOMAIN_ID);
+        REGISTRAR.safeTransferFrom(contractAddress, newOwner, DOMAIN_ID);
         QUADB_NODE = bytes32(0);
     }
 
     function transferDomainOwnership(
+        address contractAddress,
         address newOwner
     ) external onlyOwner {
-        REGISTRAR.transferFrom(address(this), newOwner, DOMAIN_ID);
+        REGISTRAR.transferFrom(contractAddress, newOwner, DOMAIN_ID);
         QUADB_NODE = bytes32(0);
     }
 

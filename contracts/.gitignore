@@ -17,6 +17,7 @@ yarn.lock
 pnpm-lock.yaml
 package-lock.json
 
+typechain-types
 
 
 .env
