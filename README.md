@@ -1,7 +1,5 @@
 # Welcome to QUADB 🚀🧑‍🚀⚛
 
-## A Submission for the ETHGlobal Brussels Hackathon 2024.
-
 <div >
   <img src="./client/public/images/logo.png" alt="QUADB Logo" style="border-radius: 5%; width: 400px;" />
 </div>
