@@ -12,6 +12,46 @@ interface FileUploadProps {
   id?: string;
 }
 
+const isImageFile = (file: File | null) => {
+  return file ? file.type.startsWith("image/") : false;
+};
+
+const FilePreview: React.FC<{
+  preview: string | null;
+  fileName: string | null;
+  onClick: () => void;
+}> = ({ preview, fileName, onClick }) => {
+  return (
+    <div className="group relative w-full max-w-[906px] items-center justify-center">
+      {preview ? (
+        <div
+          style={{
+            backgroundImage: `url(${preview})`,
+            backgroundSize: "contain",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center",
+            height: "132px",
+          }}
+          aria-label="Preview"
+        />
+      ) : (
+        <div className="flex items-center justify-center h-[132px]">
+          <span>{fileName}</span>
+        </div>
+      )}
+      <div
+        onClick={onClick}
+        className=" flex cursor-pointer items-center justify-center transition-opacity duration-300 group-hover:opacity-100"
+      >
+        <div className="flex size-10 items-center justify-center rounded-full bg-white p-3 gap-2">
+          <CloudUpload className="text-black" />
+          <div className="text-xs">Change file</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const FileUpload: React.FC<FileUploadProps> = ({
   value,
   onChange,
@@ -20,24 +60,51 @@ export const FileUpload: React.FC<FileUploadProps> = ({
 }) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const base64 = useMemo(
-    () => (value ? URL.createObjectURL(value) : null),
-    [value]
-  );
-  const [preview, setPreview] = useState<string | null>(base64);
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
 
   useEffect(() => {
-    setPreview(base64);
-  }, [base64]);
+    if (value) {
+      setFile(value as File);
+      setPreview(
+        isImageFile(value as File) ? URL.createObjectURL(value) : null
+      );
+    }
+  }, [value]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0] || null;
-    if (file) {
-      setPreview(URL.createObjectURL(file));
-    }
-    onChange?.(file);
+    const selectedFile = event.target.files?.[0] || null;
+    setFile(selectedFile);
+    setPreview(
+      isImageFile(selectedFile)
+        ? URL.createObjectURL(selectedFile ?? new Blob())
+        : null
+    );
+    onChange?.(selectedFile);
   };
-  const [uniqueId] = React.useState(() => nanoid());
+
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDragging(false);
+    const droppedFile = event.dataTransfer.files?.[0] || null;
+    setFile(droppedFile);
+    setPreview(
+      isImageFile(droppedFile)
+        ? URL.createObjectURL(droppedFile ?? new Blob())
+        : null
+    );
+    onChange?.(droppedFile);
+  };
+
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
 
   const triggerFileInput = () => {
     fileInputRef.current?.click();
@@ -48,8 +115,12 @@ export const FileUpload: React.FC<FileUploadProps> = ({
       className={cn(
         "flex h-[134px] flex-col items-center justify-center rounded-lg border border-dashed border-grey-300 bg-white",
         preview ? "" : "px-4 py-6",
-        className
+        className,
+        isDragging ? "border-blue-500" : ""
       )}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
     >
       <input
         type="file"
@@ -58,27 +129,12 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         ref={fileInputRef}
         id={`file-upload-${id}`}
       />
-      {preview ? (
-        <div className="group relative w-full max-w-[906px] items-center justify-center">
-          <div
-            style={{
-              backgroundImage: `url(${preview})`,
-              backgroundSize: "contain",
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "center",
-              height: "132px",
-            }}
-            aria-label="Preview"
-          />
-          <div
-            onClick={triggerFileInput}
-            className="absolute inset-0 flex cursor-pointer items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-          >
-            <div className="flex size-10 items-center justify-center rounded-full bg-white p-3">
-              <Image className="text-black" />
-            </div>
-          </div>
-        </div>
+      {file ? (
+        <FilePreview
+          preview={preview}
+          fileName={file.name}
+          onClick={triggerFileInput}
+        />
       ) : (
         <label htmlFor={`file-upload-${id}`} style={{ cursor: "pointer" }}>
           <div className="flex flex-col items-center gap-2">
@@ -93,7 +149,6 @@ export const FileUpload: React.FC<FileUploadProps> = ({
               <span>{"or drag and drop"}</span>
             </div>
           </div>
-          <div>PNG, JPG (Recommended: 1500x1500px)</div>
         </label>
       )}
     </div>

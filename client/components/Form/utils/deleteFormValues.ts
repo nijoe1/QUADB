@@ -1,8 +1,8 @@
 import { setupDB } from "./setupDB";
 
 export const deleteFormValues = async (keys: string[]) => {
-  const dbName = "formDB";
-  const storeName = "formDrafts";
+  const dbName = "dataset";
+  const storeName = "create-dataset";
 
   try {
     const db = await setupDB(dbName, storeName);

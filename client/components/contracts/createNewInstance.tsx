@@ -8,6 +8,7 @@ import { Modal, ModalContent, ModalOverlay } from "@chakra-ui/react";
 import { Form } from "@/components/Form/Form";
 import { FormField } from "@/components/Form/types/fieldTypes";
 import { notification } from "@/hooks/utils/notification";
+import { deleteFormValues } from "../Form/utils/deleteFormValues";
 
 const fields: FormField[] = [
   {
@@ -26,6 +27,7 @@ const fields: FormField[] = [
       name: "about",
       label: "Dataset description",
       validation: { required: true },
+      className: "w-full",
     },
     component: "MarkdownEditor",
   },
@@ -52,8 +54,8 @@ const args = {
   formDescription: "Fill out the details about your dataset.",
   fields,
   persistKey: "new-instance",
-  backButtonText: "Back",
-  nextButtonText: "Next",
+  backButtonText: "Cancel",
+  nextButtonText: "Create",
 };
 
 interface CreateNewInstanceProps {
@@ -86,7 +88,7 @@ export function CreateNewInstance({
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
-      <ModalContent className="flex flex-col items-center w-[300px]">
+      <ModalContent className="flex flex-col items-center w-full">
         <Form
           {...args}
           onSubmit={async (formData: FormData) => {
@@ -99,6 +101,11 @@ export function CreateNewInstance({
               image: formData.image,
               file: formData.file,
             });
+
+            await deleteFormValues(["new-instance"]);
+          }}
+          onBack={() => {
+            onClose();
           }}
         />
       </ModalContent>
