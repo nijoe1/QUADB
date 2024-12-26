@@ -42,14 +42,14 @@ export const useUploadEncryptedFile = () => {
       if (!jwt) {
         throw new Error("Error signing in to Lighthouse");
       }
-      return uploadFilesEncrypted({
-        files: files,
+      return uploadFilesEncrypted(
+        files,
         apiKey,
-        userAddress: address,
+        address,
         jwt,
-        conditions: accessControlConditions.conditions,
-        aggregator: accessControlConditions.aggregate,
-      });
+        accessControlConditions.conditions,
+        accessControlConditions.aggregate
+      );
     },
   });
 };

@@ -3,16 +3,16 @@ import { useMutation } from "@tanstack/react-query";
 import { createIPNSNameWithCID } from "@/lib/ipfs"; // Assume these functions exist
 import { CONTRACT_ABI, CONTRACT_ADDRESSES } from "@/constants/contracts"; // Assume these constants exist
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
-import { Address, TransactionReceipt } from "viem";
+import { Abi, Address, TransactionReceipt } from "viem";
 import { useToast } from "@/hooks/useToast";
 import { useUploadFile } from "@/hooks/lighthouse/useUpload";
 
 export interface FormData {
   name: string;
   about: string;
-  image: string;
+  image: File;
   members?: `0x${string}`[];
-  file: string;
+  file: File;
 }
 
 interface UseCreateInstanceProps {
@@ -33,26 +33,26 @@ export const useCreateInstance = ({
   const { mutateAsync: uploadFile } = useUploadFile();
 
   const [isLoading, setIsLoading] = useState(false);
+  const reader = new FileReader();
+
   const uploadMetadata = async (formData: FormData) => {
+    const imageBase64 = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(formData.image);
+    });
     const metadata = {
       name: formData.name,
       about: formData.about,
-      imageUrl: formData.image,
+      imageUrl: imageBase64,
     };
     const metadataFile = new File([JSON.stringify(metadata)], "metadata.json", {
       type: "application/json",
     });
     return await uploadFile({ files: [metadataFile] });
   };
-  const base64ToBlob = (base64: string, type: string) => {
-    const byteCharacters = atob(base64.split(",")[1]);
-    const byteNumbers = new Array(byteCharacters.length);
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i);
-    }
-    const byteArray = new Uint8Array(byteNumbers);
-    return new File([byteArray], "file", { type });
-  };
+
   const mutation = useMutation<TransactionReceipt, Error, FormData>({
     mutationFn: async (formData) => {
       if (!walletClient || !publicClient || !account) {
@@ -60,10 +60,12 @@ export const useCreateInstance = ({
       }
 
       setIsLoading(true);
+
+      console.log("formData", formData);
       try {
         const metadataCID = await uploadMetadata(formData);
         const fileCID = await uploadFile({
-          files: [base64ToBlob(formData.file, "text/csv")],
+          files: [formData.file],
         });
 
         const ipnsResult = await createIPNSNameWithCID({
@@ -76,14 +78,13 @@ export const useCreateInstance = ({
         const simulation = await publicClient.simulateContract({
           account,
           address: CONTRACT_ADDRESSES as Address,
-          abi: CONTRACT_ABI,
+          abi: CONTRACT_ABI as Abi,
           functionName: "createSpaceInstance",
           args: [
             spaceID,
             BigInt(0),
             formData.members || [],
             metadataCID || "",
-            "chatID",
             ipnsResult.name,
             ipnsResult.cid,
           ],

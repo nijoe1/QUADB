@@ -41,6 +41,8 @@ const SingleSpacePage = ({
     onOpen();
   };
 
+  console.log("openInstances", instances);
+
   return (
     <div className="flex flex-col items-center">
       {!fetched ? (
@@ -157,10 +159,7 @@ const SingleSpacePage = ({
                                 >
                                   Download Dataset
                                 </MenuItem>
-                                <MenuItem
-                                  className="bg-black/80 text-white"
-                                  onClick={() => console.log("Fork instance")}
-                                >
+                                <MenuItem className="bg-black/80 text-white">
                                   Fork Instance
                                 </MenuItem>
                               </MenuList>

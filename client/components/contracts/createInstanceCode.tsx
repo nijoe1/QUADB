@@ -108,7 +108,6 @@ const CreateNewInstanceCode = ({
           spaceID,
           formData.name,
           formData.about,
-          "chatID",
           res.name,
           res.cid,
         ],

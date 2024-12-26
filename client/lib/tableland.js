@@ -30,13 +30,13 @@ export const getSpaceInstances = async (spaceID) => {
               SELECT DISTINCT row_data 
               FROM (
                 SELECT 
-                  json_object('InstanceID', InstanceID, 'instanceOfSpace', instanceOfSpace, 'IPNS', IPNS, 'IPNSEncryptedKey', IPNSEncryptedKey, 'chatID', chatID, 'creator', creator, 'gatedContract', gatedContract, 'metadataCID', metadataCID, 'price', price) AS row_data 
+                  json_object('InstanceID', InstanceID, 'instanceOfSpace', instanceOfSpace, 'IPNS', IPNS, 'IPNSEncryptedKey', IPNSEncryptedKey, 'creator', creator, 'gatedContract', gatedContract, 'metadataCID', metadataCID, 'price', price) AS row_data 
                   FROM ${tables.spaceInstances} WHERE instanceType = '1' AND instanceOfSpace = '${spaceID.toLowerCase()}') AS subquery 
               WHERE row_data IS NOT NULL)), '[]'),
           'openPrivateInstances', COALESCE((
             SELECT json_group_array(row_data) 
             FROM (SELECT DISTINCT row_data FROM (
-              SELECT json_object('InstanceID', InstanceID, 'instanceOfSpace', instanceOfSpace, 'IPNS', IPNS, 'IPNSEncryptedKey', IPNSEncryptedKey, 'chatID', chatID, 'creator', creator, 'gatedContract', gatedContract, 'metadataCID', metadataCID, 'price', price) AS row_data 
+              SELECT json_object('InstanceID', InstanceID, 'instanceOfSpace', instanceOfSpace, 'IPNS', IPNS, 'IPNSEncryptedKey', IPNSEncryptedKey, 'creator', creator, 'gatedContract', gatedContract, 'metadataCID', metadataCID, 'price', price) AS row_data 
               FROM ${tables.spaceInstances} 
               WHERE instanceType = '2' AND instanceOfSpace = '${spaceID.toLowerCase()}') AS subquery 
             WHERE row_data IS NOT NULL)), '[]'),
@@ -44,7 +44,7 @@ export const getSpaceInstances = async (spaceID) => {
             SELECT json_group_array(row_data) 
             FROM (SELECT DISTINCT row_data 
               FROM (
-                SELECT json_object('InstanceID', InstanceID, 'instanceOfSpace', instanceOfSpace, 'IPNS', IPNS, 'IPNSEncryptedKey', IPNSEncryptedKey, 'chatID', chatID, 'creator', creator, 'gatedContract', gatedContract, 'metadataCID', metadataCID, 'price', price) AS row_data 
+                SELECT json_object('InstanceID', InstanceID, 'instanceOfSpace', instanceOfSpace, 'IPNS', IPNS, 'IPNSEncryptedKey', IPNSEncryptedKey, 'creator', creator, 'gatedContract', gatedContract, 'metadataCID', metadataCID, 'price', price) AS row_data 
                 FROM ${tables.spaceInstances} 
               WHERE instanceType = '3' AND instanceOfSpace = '${spaceID.toLowerCase()}') AS subquery 
             WHERE row_data IS NOT NULL)), '[]'),
@@ -52,7 +52,7 @@ export const getSpaceInstances = async (spaceID) => {
             SELECT json_group_array(row_data) 
             FROM (SELECT DISTINCT row_data 
               FROM (
-                SELECT json_object('InstanceID', InstanceID, 'instanceOfSpace', instanceOfSpace, 'IPNS', IPNS, 'IPNSEncryptedKey', IPNSEncryptedKey, 'chatID', chatID, 'creator', creator, 'gatedContract', gatedContract, 'metadataCID', metadataCID, 'price', price) AS row_data 
+                SELECT json_object('InstanceID', InstanceID, 'instanceOfSpace', instanceOfSpace, 'IPNS', IPNS, 'IPNSEncryptedKey', IPNSEncryptedKey, 'creator', creator, 'gatedContract', gatedContract, 'metadataCID', metadataCID, 'price', price) AS row_data 
                 FROM ${tables.spaceInstances} WHERE instanceType = '4' AND instanceOfSpace = '${spaceID.toLowerCase()}') AS subquery 
               WHERE row_data IS NOT NULL)), '[]')
       ) AS instances
@@ -86,7 +86,6 @@ export const getUserInstances = async (address) => {
                             'instanceOfSpace', s.instanceOfSpace,
                             'IPNS', s.IPNS,
                             'IPNSEncryptedKey', s.IPNSEncryptedKey,
-                            'chatID', s.chatID,
                             'creator', s.creator,
                             'gatedContract', s.gatedContract,
                             'metadataCID', s.metadataCID,
@@ -110,7 +109,6 @@ export const getUserInstances = async (address) => {
                             'instanceOfSpace', s.instanceOfSpace,
                             'IPNS', s.IPNS,
                             'IPNSEncryptedKey', s.IPNSEncryptedKey,
-                            'chatID', s.chatID,
                             'creator', s.creator,
                             'gatedContract', s.gatedContract,
                             'metadataCID', s.metadataCID,
@@ -135,7 +133,6 @@ export const getUserInstances = async (address) => {
                             'instanceOfSpace', s.instanceOfSpace,
                             'IPNS', s.IPNS,
                             'IPNSEncryptedKey', s.IPNSEncryptedKey,
-                            'chatID', s.chatID,
                             'creator', s.creator,
                             'gatedContract', s.gatedContract,
                             'metadataCID', s.metadataCID,

@@ -252,11 +252,6 @@ export const CONTRACT_ABI = [
       },
       {
         internalType: "string",
-        name: "_chatID",
-        type: "string",
-      },
-      {
-        internalType: "string",
         name: "_codeIPNS",
         type: "string",
       },
@@ -291,11 +286,6 @@ export const CONTRACT_ABI = [
       {
         internalType: "string",
         name: "_metadataCID",
-        type: "string",
-      },
-      {
-        internalType: "string",
-        name: "_chatID",
         type: "string",
       },
       {
@@ -607,7 +597,7 @@ export const CONTRACT_ABI = [
       },
       {
         internalType: "uint256",
-        name: "tokenId",
+        name: "",
         type: "uint256",
       },
       {
@@ -624,7 +614,7 @@ export const CONTRACT_ABI = [
         type: "bytes4",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -681,6 +671,47 @@ export const CONTRACT_ABI = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "contractAddress",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
+    ],
+    name: "safeTransferDomainOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        internalType: "bytes32",
+        name: "baseNode",
+        type: "bytes32",
+      },
+      {
+        internalType: "bytes32",
+        name: "node",
+        type: "bytes32",
+      },
+    ],
+    name: "setQUADBNode",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "uint256",
         name: "",
         type: "uint256",
@@ -718,6 +749,11 @@ export const CONTRACT_ABI = [
   },
   {
     inputs: [
+      {
+        internalType: "address",
+        name: "contractAddress",
+        type: "address",
+      },
       {
         internalType: "address",
         name: "newOwner",

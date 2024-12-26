@@ -1,7 +1,8 @@
-import { Benefits, Hero, HowItWorks } from "@/components/landing";
+"use client";
+import { Benefits, HowItWorks, Hero } from "@/components/landing";
 import { Container } from "@/components/ui/container";
 
-const LandingPage = () => {
+export default function LandingPage() {
   return (
     <Container className="flex flex-col gap-10 md:gap-4">
       <Hero />
@@ -9,6 +10,4 @@ const LandingPage = () => {
       <Benefits />
     </Container>
   );
-};
-
-export default LandingPage;
+}

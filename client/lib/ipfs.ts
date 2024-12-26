@@ -9,7 +9,7 @@ import {
   getUserAPIKey,
   getUserJWT,
   getViewConditions,
-} from "../hooks/lighthouse/utils";
+} from "@/hooks/lighthouse/utils";
 import { Address, Hex, WalletClient } from "viem";
 import { decrypt, uploadFiles, uploadFilesEncrypted } from "@/hooks/lighthouse";
 import { QUADB } from "@/constants/contracts";
@@ -44,14 +44,14 @@ export const encryptIPNSKey = async ({
   });
 
   const encryptedFile = new File([encryptedPayload], "encryptedFile.json");
-  let cid = await uploadFilesEncrypted({
-    files: [encryptedFile],
-    apiKey: await getUserAPIKey(address, walletClient),
-    userAddress: address,
-    jwt: (await getUserJWT(address, walletClient)) as string,
-    conditions: mutateAccessControlConditions.conditions,
-    aggregator: mutateAccessControlConditions.aggregator,
-  });
+  let cid = await uploadFilesEncrypted(
+    [encryptedFile],
+    await getUserAPIKey(address, walletClient),
+    address,
+    (await getUserJWT(address, walletClient)) as string,
+    mutateAccessControlConditions.conditions,
+    mutateAccessControlConditions.aggregator
+  );
   return cid as string;
 };
 
@@ -75,14 +75,14 @@ export const createIPNSName = async ({
       chainID: 314,
       instanceID: spaceID,
     });
-    cid = await uploadFilesEncrypted({
-      files: [file],
-      apiKey: await getUserAPIKey(address, walletClient),
-      userAddress: address,
-      jwt: (await getUserJWT(address, walletClient)) as string,
-      conditions: viewAccessControlConditions.conditions,
-      aggregator: viewAccessControlConditions.aggregator,
-    });
+    cid = await uploadFilesEncrypted(
+      [file],
+      await getUserAPIKey(address, walletClient),
+      address,
+      (await getUserJWT(address, walletClient)) as string,
+      viewAccessControlConditions.conditions,
+      viewAccessControlConditions.aggregator
+    );
   } else {
     cid = await uploadFiles([file], await getUserAPIKey(address, walletClient));
   }

@@ -2,7 +2,7 @@ import { getJWT } from "@lighthouse-web3/kavach";
 import lighthouse from "@lighthouse-web3/sdk";
 import axios from "axios";
 import { Hex, WalletClient } from "viem";
-import { notification } from "@/hooks/utils/notification";
+import { notification } from "../utils/notification";
 
 export const LighthouseChains = {
   314: {

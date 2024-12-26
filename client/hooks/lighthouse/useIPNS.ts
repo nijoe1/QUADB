@@ -37,14 +37,14 @@ export const useUpdateIPNS = (
       });
       jwt = (await getUserJWT(address, walletClient)) as string;
       apiKey = await getUserAPIKey(address, walletClient);
-      cid = await uploadFilesEncrypted({
-        files: [file],
-        userAddress: address,
+      cid = await uploadFilesEncrypted(
+        [file],
         apiKey,
+        address,
         jwt,
-        conditions: viewAccessControlConditions.conditions,
-        aggregator: viewAccessControlConditions.aggregator,
-      });
+        viewAccessControlConditions.conditions,
+        viewAccessControlConditions.aggregator
+      );
     }
     if (!jwt) {
       jwt = (await getUserJWT(address, walletClient)) as string;
@@ -118,14 +118,14 @@ export const useCreateIPNS = () => {
       });
       jwt = (await getUserJWT(address, walletClient)) as string;
       apiKey = await getUserAPIKey(address, walletClient);
-      cid = await uploadFilesEncrypted({
-        files: [file],
-        userAddress: address,
+      cid = await uploadFilesEncrypted(
+        [file],
         apiKey,
+        address,
         jwt,
-        conditions: viewAccessControlConditions.conditions,
-        aggregator: viewAccessControlConditions.aggregator,
-      });
+        viewAccessControlConditions.conditions,
+        viewAccessControlConditions.aggregator
+      );
     }
     return await createIPNSName({
       file: file,
