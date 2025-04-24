@@ -21997,14 +21997,14 @@ var init_esbuild_shims = __esm({
   }
 });
 
-// src/lit-actions/thresholdRecovery.ts
+// src/lit-actions/tempAction.ts
 init_esbuild_shims();
 (async () => {
   let stringifiedApiKey;
   let namePrivateKey;
-  const signatures = [];
-  const addresses = [];
-  const threshold = 0;
+  const signatures = $signatures$;
+  const addresses = $addresses$;
+  const threshold = $threshold$;
   try {
     try {
       stringifiedApiKey = await Lit.Actions.decryptAndCombine({
