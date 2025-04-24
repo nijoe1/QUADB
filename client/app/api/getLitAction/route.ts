@@ -15,11 +15,13 @@ export async function GET(req: NextRequest) {
     console.log("🚀 Starting Get Custom Lit Action Code process...");
 
     // Get request parameters from URL search params
-    const searchParams = req.nextUrl.searchParams;
-    const signatures = searchParams.get("signatures")?.split(",") || [];
-    const addresses = searchParams.get("addresses")?.split(",") || [];
-    const threshold = Number(searchParams.get("threshold")) || 0;
-
+    // const searchParams = req.nextUrl.searchParams;
+    // const signatures = searchParams.get("signatures")?.split(",") || [];
+    // const addresses = searchParams.get("addresses")?.split(",") || [];
+    // const threshold = Number(searchParams.get("threshold")) || 0;
+    const signatures = ["0x123", "0x456", "0x789"];
+    const addresses = ["0x123", "0x456", "0x789"];
+    const threshold = 2;
     // Validate required input parameters
     if (!signatures || !Array.isArray(signatures)) {
       return NextResponse.json(
