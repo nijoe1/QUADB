@@ -44,7 +44,7 @@ export const encryptIPNSKey = async ({
   });
 
   const encryptedFile = new File([encryptedPayload], "encryptedFile.json");
-  let cid = await uploadFilesEncrypted(
+  const cid = await uploadFilesEncrypted(
     [encryptedFile],
     await getUserAPIKey(address, walletClient),
     address,
@@ -104,6 +104,49 @@ export const createIPNSName = async ({
     cid: encryptedKeyCid,
   };
 };
+
+export const createIPNS = async ({
+  cid,
+  spaceID,
+  address,
+  walletClient,
+}: {
+  cid: string;
+  spaceID: Hex;
+  address: Address;
+  walletClient: WalletClient;
+}) => {
+  // https://www.npmjs.com/package/w3name
+
+  const response = await fetch(`/api/createIPNS`, {
+    method: "POST",
+    body: JSON.stringify({
+      ipfsCID: cid,
+      spaceID,
+      threshold: 1,
+    }),
+  });
+  const data = (await response.json()) as {
+    instanceID: string;
+    ipns: string;
+    ciphertext: string;
+    dataToEncryptHash: string;
+    codeCID: string;
+  };
+  const file = new File([JSON.stringify(data)], "file.json", {
+    type: "application/json",
+  });
+  const lit_config_cid = await uploadFiles(
+    [file],
+    await getUserAPIKey(address, walletClient)
+  );
+
+  return {
+    instanceID: data.instanceID,
+    name: data.ipns,
+    lit_config_cid: lit_config_cid,
+  };
+};
 export const createIPNSNameWithCID = async ({
   cid,
   spaceID,
@@ -154,7 +197,34 @@ export const renewIPNSName = async ({
   });
   const key = JSON.parse(await jsonFile.text()).message;
   const revision = await Name.resolve(name);
-  let nextRevision = await Name.increment(revision, cid);
+  const nextRevision = await Name.increment(revision, cid);
+  const IPNSKey = uint8ArrayFromString(key, "base64");
+  const nameKey = await Name.from(IPNSKey);
+  await Name.publish(nextRevision, nameKey.key);
+};
+
+export const renewIPNSNameWithAction = async ({
+  cid,
+  IPNS,
+  EncryptedKeyCID,
+  address,
+  jwt,
+}: {
+  cid: string;
+  IPNS: string;
+  EncryptedKeyCID: string;
+  address: Address;
+  jwt: string;
+}) => {
+  const name = Name.parse(IPNS);
+  const jsonBlob = await decrypt(EncryptedKeyCID, address, jwt);
+  console.log("jsonBlob", jsonBlob);
+  const jsonFile = new File([jsonBlob], `type.json`, {
+    type: "application/json",
+  });
+  const key = JSON.parse(await jsonFile.text()).message;
+  const revision = await Name.resolve(name);
+  const nextRevision = await Name.increment(revision, cid);
   const IPNSKey = uint8ArrayFromString(key, "base64");
   const nameKey = await Name.from(IPNSKey);
   await Name.publish(nextRevision, nameKey.key);
@@ -262,7 +332,7 @@ export const validateRenewIPNSName = async ({
   });
   const key = JSON.parse(await jsonFile.text()).message;
   const revision = await Name.resolve(name);
-  let nextRevision = await Name.increment(revision, cid);
+  const nextRevision = await Name.increment(revision, cid);
   const IPNSKey = uint8ArrayFromString(key, "base64");
   const nameKey = await Name.from(IPNSKey);
   await Name.publish(nextRevision, nameKey.key);
