@@ -10,6 +10,7 @@ interface BaseField {
       maxLength?: number | { value: number; message?: string };
       pattern?: string | { value: RegExp; message?: string };
       isFile?: boolean;
+      isArray?: boolean;
       // Add more validation rules as needed
     };
     className?: string;
@@ -51,9 +52,15 @@ export interface SelectField extends BaseField, SelectProps {
   // Any other Select-specific props you want to allow
 }
 
+export interface FieldArrayField extends BaseField {
+  component: "FieldArray";
+  // Any other FieldArray-specific props you want to allow
+}
+
 export type FormField =
   | InputField
   | TextareaField
   | MarkdownEditorField
   | FileUploadField
-  | SelectField;
+  | SelectField
+  | FieldArrayField;

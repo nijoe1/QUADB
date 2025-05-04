@@ -75,7 +75,7 @@ const SingleSpacePage = ({
               ]}
               gap={6}
               width="100%"
-              className="flex md:justify-between lg:grid lg:px-3 relative"
+              className="relative flex md:justify-between lg:grid lg:px-3"
             >
               {Object.entries(instances).map(
                 ([type, instanceArray]) =>

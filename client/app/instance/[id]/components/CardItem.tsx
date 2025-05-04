@@ -54,29 +54,40 @@ export const CardItem: React.FC<CardItemProps> = ({ profileInfo, creator }) => {
     if (profileInfo) {
       fetchProfileInfo();
     }
+    if (profileInfo?.members) {
+      setContributors(
+        profileInfo?.members
+          .filter((member) => !!member)
+          .map((member) => ({
+            address: member,
+            name: member,
+            image: makeBlockie(member),
+          }))
+      );
+    }
   }, [profileInfo]);
 
   return (
-    <div className="mt-20 max-w-5xl mx-auto">
-      <div className="p-4 mx-5 bg-gray-800 rounded-xl shadow-md">
-        <div className="p-4 mb-4 flex flex-col items-center">
+    <div className="mx-auto mt-20 max-w-5xl">
+      <div className="mx-5 rounded-xl bg-[#424242] p-4 shadow-md">
+        <div className="mb-4 flex flex-col items-center p-4">
           <img
             src={profileInfo?.picture || "/path/to/image.jpg"}
             alt="Profile Image"
-            className="rounded-full w-3/4 aspect-[2/1] object-cover mb-4"
+            className="mb-4 aspect-[2/1] w-3/4 rounded-lg object-cover"
           />
           <p className="text-lg font-bold text-white">
             {profileInfo?.name || "User Name"}
           </p>
-          <span className="text-black bg-black rounded-full px-2 py-1 mt-2 text-sm">
+          <span className="mt-2 rounded-full bg-black px-2 py-1 text-sm text-white">
             {getCreator?.slice(0, 6)}...{getCreator?.slice(-6)}
           </span>
-          <p className="text-sm text-white mt-2">
+          <p className="mt-2 text-sm text-white">
             {profileInfo?.desc || "User Description"}
           </p>
           <button
             onClick={handleShowModal}
-            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+            className="mt-4 rounded bg-blue-500 px-4 py-2 text-white"
           >
             Contributors
           </button>
@@ -84,7 +95,7 @@ export const CardItem: React.FC<CardItemProps> = ({ profileInfo, creator }) => {
       </div>
 
       {/* Contributors Modal */}
-      <Modal isOpen={showModal} onClose={handleCloseModal} size="lg">
+      <Modal isOpen={showModal} onClose={handleCloseModal} size="lg" isCentered>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Contributors</ModalHeader>
@@ -103,25 +114,16 @@ export const CardItem: React.FC<CardItemProps> = ({ profileInfo, creator }) => {
                       <td className="py-2">
                         <div className="flex items-center">
                           <img
-                            className="mt-2 rounded-md w-9"
+                            className="mt-2 w-9 rounded-sm"
                             src={
                               contributor?.image ||
                               makeBlockie(contributor?.address)
                             }
                             alt="Sender Avatar"
                           />
-                          <p className="text-md mt-2 mx-2 text-black ml-2">
+                          <p className="text-md mx-2 mt-2 text-black">
                             {contributor?.name}
                           </p>
-                          <span
-                            className="text-black bg-black rounded-full px-2 py-1 mt-2 text-sm cursor-pointer"
-                            onClick={() => {
-                              router.push("/profile" + contributor?.address);
-                            }}
-                          >
-                            {contributor?.address?.slice(0, 6)}...
-                            {contributor?.address?.slice(-6)}
-                          </span>
                         </div>
                       </td>
                     </tr>
@@ -131,7 +133,7 @@ export const CardItem: React.FC<CardItemProps> = ({ profileInfo, creator }) => {
           </ModalBody>
           <ModalFooter>
             <button
-              className="bg-black text-white rounded-lg mr-3 px-4 py-2"
+              className="mr-3 rounded-lg bg-black px-4 py-2 text-white"
               onClick={handleCloseModal}
             >
               Close

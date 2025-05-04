@@ -36,7 +36,7 @@ NavigationMenuList.displayName = NavigationMenuPrimitive.List.displayName;
 const NavigationMenuItem = NavigationMenuPrimitive.Item;
 
 const navigationMenuTriggerStyle = tv({
-  base: "group inline-flex h-10 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-grey-100 hover:text-black focus:bg-grey-100 focus:text-black focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-grey-100/50 data-[state=open]:bg-grey-100/50 dark:bg-black dark:hover:bg-black dark:hover:text-grey-50 dark:focus:bg-black dark:focus:text-grey-50 dark:data-[active]:bg-black/50 dark:data-[state=open]:bg-black/50",
+  base: "hover:bg-grey-100 focus:bg-grey-100 data-[active]:bg-grey-100/50 data-[state=open]:bg-grey-100/50 dark:hover:text-grey-50 dark:focus:text-grey-50 group inline-flex h-10 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium transition-colors hover:text-black focus:text-black focus:outline-none disabled:pointer-events-none disabled:opacity-50 dark:bg-black dark:hover:bg-black dark:focus:bg-black dark:data-[active]:bg-black/50 dark:data-[state=open]:bg-black/50",
 });
 
 const NavigationMenuTrigger = React.forwardRef<
@@ -51,7 +51,7 @@ const NavigationMenuTrigger = React.forwardRef<
     {children}
     {""}
     <ChevronDown
-      className="relative top-[1px] ml-1 h-3 w-3 transition duration-200 group-data-[state=open]:rotate-180"
+      className="relative top-px ml-1 size-3 transition duration-200 group-data-[state=open]:rotate-180"
       aria-hidden="true"
     />
   </NavigationMenuPrimitive.Trigger>
@@ -104,7 +104,7 @@ const NavigationMenuIndicator = React.forwardRef<
     )}
     {...props}
   >
-    <div className="relative top-[60%] h-2 w-2 rotate-45 rounded-tl-sm bg-grey-100 shadow-md dark:bg-black" />
+    <div className="bg-grey-100 relative top-[60%] size-2 rotate-45 rounded-tl-sm shadow-md dark:bg-black" />
   </NavigationMenuPrimitive.Indicator>
 ));
 NavigationMenuIndicator.displayName = NavigationMenuPrimitive.Indicator.displayName;

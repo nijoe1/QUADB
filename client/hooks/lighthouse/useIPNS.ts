@@ -1,11 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { renewIPNSName, createIPNSName } from "@/lib/ipfs";
+import { renewIPNSName, createIPNSName, fetchIPFS } from "@/lib/ipfs";
 import { useToast } from "@chakra-ui/react";
 import { useWalletClient } from "wagmi";
 import { uploadFiles, uploadFilesEncrypted } from ".";
 import { getUserAPIKey, getUserJWT, getViewConditions } from "./utils";
-import { Address, Hex } from "viem";
+import { Address, Hex, parseSignature } from "viem";
 import { QUADB } from "@/constants/contracts";
+import { IPNSConfig, updateIPNSBody } from "@/lib/types";
+import * as W3Name from "w3name";
 
 export const useUpdateIPNS = (
   address: any,
@@ -49,13 +51,41 @@ export const useUpdateIPNS = (
     if (!jwt) {
       jwt = (await getUserJWT(address, walletClient)) as string;
     }
-    await renewIPNSName({
-      IPNS,
-      EncryptedKeyCID,
-      cid: cid,
-      address: address,
-      jwt: jwt,
+
+    const name = W3Name.parse(IPNS);
+    const revision = await W3Name.resolve(name);
+    const sequence = revision.sequence.toString();
+
+    const signature = await walletClient?.signMessage({
+      message: `I acknowledge updating the current ipns record : ${IPNS} contents to point to this new ipfs cid : ${cid} and the previous sequence number is ${sequence}`,
     });
+
+    const ipnsConfig = (await fetchIPFS(EncryptedKeyCID)) as IPNSConfig;
+
+    const body: updateIPNSBody = {
+      threshold: 1,
+      signatures: [signature],
+      newCid: cid,
+      ipns: IPNS,
+      ciphertext: ipnsConfig.ciphertext,
+      dataToEncryptHash: ipnsConfig.dataToEncryptHash,
+      instanceID: spaceID,
+    };
+
+    const response = await fetch(`/api/updateIPNS`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+
+    console.log("response", await response.json());
+
+    // await renewIPNSName({
+    //   IPNS,
+    //   EncryptedKeyCID,
+    //   cid: cid,
+    //   address: address,
+    //   jwt: jwt,
+    // });
     return cid;
   };
 

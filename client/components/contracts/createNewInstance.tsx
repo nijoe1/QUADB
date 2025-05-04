@@ -47,6 +47,14 @@ const fields: FormField[] = [
     },
     component: "FileUpload",
   },
+  {
+    field: {
+      name: "members",
+      label: "Members",
+      validation: { required: false, isArray: true },
+    },
+    component: "FieldArray",
+  },
 ];
 
 const args = {
@@ -88,7 +96,7 @@ export function CreateNewInstance({
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
-      <ModalContent className="flex flex-col items-center w-full">
+      <ModalContent className="flex w-full flex-col items-center">
         <Form
           {...args}
           onSubmit={async (formData: FormData) => {
@@ -100,6 +108,7 @@ export function CreateNewInstance({
               about: formData.about,
               image: formData.image,
               file: formData.file,
+              members: formData.members,
             });
 
             await deleteFormValues(["new-instance"]);

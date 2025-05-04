@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { createIPNSNameWithCID } from "@/lib/ipfs"; // Assume these functions exist
+import { createIPNS, createIPNSNameWithCID } from "@/lib/ipfs"; // Assume these functions exist
 import { CONTRACT_ABI, CONTRACT_ADDRESSES } from "@/constants/contracts"; // Assume these constants exist
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
-import { Abi, Address, TransactionReceipt } from "viem";
+import { Abi, Address, TransactionReceipt, isAddress } from "viem";
 import { useToast } from "@/hooks/useToast";
 import { useUploadFile } from "@/hooks/lighthouse/useUpload";
 
@@ -68,12 +68,14 @@ export const useCreateInstance = ({
           files: [formData.file],
         });
 
-        const ipnsResult = await createIPNSNameWithCID({
+        const ipnsResult = await createIPNS({
           cid: fileCID ?? "",
           spaceID,
           address: account,
           walletClient,
         });
+        console.log("members", formData.members);
+        console.log("ipnsResult", ipnsResult);
         // Simulate contract call
         const simulation = await publicClient.simulateContract({
           account,
@@ -83,13 +85,13 @@ export const useCreateInstance = ({
           args: [
             spaceID,
             BigInt(0),
-            formData.members || [],
+            formData.members?.filter((member) => isAddress(member)) || [],
             metadataCID || "",
             ipnsResult.name,
-            ipnsResult.cid,
+            ipnsResult.lit_config_cid,
           ],
         });
-
+        console.log("simulation", simulation.request);
         // Send transaction
         const hash = await walletClient.writeContract(simulation.request);
         return await publicClient.waitForTransactionReceipt({ hash });

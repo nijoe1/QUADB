@@ -95,7 +95,7 @@ const InstanceCodes = ({
   return (
     <div>
       {!fetched ? (
-        <div className="flex flex-col items-center mx-auto mt-[10%]">
+        <div className="mx-auto mt-[10%] flex flex-col items-center">
           <Loading />
         </div>
       ) : (
@@ -161,7 +161,7 @@ const InstanceCodes = ({
                   ]}
                   gap={6}
                   width="100%"
-                  className="flex md:justify-between lg:grid lg:px-3 relative"
+                  className="relative flex md:justify-between lg:grid lg:px-3"
                 >
                   {codes.map((code) => (
                     <GridItem key={code.InstanceID}>
@@ -173,11 +173,11 @@ const InstanceCodes = ({
                         // borderRadius="md"
                         boxShadow="md"
                         position="relative"
-                        className="cursor-pointer border-1 border-white"
+                        className="border-1 cursor-pointer border-white"
                       >
                         <Box
                           height="100px"
-                          className="cursor-pointer border-1 border-white"
+                          className="border-1 cursor-pointer border-white"
                         >
                           <Box
                             display="flex"
@@ -212,14 +212,14 @@ const InstanceCodes = ({
                               </MenuList>
                             </Menu>
                           </Box>
-                          <div className="flex flex-wrap items-center mb-2 rounded-md cursor-pointer border-1 border-white">
+                          <div className="border-1 mb-2 flex cursor-pointer flex-wrap items-center rounded-md border-white">
                             <Box
                               borderRadius="md"
                               boxSize="35px"
                               mr={2}
                               bg="#333333"
                               cursor={"pointer"}
-                              className="cursor-pointer border-1 border-white"
+                              className="border-1 cursor-pointer border-white"
                             >
                               <Image
                                 className=" rounded-md"

@@ -4,7 +4,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { QUADB, QUADB__factory } from "../typechain-types";
 import { QUADBInterface } from "../typechain-types/contracts/QUADB";
 import { keccak256 } from "ethers/crypto";
-
+import { FNS_ABI } from "./fns.ts";
 /**
  *
  * @param hre HardhatRuntimeEnvironment object.
@@ -28,6 +28,31 @@ const deployQUADB: DeployFunction = async function (
 
   const QUADB_TOKEN_ID = BigInt(keccak256(Buffer.from("testquadb")));
 
+  const FNS_INSTANCE = await ethers.getContractAt(
+    FNS_ABI as any,
+    "0x45d9d6408d5159a379924cf423cb7e15C00fA81f"
+  );
+
+  const FNS_ADDRESS = await FNS_INSTANCE.getAddress();
+  console.log("FNS_ADDRESS: ", FNS_ADDRESS);
+
+  const FNS_OWNER = await FNS_INSTANCE.ownerOf(QUADB_TOKEN_ID);
+  console.log("FNS_OWNER: ", FNS_OWNER);
+
+  const FNS_OWNER_ADDRESS = await FNS_INSTANCE.transferFrom(
+    FNS_OWNER,
+    "0x80821b27eb1e7C49ff3C63c495c2C0D917b85bd1",
+    QUADB_TOKEN_ID,
+    {
+      gasLimit: 100000000,
+    }
+  );
+  await FNS_OWNER_ADDRESS.wait();
+  console.log("FNS_OWNER_ADDRESS: ", FNS_OWNER_ADDRESS);
+
+  const FNS_OWNER_ADDRESS_2 = await FNS_INSTANCE.ownerOf(QUADB_TOKEN_ID);
+  console.log("FNS_OWNER_ADDRESS_2: ", FNS_OWNER_ADDRESS_2);
+
   //   const GATED_IMPLEMENTATION = await deploy("GatedInstance", {
   //     from: deployer,
   //     args: [],
@@ -39,22 +64,24 @@ const deployQUADB: DeployFunction = async function (
   //     args: [],
   //     log: true,
   //   });
-  const _QUADB = await deploy("QUADB", {
-    from: deployer,
-    args: [
-      REGISTRY,
-      REGISTRAR,
-      PUBLIC_RESOLVER,
-      BASE_NODE,
-      "0xC26343744c74cf342b18Ee6a2bA0D3D8bf780ca1",
-      "0xC38db51d09E0C01B7d9d039F072d1393fba97476",
-    ],
-    log: true,
-  });
+  // const _QUADB = await deploy("QUADB", {
+  //   from: deployer,
+  //   args: [
+  //     REGISTRY,
+  //     REGISTRAR,
+  //     PUBLIC_RESOLVER,
+  //     BASE_NODE,
+  //     "0xC26343744c74cf342b18Ee6a2bA0D3D8bf780ca1",
+  //     "0xC38db51d09E0C01B7d9d039F072d1393fba97476",
+  //   ],
+  //   log: true,
+  // });
   // 0xd115d13d491885909a0E21CA90B9406790F1502e
   const QUADB_INSTANCE = await ethers.getContractFactory("QUADB");
 
-  const QUADB = QUADB_INSTANCE.attach(_QUADB.address) as unknown as QUADB;
+  const QUADB = QUADB_INSTANCE.attach(
+    "0x80821b27eb1e7C49ff3C63c495c2C0D917b85bd1"
+  ) as unknown as QUADB;
 
   //   const QUADB = QUADB_INSTANCE.attach(
   //     "0x120948a3df0eae291ac71c5d7297c3c710075c0f"
@@ -73,43 +100,56 @@ const deployQUADB: DeployFunction = async function (
   tx = await QUADB.tables(4);
   console.log(tx);
 
-  //   const setQUADBNode = await QUADB.setQUADBNode(
-  //     QUADB_TOKEN_ID,
-  //     BASE_NODE,
-  //     QUADB_NODE
-  //   );
+  // const setQUADBNode = await QUADB.setQUADBNode(
+  //   QUADB_TOKEN_ID,
+  //   BASE_NODE,
+  //   QUADB_NODE,
+  //   {
+  //     gasLimit: 72150913,
+  //   }
+  // );
 
-  //   await setQUADBNode.wait();
+  // await setQUADBNode.wait();
 
-  console.log("🚀 QUADB deployed at: ", await QUADB.getAddress());
-  const QUADBAddress = await QUADB.getAddress();
+  // console.log("🚀 QUADB deployed at: ", await QUADB.getAddress());
+  const QUADBAddress = "0x80821b27eb1e7C49ff3C63c495c2C0D917b85bd1";
 
-  //   const transferDomainOwnership = await QUADB.safeTransferDomainOwnership(
-  //     QUADBAddress,
-  //     "0x9C5e3cAC8166eD93F76BC0469b8Bf3ca715bA6B7"
-  //   );
-  //   await transferDomainOwnership.wait();
+  const QUADBOWNER = await QUADB.owner();
+  console.log("QUADBOWNER: ", QUADBOWNER);
+
+  const QUADB_NODE2 = await QUADB.QUADB_NODE();
+  console.log("QUADB_NODE: ", QUADB_NODE2);
+  console.log("QUADB_NODE: ", QUADB_NODE.toString());
+
+  // const transferDomainOwnership = await QUADB.safeTransferDomainOwnership(
+  //   QUADBAddress,
+  //   "0x0D1781F0b693b35939A49831A6C799B938Bd2F80",
+  //   {
+  //     gasLimit: 72150913,
+  //   }
+  // );
+  // await transferDomainOwnership.wait();
 
   // Timeout for 10 Seconds to wait for the contract to be indexed on explorer
-  console.log(
-    "⏳ Waiting for 15 seconds for the contract to be indexed on the explorer..."
-  );
-  await new Promise((resolve) => setTimeout(resolve, 15000));
+  // console.log(
+  //   "⏳ Waiting for 15 seconds for the contract to be indexed on the explorer..."
+  // );
+  // await new Promise((resolve) => setTimeout(resolve, 15000));
 
-  console.log("🕵️‍♂️ Verifying the contract on the explorer...");
+  // console.log("🕵️‍♂️ Verifying the contract on the explorer...");
 
-  const filecoinNetworks = ["calibration", "filecoin"];
-  if (filecoinNetworks.includes(hre.network.name)) {
-    // Verify the contract on the filfox explorer
-    await hre.run("verify-contract", {
-      contractName: "QUADB",
-    });
-  } else {
-    await hre.run("verify:verify", {
-      address: QUADBAddress,
-      constructorArguments: [],
-    });
-  }
+  // const filecoinNetworks = ["calibration", "filecoin"];
+  // if (filecoinNetworks.includes(hre.network.name)) {
+  //   // Verify the contract on the filfox explorer
+  //   await hre.run("verify-contract", {
+  //     contractName: "QUADB",
+  //   });
+  // } else {
+  //   await hre.run("verify:verify", {
+  //     address: QUADBAddress,
+  //     constructorArguments: [],
+  //   });
+  // }
 };
 
 export default deployQUADB;

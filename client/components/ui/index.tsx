@@ -9,10 +9,15 @@ export type ComponentProps<C extends ElementType> = {
   children?: ReactNode;
 } & ComponentPropsWithRef<C>;
 
-export function createComponent<T extends ElementType, TV>(
-  tag: T,
-  variant: TV
-) {
+type VariantFunction = (props: {
+  class?: string;
+  [key: string]: any;
+}) => string;
+
+export function createComponent<
+  T extends ElementType,
+  TV extends VariantFunction,
+>(tag: T, variant: TV) {
   return forwardRef(function UIComponent<C extends ElementType>(
     props: ComponentProps<C>,
     ref?: PolymorphicRef<C>
@@ -21,8 +26,7 @@ export function createComponent<T extends ElementType, TV>(
     return (
       <Component
         ref={ref}
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/ban-types
-        className={(variant as Function)({ class: className, ...props })}
+        className={variant({ class: className, ...props })}
         {...rest}
       />
     );

@@ -5,8 +5,8 @@ import { getIpfsGatewayUri, resolveIPNS } from "@/lib/ipfs";
 
 const fetchInstanceData = async (instanceID: string) => {
   const data = await getInstance(instanceID);
-  let members = await getInstanceMembers(instanceID);
-  let temp = new Set();
+  const members = await getInstanceMembers(instanceID);
+  const temp = new Set();
   temp.add(data[0].creator?.toLowerCase());
   members.forEach((member: any) => {
     temp.add(member.member?.toLowerCase());

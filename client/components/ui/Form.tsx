@@ -49,14 +49,14 @@ export const Input = createComponent(
 export const InputWrapper = createComponent(
   "div",
   tv({
-    base: "flex w-full relative",
+    base: "relative flex w-full",
     variants: {},
   })
 );
 export const InputAddon = createComponent(
   "div",
   tv({
-    base: "absolute right-0 text-gray-900  inline-flex items-center justify-center h-full border-gray-300 border-gray-800 border-l px-4 font-semibold",
+    base: "absolute right-0 inline-flex h-full items-center justify-center border-l border-gray-300 px-4 font-semibold text-gray-900 dark:border-gray-800",
     variants: {
       disabled: {
         true: "text-gray-800",
@@ -68,7 +68,7 @@ export const InputAddon = createComponent(
 export const InputIcon = createComponent(
   "div",
   tv({
-    base: "absolute text-gray-800 left-0 inline-flex items-center justify-center h-full px-4",
+    base: "absolute left-0 inline-flex h-full items-center justify-center px-4 text-gray-800",
   })
 );
 
@@ -87,14 +87,14 @@ export const Select = createComponent(
 export const Checkbox = createComponent(
   "input",
   tv({
-    base: [...inputBase, "checked:focus:bg-gray-700 checked:hover:bg-gray-700"],
+    base: [...inputBase, "checked:hover:bg-gray-700 checked:focus:bg-gray-700"],
   })
 );
 
 export const Label = createComponent(
   "label",
   tv({
-    base: "block tracking-wider text-gray-00 font-semibold",
+    base: "text-gray-00 block font-semibold tracking-wider",
   })
 );
 export const Textarea = createComponent(
@@ -194,12 +194,7 @@ export function FieldArray<S extends z.Schema>({
   const isError = requiredRows && fields.length < requiredRows;
 
   return (
-    <div className="mb-8">
-      {error && (
-        <div className="border border-red-900 p-2 dark:text-red-500">
-          {String(error)}
-        </div>
-      )}
+    <div className="space-y-2">
       {hint && (
         <div className="pb-2 text-xs text-gray-500 dark:text-gray-400">
           {hint}
@@ -207,7 +202,7 @@ export function FieldArray<S extends z.Schema>({
       )}
       {isError && <div className="text-red-500">{String(ErrorMessage)}</div>}
       {fields.map((field, i) => (
-        <div key={field.id} className="gap-4 md:flex">
+        <div key={field.id} className="items-center gap-4 md:flex">
           {renderField(field, i)}
 
           <div className="flex justify-end">
@@ -229,7 +224,7 @@ export function FieldArray<S extends z.Schema>({
           size="sm"
           icon={PlusIcon}
           className="text-white"
-          onClick={() => append({})}
+          onClick={() => append("")}
         >
           Add curator
         </IconButton>
@@ -385,7 +380,7 @@ interface FormProps<T extends FieldValues> {
   schema: ZodType<T>;
   defaultValues?: Partial<T>;
   persistKey?: string;
-  onSubmit: (values: T) => void;
+  onSubmit: (values: any) => void;
   children: React.ReactNode | ((methods: UseFormReturn<T>) => React.ReactNode);
 }
 
@@ -398,18 +393,20 @@ export function Form<T extends FieldValues>({
 }: FormProps<T>) {
   const methods = useForm<T>({
     // @ts-ignore
-    resolver: (schema),
+    resolver: schema,
     defaultValues: defaultValues as DefaultValues<T>,
     mode: "onBlur",
   });
-  if (persistKey) {
-    usePersistForm(methods as UseFormReturn<FieldValues>, persistKey);
-  }
+
+  const formMethods = methods as UseFormReturn<FieldValues>;
+
+  // Always call the hook, but only do something if persistKey exists
+  usePersistForm(formMethods, persistKey || "");
 
   return (
-    <FormProvider {...(methods as UseFormReturn<FieldValues>)}>
+    <FormProvider {...formMethods}>
       <form onSubmit={methods.handleSubmit(onSubmit)}>
-        {typeof children === "function" ? children(methods) : children}
+        {typeof children === "function" ? children(methods as any) : children}
       </form>
     </FormProvider>
   );

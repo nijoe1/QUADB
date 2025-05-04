@@ -14,14 +14,14 @@ const progressVariants = tv({
     variant: {
       default: {
         root: "bg-grey-100 dark:bg-black",
-        indicator: "bg-black dark:bg-grey-50",
+        indicator: "dark:bg-grey-50 bg-black",
       },
       green: {
         root: " bg-grey-100",
         indicator: "bg-moss-700",
       },
       "green-md": {
-        root: "w-[228px] bg-grey-100",
+        root: "bg-grey-100 w-[228px]",
         indicator: "bg-moss-700",
       },
     },

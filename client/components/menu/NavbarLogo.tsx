@@ -2,7 +2,7 @@
 import Link from "next/link";
 export default function NavbarLogo(): JSX.Element {
   return (
-    <Link href={"/"} className="rounded-md overflow-hidden inline-block mt-2">
+    <Link href={"/"} className="mt-2 inline-block overflow-hidden rounded-md">
       <QUADBLogo />
     </Link>
   );

@@ -51,7 +51,7 @@ const CodeViewer = ({ code, onClose }: { code: any; onClose: () => void }) => {
           <Text>{"creator"}</Text>
           <Image width={25} src={"ode.profile.picture"} borderRadius="lg" />
           <Badge
-            className="text-black bg-black"
+            className="bg-black text-black"
             borderRadius="full"
             fontSize="sm"
             cursor={"pointer"}
@@ -90,7 +90,7 @@ const CodeViewer = ({ code, onClose }: { code: any; onClose: () => void }) => {
           </TabPanel>
 
           <TabPanel>
-            <div className="flex flex-col items-center text-center p-5">
+            <div className="flex flex-col items-center p-5 text-center">
               {/* Compute output */}
               <Text
                 p={2}
@@ -104,7 +104,7 @@ const CodeViewer = ({ code, onClose }: { code: any; onClose: () => void }) => {
               </Text>
               <Image src="/images/bacalhau.png" maxHeight="100" />{" "}
               <Button
-                className="mt-4 bg-white border-1 rounded-lg text-black"
+                className="border-1 mt-4 rounded-lg bg-white text-black"
                 onClick={handleToDo}
               >
                 Compute Output

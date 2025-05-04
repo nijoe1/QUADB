@@ -5,10 +5,10 @@ import { encodePacked, Hex } from "viem";
 export const getTokenNode = (_parentNode: string, subNode: string) => {
   const abi = new ethers.utils.AbiCoder();
   const parentNode = ethers.utils.namehash(_parentNode);
-  let subNodeBytes = stringToBytes(subNode);
+  const subNodeBytes = stringToBytes(subNode);
   const LabelHash = ethers.utils.keccak256(subNodeBytes);
 
-  let newSubNodeBytes = abi.encode(
+  const newSubNodeBytes = abi.encode(
     ["bytes32", "bytes32"],
     [parentNode, LabelHash]
   );
@@ -18,7 +18,7 @@ export const getTokenNode = (_parentNode: string, subNode: string) => {
 
 // Function to convert string to bytes
 export const stringToBytes = (str: string) => {
-  let bytes = Buffer.from(str);
+  const bytes = Buffer.from(str);
   return (
     "0x" +
     bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, "0"), "")

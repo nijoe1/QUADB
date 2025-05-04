@@ -199,7 +199,11 @@ export const getHasAccess = async (instanceID, address) => {
 };
 
 export const getInstanceMembers = async (instanceID) => {
-  const query = `SELECT ${tables.members}.member FROM ${tables.members} WHERE InstanceID = '${instanceID}'`;
+  const query = `SELECT DISTINCT address FROM (
+    SELECT member as address FROM ${tables.members} WHERE InstanceID = '${instanceID}'
+    UNION ALL
+    SELECT creator as address FROM ${tables.spaceInstances} WHERE InstanceID = '${instanceID}'
+  )`;
   try {
     const result = await axios.get(
       TablelandGateway + encodeURIComponent(query)
