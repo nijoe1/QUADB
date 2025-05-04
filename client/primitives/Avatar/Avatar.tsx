@@ -92,7 +92,7 @@ export const Avatar = ({
   return (
     <ShadCNAvatar
       role="presentation"
-      className={`aspect-square h-full w-full ${avatarClassNames}`}
+      className={`aspect-square size-full ${avatarClassNames}`}
       style={{ width: `${size}px`, height: `${size}px` }}
     >
       <AvatarImage

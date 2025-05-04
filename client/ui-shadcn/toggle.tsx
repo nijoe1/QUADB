@@ -6,12 +6,12 @@ import { tv, VariantProps } from "tailwind-variants";
 import { cn } from "@/lib/utils";
 
 const toggleVariants = tv({
-  base: "inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-white transition-colors hover:bg-grey-100 hover:text-grey-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=on]:bg-grey-100 data-[state=on]:text-black dark:ring-offset-black dark:hover:bg-black dark:hover:text-grey-500 dark:focus-visible:ring-grey-100 dark:data-[state=on]:bg-black dark:data-[state=on]:text-grey-50",
+  base: "hover:bg-grey-100 hover:text-grey-900 data-[state=on]:bg-grey-100 dark:hover:text-grey-500 dark:focus-visible:ring-grey-100 dark:data-[state=on]:text-grey-50 inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=on]:text-black dark:ring-offset-black dark:hover:bg-black dark:data-[state=on]:bg-black",
   variants: {
     variant: {
       default: "bg-transparent",
       outline:
-        "border border-grey-100 bg-transparent hover:bg-grey-100 hover:text-black dark:border-black dark:hover:bg-black dark:hover:text-grey-50",
+        "border-grey-100 hover:bg-grey-100 dark:hover:text-grey-50 border bg-transparent hover:text-black dark:border-black dark:hover:bg-black",
     },
     size: {
       default: "h-10 px-3",

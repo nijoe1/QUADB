@@ -97,7 +97,7 @@ const CreateNewInstanceCode = ({
     try {
       console.log(formData);
       setIsUploading(true);
-      let res = await createIPNS();
+      const res = await createIPNS();
       setIsUploading(false);
       const data = await publicClient?.simulateContract({
         account,
@@ -144,7 +144,7 @@ const CreateNewInstanceCode = ({
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
-      <ModalContent className="bg-[#333333] rounded-md">
+      <ModalContent className="rounded-md bg-[#333333]">
         <ModalHeader>Create New Code</ModalHeader>
         <ModalBody>
           <Stack spacing="4">
@@ -155,7 +155,7 @@ const CreateNewInstanceCode = ({
                 placeholder="Enter instance name"
                 value={formData.name}
                 onChange={handleChange}
-                className="bg-[#424242] text-white rounded-md focus:border-white"
+                className="rounded-md bg-[#424242] text-white focus:border-white"
               />
             </FormControl>
             <FormControl>
@@ -197,7 +197,7 @@ const CreateNewInstanceCode = ({
           <Button onClick={onClose}>Cancel</Button>
         </ModalFooter>
         {isUploading || isProcessingTransaction ? (
-          <div className="my-3 mx-auto">
+          <div className="mx-auto my-3">
             <span className="text-white" style={{ fontSize: "md" }}>
               {getLoadingMessage()}
             </span>

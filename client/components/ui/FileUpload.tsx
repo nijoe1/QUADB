@@ -22,10 +22,10 @@ export function FileUpload({ name, className }: Props) {
               // @ts-ignore
               onClick={() => ref.current?.click()}
               icon={FileIcon}
-              className="absolute bottom-1 right-1 fill-white bg-transparent"
+              className="absolute bottom-1 right-1 bg-transparent fill-white"
             />
 
-            <div className="h-full rounded-xl bg-transparent border-2 flex justify-start p-2">
+            <div className="flex h-full justify-start rounded-xl border-2 bg-transparent p-2">
               {value && value.name ? value.name : "No file selected"}
             </div>
 

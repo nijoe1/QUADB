@@ -35,7 +35,7 @@ const FilePreview: React.FC<{
           aria-label="Preview"
         />
       ) : (
-        <div className="flex items-center justify-center h-[132px]">
+        <div className="flex h-[132px] items-center justify-center">
           <span>{fileName}</span>
         </div>
       )}
@@ -43,7 +43,7 @@ const FilePreview: React.FC<{
         onClick={onClick}
         className=" flex cursor-pointer items-center justify-center transition-opacity duration-300 group-hover:opacity-100"
       >
-        <div className="flex size-10 items-center justify-center rounded-full bg-white p-3 gap-2">
+        <div className="flex size-10 items-center justify-center gap-2 rounded-full bg-white p-3">
           <CloudUpload className="text-black" />
           <div className="text-xs">Change file</div>
         </div>
@@ -142,7 +142,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
               <CloudUpload />
             </span>
             <div className="flex">
-              <a className="cursor-pointer text-moss-700 hover:underline">
+              <a className="text-moss-700 cursor-pointer hover:underline">
                 {"Upload a file"}
               </a>
               &nbsp;

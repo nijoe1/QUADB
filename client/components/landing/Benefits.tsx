@@ -1,16 +1,16 @@
 export function Benefits(): JSX.Element {
   return (
-    <div className="py-16 h-full my-auto flex flex-col items-center lg:py-20 px-2">
-      <div className="max-w-xl mb-10 md:mx-auto sm:text-center md:mb-12">
+    <div className="my-auto flex h-full flex-col items-center px-2 py-16 lg:py-20">
+      <div className="mb-10 max-w-xl sm:text-center md:mx-auto md:mb-12">
         <div>
-          <p className="text-lg font-bold text-muted-foreground/60">Benefits</p>
+          <p className="text-muted-foreground/60 text-lg font-bold">Benefits</p>
         </div>
-        <h2 className="max-w-lg mb-6 font-sans text-3xl font-extrabold text-primary leading-none tracking-tight sm:text-4xl md:mx-auto">
+        <h2 className="text-primary mb-6 max-w-lg font-sans text-3xl font-extrabold leading-none tracking-tight sm:text-4xl md:mx-auto">
           <span className="relative inline-block">
             <svg
               viewBox="0 0 52 24"
               fill="currentColor"
-              className="absolute top-0 left-0 z-0 hidden w-32 -mt-8 -ml-20 text-blue-gray-100 lg:w-32 lg:-ml-28 lg:-mt-10 sm:block"
+              className="text-blue-gray-100 absolute left-0 top-0 z-0 -ml-20 -mt-8 hidden w-32 sm:block lg:-ml-28 lg:-mt-10 lg:w-32"
             >
               <defs>
                 <pattern
@@ -39,12 +39,12 @@ export function Benefits(): JSX.Element {
           organization and categorization of datasets and codebases.
         </p>
       </div>
-      <div className="grid mx-auto space-y-6 lg:grid-cols-2 h-full mb-[18%] lg:space-y-0 lg:gap-x-5">
+      <div className="mx-auto mb-[18%] grid h-full space-y-6 lg:grid-cols-2 lg:gap-x-5 lg:space-y-0">
         <div className="space-y-6 sm:px-2">
           {/* Enhanced Transparency */}
-          <div className="flex flex-col sm:flex-row show">
+          <div className="show flex flex-col sm:flex-row">
             <div className="mb-4 mr-4">
-              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-indigo-50">
+              <div className="flex size-12 items-center justify-center rounded-full bg-indigo-50">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="icon icon-tabler icon-tabler-arrow-bar-both"
@@ -67,7 +67,7 @@ export function Benefits(): JSX.Element {
               </div>
             </div>
             <div>
-              <h6 className="mb-3 text-primary text-xl font-bold leading-5">
+              <h6 className="text-primary mb-3 text-xl font-bold leading-5">
                 Access Control
               </h6>
               <p className="text-sm text-gray-900">
@@ -79,9 +79,9 @@ export function Benefits(): JSX.Element {
           </div>
 
           {/* Automated Processes */}
-          <div className="flex flex-col sm:flex-row show">
+          <div className="show flex flex-col sm:flex-row">
             <div className="mb-4 mr-4">
-              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-indigo-50">
+              <div className="flex size-12 items-center justify-center rounded-full bg-indigo-50">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="icon icon-tabler icon-tabler-loader-3"
@@ -101,7 +101,7 @@ export function Benefits(): JSX.Element {
               </div>
             </div>
             <div>
-              <h6 className="mb-3 text-primary text-xl font-bold leading-5">
+              <h6 className="text-primary mb-3 text-xl font-bold leading-5">
                 Feel the power of Decentralization
               </h6>
               <p className="text-sm text-gray-900">
@@ -114,9 +114,9 @@ export function Benefits(): JSX.Element {
 
         <div className="space-y-6 sm:px-2">
           {/* Increased Security */}
-          <div className="flex flex-col sm:flex-row show">
+          <div className="show flex flex-col sm:flex-row">
             <div className="mb-4 mr-4">
-              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-indigo-50">
+              <div className="flex size-12 items-center justify-center rounded-full bg-indigo-50">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="icon icon-tabler icon-tabler-shield-lock"
@@ -137,7 +137,7 @@ export function Benefits(): JSX.Element {
               </div>
             </div>
             <div>
-              <h6 className="mb-3 text-primary text-xl font-bold leading-5">
+              <h6 className="text-primary mb-3 text-xl font-bold leading-5">
                 Increased Security and Colaboration
               </h6>
               <p className="text-sm text-gray-900">
@@ -149,9 +149,9 @@ export function Benefits(): JSX.Element {
           </div>
 
           {/* Democratized Investment Access */}
-          <div className="flex flex-col sm:flex-row show">
+          <div className="show flex flex-col sm:flex-row">
             <div className="mb-4 mr-4">
-              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-indigo-50">
+              <div className="flex size-12 items-center justify-center rounded-full bg-indigo-50">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="icon icon-tabler icon-tabler-users"
@@ -173,7 +173,7 @@ export function Benefits(): JSX.Element {
               </div>
             </div>
             <div>
-              <h6 className="mb-3 text-primary text-xl font-bold leading-5">
+              <h6 className="text-primary mb-3 text-xl font-bold leading-5">
                 Democratized Dataset Access
               </h6>
               <p className="text-sm text-gray-900">

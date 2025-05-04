@@ -12,7 +12,7 @@ const accordionVariants = tv({
     trigger:
       "flex flex-1 items-center justify-between rounded-lg py-4 font-medium transition-all [&[data-state=open]>svg]:rotate-180",
     content:
-      "overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down",
+      "data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm transition-all",
     contentInner: "py-4",
   },
   variants: {
@@ -35,12 +35,12 @@ const accordionVariants = tv({
         content: "",
       },
       sm: {
-        item: "rounded-lg border border-grey-100",
-        content: "border-t border-grey-100",
+        item: "border-grey-100 rounded-lg border",
+        content: "border-grey-100 border-t",
       },
       md: {
-        item: "rounded-lg border-2 border-grey-100",
-        content: "border-t-2 border-grey-100",
+        item: "border-grey-100 rounded-lg border-2",
+        content: "border-grey-100 border-t-2",
       },
     },
     padding: {

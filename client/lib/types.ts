@@ -92,7 +92,6 @@ export interface LPACC_EVM_CONTRACT {
   };
 }
 
-
 export type Result<T> =
   | { type: "success"; value: T }
   | { type: "error"; error: Error };
@@ -123,4 +122,22 @@ export interface JsonMap {
 export type JsonArray = Array<AnyJson>;
 export interface IpfsUploader {
   (file: Blob | AnyJson): Promise<Result<string>>;
+}
+
+export interface updateIPNSBody {
+  threshold: number;
+  signatures: string[];
+  newCid: string;
+  ipns: string;
+  ciphertext: string;
+  dataToEncryptHash: string;
+  instanceID: string;
+}
+
+export interface IPNSConfig {
+  instanceID: string;
+  ipns: string;
+  ciphertext: string;
+  dataToEncryptHash: string;
+  codeCID: string;
 }

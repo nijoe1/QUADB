@@ -64,7 +64,7 @@ export default function RootLayout({
                 modalSize="compact"
               >
                 <Navbar />
-                <main className="flex-grow h-full min-h-svh">{children}</main>
+                <main className="h-full min-h-svh grow">{children}</main>
 
                 <div>
                   <Footer />

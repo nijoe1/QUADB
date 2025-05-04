@@ -13,13 +13,13 @@ export default function Navbar(): JSX.Element {
   };
 
   return (
-    <Container className="bg-black/80 rounded-md mt-4">
+    <Container className="mt-4 rounded-md bg-black/80">
       <nav
-        className={`flex w-full mx-auto md:justify-between lg:grid lg:px-3 relative ${!true ? "lg:grid-cols-2" : "lg:grid-cols-3"}`}
+        className={`relative mx-auto flex w-full md:justify-between lg:grid lg:px-3 ${!true ? "lg:grid-cols-2" : "lg:grid-cols-3"}`}
       >
-        <div className="absolute top-0 bottom-0 md:static flex items-center">
+        <div className="absolute inset-y-0 flex items-center md:static">
           <div className="lg:hidden">
-            <button className="p-1 text-primary" onClick={toggleSidebar}>
+            <button className="text-primary p-1" onClick={toggleSidebar}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="icon icon-tabler icon-tabler-menu-2"
@@ -50,11 +50,11 @@ export default function Navbar(): JSX.Element {
             <Logo />
           </div>
         </div>
-        <div className="grow md:hidden flex justify-center">
+        <div className="flex grow justify-center md:hidden">
           <Logo />
         </div>
         <NavLinks />
-        <div className="hidden md:flex items-center justify-end gap-2">
+        <div className="hidden items-center justify-end gap-2 md:flex">
           <ConnectButton showBalance={true} chainStatus={"icon"} />
         </div>
       </nav>

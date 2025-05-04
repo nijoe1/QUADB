@@ -49,7 +49,7 @@ const config: HardhatUserConfig = {
       },
     },
     filecoin: {
-      url: "https://filecoin.chainup.net/rpc/v1",
+      url: "https://api.node.glif.io",
       accounts: [deployerPrivateKey],
       chainId: 314,
     },

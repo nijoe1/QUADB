@@ -155,4 +155,13 @@ abstract contract Core is FNS, Gated, Tableland {
         }
         _removeMembers(_instance, _members);
     }
+
+    function updateInstanceThreshold(
+        bytes32 _instance,
+        uint256 _threshold
+    ) external {
+        address _owner = instances[_instance].creator;
+        require(_owner == msg.sender, "No access");
+        _updateInstanceThreshold(_instance, _threshold);
+    }
 }

@@ -3,6 +3,7 @@ import { RxCrossCircled } from "react-icons/rx";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Button, Text } from "@chakra-ui/react";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 export type link = {
   text: string;
@@ -14,7 +15,7 @@ function NavLink({ text, href }: link): JSX.Element {
     <Link
       href={href}
       passHref
-      className=" text-gray-200 hover:text-gray-50 transition-all rounded-xl px-3 py-1 "
+      className=" rounded-xl px-3 py-1 text-gray-200 transition-all hover:text-gray-50 "
     >
       <Text>{text}</Text>
     </Link>
@@ -35,10 +36,10 @@ function ResponsiveNavLink({
   return (
     <Link href={href} passHref>
       <div
-        className="hover:bg-black/20 text-gray transition-all w-full text-center py-3 cursor-pointer"
+        className="text-gray w-full cursor-pointer py-3 text-center transition-all hover:bg-black/20"
         onClick={() => setIsSidebarOpen(false)}
       >
-        <Text className="hover:text-white text-gray">{text}</Text>
+        <Text className="text-gray hover:text-white">{text}</Text>
       </div>
     </Link>
   );
@@ -56,8 +57,11 @@ export function NavLinksResponsive({
   isConnected,
 }: NavLinksResponsiveProps): JSX.Element {
   return (
-    <ul
-      className={`fixed z-[10] h-[100vh] top-0 w-[70vw] max-w-[300px] flex flex-col gap-2 justify-center shadow-2xl ${"bg-black/90"} text-white font-bold rounded-box transition-all ${isSidebarOpen ? "left-0 " : "-left-[400px]"}`}
+    <div
+      className={cn(
+        "fixed inset-y-0 left-[-400px] z-10 h-screen w-[400px] transform overflow-y-auto bg-white p-6 shadow-lg transition-transform duration-300 ease-in-out dark:bg-gray-900",
+        isSidebarOpen && "translate-x-[400px]"
+      )}
     >
       {isConnected &&
         links.map((item) => (
@@ -68,22 +72,22 @@ export function NavLinksResponsive({
             setIsSidebarOpen={setIsSidebarOpen}
           />
         ))}
-      <div className="flex md:hidden justify-center gap-2">
+      <div className="flex justify-center gap-2 md:hidden">
         <ConnectButton showBalance={false} chainStatus={"icon"} />
       </div>
       <button
-        className="absolute top-5 right-5"
+        className="absolute right-5 top-5"
         onClick={() => setIsSidebarOpen(false)}
       >
-        <RxCrossCircled className="w-6 h-6" />
+        <RxCrossCircled className="size-6" />
       </button>
-    </ul>
+    </div>
   );
 }
 
 export default function NavLinks(): JSX.Element {
   return (
-    <ul className="hidden lg:flex flex-row justify-center items-center gap-3 grow font-bold text-primary">
+    <ul className="text-primary hidden grow flex-row items-center justify-center gap-3 font-bold lg:flex">
       {links.map((item) => (
         <NavLink key={item.text} text={item.text} href={item.href} />
       ))}

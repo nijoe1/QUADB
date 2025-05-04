@@ -20,8 +20,7 @@ import Loading from "@/components/animation/loading";
 import useInstanceData from "@/hooks/useInstanceData";
 import { useChainName } from "@/hooks/useChainName";
 import { Subscribe } from "@/components/contracts/subscribe";
-import { getInstanceID } from "@/lib/ens";
-
+import useInstanceMembers from "@/hooks/useInstanceMembers";
 const InstanceDetailsPage = ({
   params: { id },
 }: {
@@ -33,11 +32,15 @@ const InstanceDetailsPage = ({
   const { address } = useAccount();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { data, isLoading, error } = useInstanceData(instanceID);
+  const { data: instanceMemberz, isLoading: isLoadingInstanceMembers } =
+    useInstanceMembers(instanceID);
 
+  console.log("instanceMemberz", instanceMemberz);
+  console.log("error", error);
   if (isLoading) {
     return (
       <Container>
-        <div className="flex flex-col items-center mx-auto mt-[10%]">
+        <div className="mx-auto mt-[10%] flex flex-col items-center">
           <Loading />
         </div>
       </Container>
@@ -54,14 +57,6 @@ const InstanceDetailsPage = ({
   const { instance, instanceMembers } = data || {};
 
   console.log(instance);
-
-  console.log(
-    "ComputedUID :",
-    getInstanceID(
-      "0x68549bf3727c08def1015d6ba233b2c3115f0e8a45131fa4ce3cf39024575f73",
-      "k51qzi5uqu5dm8riqa0ha658ilniqvr0gpn18a3j48pj4e3ln4a511icar1bo0"
-    )
-  );
 
   return (
     <Container>
@@ -92,7 +87,7 @@ const InstanceDetailsPage = ({
                 )) as boolean) && (
                 <div>
                   <Button
-                    className="border-white border p-3 rounded-md "
+                    className="rounded-md border border-white p-3 "
                     colorScheme="black"
                     size="mb"
                     mb={3}

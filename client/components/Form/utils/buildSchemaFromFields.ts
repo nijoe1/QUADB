@@ -24,7 +24,9 @@ export function buildSchemaFromFields(fields: FormField[]): z.ZodObject<any> {
     if (validation) {
       if (validation.required) {
         const msg =
-          typeof validation.required === "string" ? validation.required : `${label} is required`;
+          typeof validation.required === "string"
+            ? validation.required
+            : `${label} is required`;
         fieldSchema = fieldSchema.min(1, msg);
       }
 
@@ -34,7 +36,8 @@ export function buildSchemaFromFields(fields: FormField[]): z.ZodObject<any> {
             ? validation.minLength
             : validation.minLength.value;
         const msg =
-          typeof validation.minLength === "object" && validation.minLength.message
+          typeof validation.minLength === "object" &&
+          validation.minLength.message
             ? validation.minLength.message
             : `${label} must have at least ${val} characters`;
         fieldSchema = fieldSchema.min(val, msg);
@@ -46,7 +49,8 @@ export function buildSchemaFromFields(fields: FormField[]): z.ZodObject<any> {
             ? validation.maxLength
             : validation.maxLength.value;
         const msg =
-          typeof validation.maxLength === "object" && validation.maxLength.message
+          typeof validation.maxLength === "object" &&
+          validation.maxLength.message
             ? validation.maxLength.message
             : `${label} must have at most ${val} characters`;
         fieldSchema = fieldSchema.max(val, msg);
@@ -63,6 +67,10 @@ export function buildSchemaFromFields(fields: FormField[]): z.ZodObject<any> {
           msg = validation.pattern.message ?? `${label} is invalid`;
         }
         fieldSchema = fieldSchema.regex(pattern, msg);
+      }
+
+      if (validation.isArray) {
+        fieldSchema = z.array(z.string());
       }
     }
 

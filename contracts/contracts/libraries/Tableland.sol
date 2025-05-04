@@ -27,7 +27,7 @@ abstract contract Tableland {
         "db_spaces_instances";
 
     string internal constant DBSPACES_INSTANCES_SCHEMA =
-        "InstanceID text, instanceOfSpace text, instanceType text, metadataCID text, IPNS text, IPNSEncryptedKey text, gatedContract text, price text, creator text";
+        "InstanceID text, instanceOfSpace text, instanceType text, metadataCID text, IPNS text, IPNSEncryptedKey text, gatedContract text, price text, creator text, threshold text";
 
     string internal constant DB_INSTANCES_CODES_TABLE_PREFIX =
         "instances_codes";
@@ -159,6 +159,7 @@ abstract contract Tableland {
         bytes32 _instanceOfSpace,
         address _gatedContract,
         uint256 price,
+        uint256 threshold,
         string memory metadataCID,
         string memory IPNS,
         string memory IPNSEncryptedKey
@@ -186,7 +187,9 @@ abstract contract Tableland {
                     ",",
                     SQLHelpers.quote(Strings.toString(price)),
                     ",",
-                    SQLHelpers.quote(Strings.toHexString(msg.sender))
+                    SQLHelpers.quote(Strings.toHexString(msg.sender)),
+                    ",",
+                    SQLHelpers.quote(Strings.toString(threshold))
                 )
             )
         );
@@ -376,6 +379,13 @@ abstract contract Tableland {
                 )
             );
         }
+    }
+
+    function _updateInstanceThreshold(
+        bytes32 InstanceID,
+        uint256 threshold
+    ) internal {
+        mutate(tableIDs[1], SQLHelpers.toUpdate(DBSPACES_INSTANCES_TABLE_PREFIX, tableIDs[1], string.concat("threshold = ", SQLHelpers.quote(Strings.toString(threshold))), string.concat("InstanceID = ", SQLHelpers.quote(bytes32ToString(InstanceID)))));
     }
 
     /*

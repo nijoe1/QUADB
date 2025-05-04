@@ -60,12 +60,12 @@ export function Form({
 
   return (
     <FormProvider {...form}>
-      <div className="flex flex-col gap-6 rounded-2xl bg-grey-50 p-6">
+      <div className="bg-grey-50 flex flex-col gap-6 rounded-2xl p-6">
         <div className="flex flex-col gap-3">
           {/* Form Title */}
           <div className="font-ui-sans text-[24px]/[32px] font-medium">{formTitle}</div>
           {/* Form Description */}
-          <div className="font-ui-sans text-[18px]/[28px] font-normal text-grey-900">
+          <div className="font-ui-sans text-grey-900 text-[18px]/[28px] font-normal">
             {formDescription}
           </div>
         </div>
@@ -89,7 +89,7 @@ export function Form({
                 onClick={handleNextClick}
                 value={nextButtonText}
                 type="button" // type=button so it doesn't auto-submit
-                className="bg-black text-white hover:bg-black/90 px-4 py-3 rounded-2xl"
+                className="rounded-2xl bg-black px-4 py-3 text-white hover:bg-black/90"
               />
             )}
             {finalButtonText && (
@@ -124,7 +124,7 @@ function FormControl({ field }: { field: FormField }) {
           {fieldProps.label}
         </label>
         {fieldProps.validation?.required && (
-          <div className="text-[14px]/[16px] text-moss-700 ">*Required</div>
+          <div className="text-moss-700 text-[14px]/[16px] ">*Required</div>
         )}
       </div>
 

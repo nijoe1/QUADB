@@ -93,7 +93,7 @@ export const Subscribe = ({
           </Button>
         </ModalFooter>
         {isProcessingTransaction ? (
-          <div className="my-3 mx-auto">
+          <div className="mx-auto my-3">
             <span className="text-white" style={{ fontSize: "md" }}>
               {getLoadingMessage()}
             </span>

@@ -6,7 +6,7 @@ import { isAddress } from "viem";
 import { useAccount } from "wagmi";
 
 const fetchInstanceCodes = async (userAddress: any, address: any) => {
-  let addr = isAddress(userAddress) ? userAddress : address;
+  const addr = isAddress(userAddress) ? userAddress : address;
 
   const data = await getUserCodes(addr);
   for (const key in data) {

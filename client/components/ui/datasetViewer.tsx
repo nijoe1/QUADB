@@ -137,7 +137,7 @@ const DatasetViewer = ({
   return (
     <div>
       {!fetched ? (
-        <div className="flex flex-col items-center mx-auto mt-[10%]">
+        <div className="mx-auto mt-[10%] flex flex-col items-center">
           <Loading />
         </div>
       ) : (

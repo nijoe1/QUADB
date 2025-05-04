@@ -48,7 +48,7 @@ export const UserInstances = () => {
   }
 
   async function fetchInstances() {
-    let addr = isAddress(userAddress ?? "") ? userAddress : address;
+    const addr = isAddress(userAddress ?? "") ? userAddress : address;
     const data = (await getUserInstances(addr?.toLowerCase()))[0]?.instances;
     console.log(data);
     const dataObj = {} as any; // Initialize data object
@@ -89,7 +89,7 @@ export const UserInstances = () => {
               ]}
               gap={6}
               width="100%"
-              className="flex md:justify-between lg:grid lg:px-3 relative"
+              className="relative flex md:justify-between lg:grid lg:px-3"
             >
               {Object.entries(instances).map(([type, instanceArray]) => {
                 const array = instanceArray as any[];

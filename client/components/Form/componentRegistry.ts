@@ -6,7 +6,7 @@ import { Input } from "@/ui-shadcn/input";
 import { SelectController, SelectControllerProps } from "./components";
 import { MarkdownEditorController, MarkdownEditorControllerProps } from "./components";
 import { FileUploadController, FileUploadControllerProps } from "./components";
-
+import { FieldArrayController, FieldArrayControllerProps } from "./components";
 // Extend or adjust as you add more components.
 export const componentRegistry = {
   Input: {
@@ -28,6 +28,10 @@ export const componentRegistry = {
   Select: {
     Component: SelectController,
     propKeys: {} as SelectControllerProps,
+  },
+  FieldArray: {
+    Component: FieldArrayController,
+    propKeys: {} as FieldArrayControllerProps,
   },
 };
 
