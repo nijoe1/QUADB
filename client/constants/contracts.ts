@@ -1,4 +1,4 @@
-export const QUADB = "0x80821b27eb1e7C49ff3C63c495c2C0D917b85bd1";
+export const QUADB = "0x480B9364C0f8Cb53872a70e7e5CfF372FBc1090a";
 
 export const ADDRESS = QUADB;
 export const CONTRACT_ADDRESSES = ADDRESS;
@@ -84,6 +84,11 @@ export const CONTRACT_ABI = [
   {
     inputs: [],
     name: "NoInstanceAccess",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "SubNodeAlreadyExists",
     type: "error",
   },
   {
@@ -282,6 +287,11 @@ export const CONTRACT_ABI = [
         internalType: "address[]",
         name: "_members",
         type: "address[]",
+      },
+      {
+        internalType: "uint256",
+        name: "_threshold",
+        type: "uint256",
       },
       {
         internalType: "string",
@@ -712,6 +722,30 @@ export const CONTRACT_ABI = [
   {
     inputs: [
       {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
+    name: "subNodes",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "uint256",
         name: "",
         type: "uint256",
@@ -815,6 +849,24 @@ export const CONTRACT_ABI = [
       },
     ],
     name: "updateInstance",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "_instance",
+        type: "bytes32",
+      },
+      {
+        internalType: "uint256",
+        name: "_threshold",
+        type: "uint256",
+      },
+    ],
+    name: "updateInstanceThreshold",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

@@ -208,8 +208,7 @@ export const getInstanceMembers = async (instanceID) => {
     const result = await axios.get(
       TablelandGateway + encodeURIComponent(query)
     );
-    console.log(result.data);
-    return result.data;
+    return result.data.map((member) => member.address) || [];
   } catch (err) {
     console.error(err);
     return null;
@@ -274,10 +273,10 @@ export const constructObject = async () => {
 
   const rootObject = {
     name: "quadb.fil",
-    id: "0x1347af471e551e181d2bd1085b73bc585a504cc56c485cf21ab9fcae63880fbf",
+    id: "0x458944be4bb2e02ee48674d6dc056b51a852cdf857c2e5c624fb8d135879e28e",
     attributes: { nodeType: "root" },
     children: await buildChildren(
-      "0x1347af471e551e181d2bd1085b73bc585a504cc56c485cf21ab9fcae63880fbf",
+      "0x458944be4bb2e02ee48674d6dc056b51a852cdf857c2e5c624fb8d135879e28e",
       "",
       sampleSpacesData
     ), // Start with null as the parentID and empty string as the parentHierarchy

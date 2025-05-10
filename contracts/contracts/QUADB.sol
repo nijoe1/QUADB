@@ -68,13 +68,16 @@ contract QUADB is Core {
      * @dev Create a new instance under the given node
      * @param _node The parent node
      * @param _members The hatID of the new instance
-     * @param _metadataCID The name of the new instance
+     * @param _threshold The threshold of the new instance
+     * @param _metadataCID The metadataCID of the new instance
      * @param _IPNS The IPNS of the new instance
+     * @param _IPNSEncryptedKey The IPNSEncryptedKey of the new instance
      */
     function createSpaceInstance(
         bytes32 _node,
         uint256 _price,
         address[] calldata _members,
+        uint256 _threshold,
         string calldata _metadataCID,
         string calldata _IPNS,
         string calldata _IPNSEncryptedKey
@@ -106,6 +109,7 @@ contract QUADB is Core {
             _node,
             _gatedContract,
             _price,
+            _threshold,
             _metadataCID,
             _IPNS,
             _IPNSEncryptedKey

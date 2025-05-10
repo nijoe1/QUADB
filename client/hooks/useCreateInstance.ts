@@ -6,12 +6,13 @@ import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { Abi, Address, TransactionReceipt, isAddress } from "viem";
 import { useToast } from "@/hooks/useToast";
 import { useUploadFile } from "@/hooks/lighthouse/useUpload";
-
+import { useGasEstimation } from "@/hooks/useGasEstimation";
 export interface FormData {
   name: string;
   about: string;
   image: File;
   members?: `0x${string}`[];
+  threshold?: number;
   file: File;
 }
 
@@ -29,6 +30,7 @@ export const useCreateInstance = ({
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
   const toast = useToast();
+  const { estimateGas, formatGasEstimate } = useGasEstimation();
 
   const { mutateAsync: uploadFile } = useUploadFile();
 
@@ -61,7 +63,6 @@ export const useCreateInstance = ({
 
       setIsLoading(true);
 
-      console.log("formData", formData);
       try {
         const metadataCID = await uploadMetadata(formData);
         const fileCID = await uploadFile({
@@ -73,11 +74,10 @@ export const useCreateInstance = ({
           spaceID,
           address: account,
           walletClient,
+          threshold: formData.threshold || 1,
         });
-        console.log("members", formData.members);
-        console.log("ipnsResult", ipnsResult);
-        // Simulate contract call
-        const simulation = await publicClient.simulateContract({
+
+        const contractCallArgs = {
           account,
           address: CONTRACT_ADDRESSES as Address,
           abi: CONTRACT_ABI as Abi,
@@ -86,14 +86,38 @@ export const useCreateInstance = ({
             spaceID,
             BigInt(0),
             formData.members?.filter((member) => isAddress(member)) || [],
+            formData.threshold || 0,
             metadataCID || "",
             ipnsResult.name,
             ipnsResult.lit_config_cid,
           ],
+        };
+
+        const estimatedGas = await estimateGas(
+          contractCallArgs.address,
+          contractCallArgs.abi,
+          contractCallArgs.functionName,
+          contractCallArgs.args
+        );
+
+        console.log("estimatedGas", estimatedGas);
+
+        // Simulate contract call
+        const simulation = await publicClient.simulateContract({
+          ...contractCallArgs,
+          gas: estimatedGas.gasLimit,
+          maxFeePerGas: estimatedGas.maxFeePerGas,
+          maxPriorityFeePerGas: estimatedGas.maxPriorityFeePerGas,
         });
         console.log("simulation", simulation.request);
+
         // Send transaction
-        const hash = await walletClient.writeContract(simulation.request);
+        const hash = await walletClient.writeContract({
+          ...contractCallArgs,
+          gas: estimatedGas.gasLimit,
+          maxFeePerGas: estimatedGas.maxFeePerGas,
+          maxPriorityFeePerGas: estimatedGas.maxPriorityFeePerGas,
+        });
         return await publicClient.waitForTransactionReceipt({ hash });
       } finally {
         setIsLoading(false);

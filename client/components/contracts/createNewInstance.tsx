@@ -55,6 +55,16 @@ const fields: FormField[] = [
     },
     component: "FieldArray",
   },
+  {
+    field: {
+      name: "threshold",
+      label: "Threshold",
+      validation: { required: false },
+    },
+    component: "Input",
+    placeholder: "quorum required to update the dataset default is 1",
+    type: "number",
+  },
 ];
 
 const args = {
@@ -109,6 +119,7 @@ export function CreateNewInstance({
               image: formData.image,
               file: formData.file,
               members: formData.members,
+              threshold: formData.threshold,
             });
 
             await deleteFormValues(["new-instance"]);

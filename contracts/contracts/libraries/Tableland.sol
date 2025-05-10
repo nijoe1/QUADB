@@ -28,7 +28,7 @@ abstract contract Tableland {
 
     string internal constant DBSPACES_INSTANCES_SCHEMA =
         "InstanceID text, instanceOfSpace text, instanceType text, metadataCID text, IPNS text, IPNSEncryptedKey text, gatedContract text, price text, creator text, threshold text";
-
+    
     string internal constant DB_INSTANCES_CODES_TABLE_PREFIX =
         "instances_codes";
 
@@ -169,7 +169,7 @@ abstract contract Tableland {
             SQLHelpers.toInsert(
                 DBSPACES_INSTANCES_TABLE_PREFIX,
                 tableIDs[1],
-                "InstanceID, instanceOfSpace, instanceType, metadataCID, IPNS, IPNSEncryptedKey, gatedContract, price, creator",
+                "InstanceID, instanceOfSpace, instanceType, metadataCID, IPNS, IPNSEncryptedKey, gatedContract, price, creator, threshold",
                 string.concat(
                     SQLHelpers.quote(bytes32ToString(_instanceID)),
                     ",",

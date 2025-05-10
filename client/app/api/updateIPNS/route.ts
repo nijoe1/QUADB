@@ -25,39 +25,33 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
 
   const {
-    threshold,
     signatures,
     newCid,
     ipns,
     ciphertext,
     dataToEncryptHash,
     instanceID,
+    codeHash,
   } = body as {
-    threshold: number;
     signatures: string[];
     newCid: string;
     ipns: string;
     ciphertext: string;
     dataToEncryptHash: string;
     instanceID: string;
+    codeHash: string;
   };
   try {
     console.log("🚀 Starting Update IPNS process...");
 
-    if (threshold === undefined || typeof threshold !== "number") {
-      return NextResponse.json(
-        { error: "threshold must be a number" },
-        { status: 400 }
-      );
-    }
+    console.log("ipns", ipns);
+
+    console.log("Instance ID:", instanceID);
 
     // Replace placeholders with provided values
     const litActionCode = code
-      .replace("$tables", JSON.stringify(tables))
-      .replace("$threshold", threshold.toString())
-      .replace("$ipns", `"${ipns}"`)
-      .replace("$instanceID", `"${instanceID}"`);
-
+      .replace("$ipns", `"${ipns.toString()}"`)
+      .replace("$instanceID", `"${instanceID.toLowerCase()}"`)
     const ethersWallet = new ethers.Wallet(
       ETHEREUM_PRIVATE_KEY,
       new ethers.providers.JsonRpcProvider(LIT_RPC.CHRONICLE_YELLOWSTONE)
@@ -70,6 +64,8 @@ export async function POST(req: NextRequest) {
     });
     await litNodeClient.connect();
     console.log("✅ Connected to the Lit network");
+
+    console.log("Wallet Address:", ethersWallet.address);
 
     console.log("🔄 Connecting LitContracts client to network...");
     const litContracts = new LitContracts({
@@ -86,7 +82,7 @@ export async function POST(req: NextRequest) {
       capacityTokenId = (
         await litContracts.mintCapacityCreditsNFT({
           requestsPerKilosecond: 100,
-          daysUntilUTCMidnightExpiration: 365,
+          daysUntilUTCMidnightExpiration: 1,
         })
       ).capacityTokenIdStr;
       console.log(`✅ Minted new Capacity Credit with ID: ${capacityTokenId}`);
@@ -109,7 +105,7 @@ export async function POST(req: NextRequest) {
         parameters: [":currentActionIpfsId"],
         returnValueTest: {
           comparator: "=",
-          value: hash,
+          value: codeHash,
         },
       },
     ] satisfies AccessControlConditions;
@@ -150,6 +146,8 @@ export async function POST(req: NextRequest) {
 
     console.log("🔄 Executing the Lit Action...");
 
+    console.log(accessControlConditions);
+
     const litActionSignatures = await litNodeClient.executeJs({
       sessionSigs,
       code: litActionCode,
@@ -161,7 +159,7 @@ export async function POST(req: NextRequest) {
         signatures,
       },
     });
-    console.log("✅ Executed the Lit Action");
+    console.log("✅ Executed the Lit Action", litActionSignatures);
 
     return NextResponse.json({
       litActionSignatures,

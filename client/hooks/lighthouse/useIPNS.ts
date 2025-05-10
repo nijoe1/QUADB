@@ -60,17 +60,38 @@ export const useUpdateIPNS = (
       message: `I acknowledge updating the current ipns record : ${IPNS} contents to point to this new ipfs cid : ${cid} and the previous sequence number is ${sequence}`,
     });
 
+    // const { instanceId, sequence, signatures } = await request.json();
+    //
+    // const instanceId = searchParams.get("instanceId");
+    // const sequence = searchParams.get("sequence");
+    const resp = await fetch(
+      `/api/signatures?instanceId=${spaceID}&sequence=${sequence}`
+    );
+    console.log("resp of signatures are :", await resp.json());
+    const response2 = await fetch(`/api/signatures`, {
+      method: "POST",
+      body: JSON.stringify({
+        instanceId: spaceID,
+        sequence: sequence,
+        signatures: [signature],
+      }),
+    });
+    console.log("response2", await response2.json());
     const ipnsConfig = (await fetchIPFS(EncryptedKeyCID)) as IPNSConfig;
 
+    console.log("ipnsConfig", ipnsConfig);
+
     const body: updateIPNSBody = {
-      threshold: 1,
       signatures: [signature],
       newCid: cid,
-      ipns: IPNS,
+      ipns: ipnsConfig.ipns,
       ciphertext: ipnsConfig.ciphertext,
       dataToEncryptHash: ipnsConfig.dataToEncryptHash,
-      instanceID: spaceID,
+      instanceID: ipnsConfig.instanceID,
+      codeHash: ipnsConfig.codeCID,
     };
+
+    console.log("body", body);
 
     const response = await fetch(`/api/updateIPNS`, {
       method: "POST",

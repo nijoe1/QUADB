@@ -35,12 +35,14 @@ const DatasetViewer = ({
   EncryptedKeyCID,
   isEncrypted,
   spaceID,
+  threshold,
 }: {
   cid: string;
   IPNS: string;
   EncryptedKeyCID: string;
   isEncrypted: boolean;
   spaceID: string;
+  threshold?: number;
 }) => {
   const toast = useToast();
   const [csvData, setCsvData] = useState<CsvData>([]);
@@ -196,10 +198,12 @@ const DatasetViewer = ({
                   onClose={onUpdateClose}
                   isDataset={true}
                   IPNS={IPNS}
+                  currentIPNSValue={cid}
                   EncryptedKeyCID={EncryptedKeyCID}
                   currentCSV={csvText}
                   spaceID={spaceID}
                   isEncrypted={isEncrypted}
+                  threshold={threshold || 0}
                 />
               </div>
             </Container>

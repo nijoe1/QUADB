@@ -13,12 +13,10 @@ import {
 import DatasetViewer from "@/components/ui/datasetViewer";
 import InstanceCodes from "@/components/ui/instanceCodes";
 import { useAccount } from "wagmi";
-import { useRouter } from "next/navigation";
 import { Container } from "@/components/ui/container";
 import { CardItem } from "./components/CardItem";
 import Loading from "@/components/animation/loading";
 import useInstanceData from "@/hooks/useInstanceData";
-import { useChainName } from "@/hooks/useChainName";
 import { Subscribe } from "@/components/contracts/subscribe";
 import useInstanceMembers from "@/hooks/useInstanceMembers";
 const InstanceDetailsPage = ({
@@ -26,17 +24,13 @@ const InstanceDetailsPage = ({
 }: {
   params: { id: string };
 }) => {
-  const router = useRouter();
-  const chainName = useChainName();
   const instanceID = id;
   const { address } = useAccount();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { data, isLoading, error } = useInstanceData(instanceID);
-  const { data: instanceMemberz, isLoading: isLoadingInstanceMembers } =
+  const { data: instanceMembers, isLoading: isLoadingInstanceMembers } =
     useInstanceMembers(instanceID);
 
-  console.log("instanceMemberz", instanceMemberz);
-  console.log("error", error);
   if (isLoading) {
     return (
       <Container>
@@ -54,9 +48,7 @@ const InstanceDetailsPage = ({
   const hasAccess =
     data?.instance?.creator?.toLowerCase() === address?.toLowerCase();
 
-  const { instance, instanceMembers } = data || {};
-
-  console.log(instance);
+  const { instance } = data || {};
 
   return (
     <Container>
@@ -135,6 +127,7 @@ const InstanceDetailsPage = ({
                     <TabPanel>
                       <DatasetViewer
                         cid={instance?.cid}
+                        threshold={instance?.threshold}
                         IPNS={instance?.IPNS}
                         EncryptedKeyCID={instance?.IPNSEncryptedKey}
                         isEncrypted={instance?.price > 0}

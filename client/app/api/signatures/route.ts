@@ -1,48 +1,152 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-
+import axios from "axios";
+import { tables } from "@/app/api/constants";
 // Initialize Supabase client
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+const TablelandGateway = "https://tableland.network/api/v1/query?statement=";
+
+const getInstanceMembers = async (instanceID: string) => {
+  const query = `SELECT DISTINCT address FROM (
+    SELECT member as address FROM ${tables.members} WHERE InstanceID = '${instanceID}'
+    UNION ALL
+    SELECT creator as address FROM ${tables.spaceInstances} WHERE InstanceID = '${instanceID}'
+  )`;
+  try {
+    const result = await axios.get(
+      TablelandGateway + encodeURIComponent(query)
+    );
+    return (
+      result.data.map((member: { address: string }) => member.address) || []
+    );
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+};
+
 export async function POST(request: Request) {
   try {
-    const { instanceId, sequence, signatures } = await request.json();
+    const {
+      instanceId,
+      sequence,
+      signature,
+      cid,
+      proposalDescription,
+      address,
+    } = await request.json();
 
     // Validate required fields
-    if (!instanceId || !sequence || !signatures || !Array.isArray(signatures)) {
+    if (!instanceId || !sequence || !signature || !cid || !address) {
       return NextResponse.json(
         {
           error:
-            "Missing required fields: instanceId, sequence, and signatures array",
+            "Missing required fields: instanceId, sequence, signature, cid, and address",
         },
         { status: 400 }
       );
     }
 
-    // Insert the signature record
-    const { data, error } = await supabase
-      .from("signatures")
-      .insert([
-        {
-          instance_id: instanceId,
-          sequence: sequence,
-          signatures: signatures,
-        },
-      ])
-      .select();
+    const instanceMembers = await getInstanceMembers(instanceId);
 
-    if (error) {
-      console.error("Error inserting signature:", error);
+    if (!instanceMembers) {
       return NextResponse.json(
-        { error: "Failed to insert signature", details: error.message },
+        { error: "Failed to fetch instance members" },
         { status: 500 }
       );
     }
 
-    return NextResponse.json({ success: true, data });
+    if (!instanceMembers.includes(address.toLowerCase())) {
+      return NextResponse.json(
+        { error: "Address is not a member of the instance" },
+        { status: 400 }
+      );
+    }
+
+    // Start a transaction
+    const { data: proposal, error: proposalError } = await supabase
+      .from("proposals")
+      .insert([
+        {
+          instance_id: instanceId,
+          sequence: sequence,
+          cid: cid,
+          proposal_description: proposalDescription,
+        },
+      ])
+      .select()
+      .single();
+
+    if (proposalError) {
+      // If the error is due to unique constraint violation, get the existing proposal
+      if (proposalError.code === "23505") {
+        // Unique violation error code
+        const { data: existingProposal } = await supabase
+          .from("proposals")
+          .select()
+          .eq("instance_id", instanceId)
+          .eq("sequence", sequence)
+          .eq("cid", cid)
+          .single();
+
+        if (!existingProposal) {
+          throw new Error("Failed to create or find proposal");
+        }
+
+        // Add signature to existing proposal
+        const { data: signatureData, error: signatureError } = await supabase
+          .from("signatures")
+          .insert([
+            {
+              proposal_id: existingProposal.id,
+              address: address,
+              signature: signature,
+            },
+          ])
+          .select();
+
+        if (signatureError) {
+          throw signatureError;
+        }
+
+        return NextResponse.json({
+          success: true,
+          data: {
+            proposal: existingProposal,
+            signature: signatureData,
+          },
+        });
+      }
+      throw proposalError;
+    }
+
+    // Add signature to new proposal
+    const { data: signatureData, error: signatureError } = await supabase
+      .from("signatures")
+      .insert([
+        {
+          proposal_id: proposal.id,
+          address: address,
+          signature: signature,
+        },
+      ])
+      .select();
+
+    if (signatureError) {
+      throw signatureError;
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        proposal,
+        signature: signatureData,
+      },
+    });
   } catch (error) {
     console.error("Error in signatures API:", error);
     return NextResponse.json(
@@ -60,6 +164,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const instanceId = searchParams.get("instanceId");
     const sequence = searchParams.get("sequence");
+    const cid = searchParams.get("cid");
 
     if (!instanceId || !sequence) {
       return NextResponse.json(
@@ -68,17 +173,33 @@ export async function GET(request: Request) {
       );
     }
 
-    const { data, error } = await supabase
-      .from("signatures")
-      .select("*")
+    let query = supabase
+      .from("proposals")
+      .select(
+        `
+        *,
+        signatures (
+          id,
+          address,
+          signature,
+          created_at
+        )
+      `
+      )
       .eq("instance_id", instanceId)
-      .eq("sequence", sequence)
-      .single();
+      .eq("sequence", sequence);
+
+    // If cid is provided, filter by it
+    if (cid) {
+      query = query.eq("cid", cid);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
-      console.error("Error fetching signature:", error);
+      console.error("Error fetching proposals:", error);
       return NextResponse.json(
-        { error: "Failed to fetch signature", details: error.message },
+        { error: "Failed to fetch proposals", details: error.message },
         { status: 500 }
       );
     }
@@ -98,64 +219,83 @@ export async function GET(request: Request) {
 
 export async function PATCH(request: Request) {
   try {
-    const { instanceId, sequence, signature } = await request.json();
+    const { instanceId, sequence, signature, cid, address } =
+      await request.json();
 
     // Validate required fields
-    if (!instanceId || !sequence || !signature) {
+    if (!instanceId || !sequence || !signature || !cid || !address) {
       return NextResponse.json(
         {
-          error: "Missing required fields: instanceId, sequence, and signature",
+          error:
+            "Missing required fields: instanceId, sequence, signature, cid, and address",
         },
         { status: 400 }
       );
     }
 
-    // First, get the existing record
-    const { data: existingRecord, error: fetchError } = await supabase
-      .from("signatures")
-      .select("signatures")
+    // Get the proposal
+    const { data: proposal, error: proposalError } = await supabase
+      .from("proposals")
+      .select()
       .eq("instance_id", instanceId)
       .eq("sequence", sequence)
+      .eq("cid", cid)
       .single();
 
-    if (fetchError) {
-      console.error("Error fetching existing signatures:", fetchError);
+    if (proposalError || !proposal) {
       return NextResponse.json(
         {
-          error: "Failed to fetch existing signatures",
-          details: fetchError.message,
+          error:
+            "No proposal found for the given instanceId, sequence, and cid",
         },
-        { status: 500 }
-      );
-    }
-
-    if (!existingRecord) {
-      return NextResponse.json(
-        { error: "No record found for the given instanceId and sequence" },
         { status: 404 }
       );
     }
 
-    // Append the new signature to the existing array
-    const updatedSignatures = [...existingRecord.signatures, signature];
-
-    // Update the record with the new signatures array
-    const { data, error } = await supabase
+    // Check if signature already exists for this address
+    const { data: existingSignature } = await supabase
       .from("signatures")
-      .update({ signatures: updatedSignatures })
-      .eq("instance_id", instanceId)
-      .eq("sequence", sequence)
+      .select()
+      .eq("proposal_id", proposal.id)
+      .eq("address", address)
+      .single();
+
+    if (existingSignature) {
+      return NextResponse.json(
+        {
+          error: "Signature already exists for this address",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Add new signature
+    const { data: signatureData, error: signatureError } = await supabase
+      .from("signatures")
+      .insert([
+        {
+          proposal_id: proposal.id,
+          address: address,
+          signature: signature,
+        },
+      ])
       .select();
 
-    if (error) {
-      console.error("Error updating signatures:", error);
+    if (signatureError) {
+      console.error("Error adding signature:", signatureError);
       return NextResponse.json(
-        { error: "Failed to update signatures", details: error.message },
+        { error: "Failed to add signature", details: signatureError.message },
         { status: 500 }
       );
     }
 
-    return NextResponse.json({ success: true, data });
+    return NextResponse.json({
+      success: true,
+      data: {
+        proposal,
+        signature: signatureData,
+      },
+    });
   } catch (error) {
     console.error("Error in signatures API:", error);
     return NextResponse.json(

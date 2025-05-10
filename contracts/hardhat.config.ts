@@ -78,14 +78,13 @@ const config: HardhatUserConfig = {
   etherscan: {
     apiKey: `${etherscanApiKey}`,
   },
-  // configuration for etherscan-verify from hardhat-deploy plugin
-  verify: {
-    etherscan: {
-      apiKey: `${etherscanApiKey}`,
-    },
-  },
+
   sourcify: {
-    enabled: false,
+    enabled: true,
+    // Optional: specify a different Sourcify server
+    apiUrl: "https://sourcify.dev/server",
+    // Optional: specify a different Sourcify repository
+    browserUrl: "https://repo.sourcify.dev",
   },
 };
 

@@ -125,13 +125,13 @@ export interface IpfsUploader {
 }
 
 export interface updateIPNSBody {
-  threshold: number;
   signatures: string[];
   newCid: string;
   ipns: string;
   ciphertext: string;
   dataToEncryptHash: string;
   instanceID: string;
+  codeHash: string;
 }
 
 export interface IPNSConfig {

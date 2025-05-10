@@ -110,11 +110,13 @@ export const createIPNS = async ({
   spaceID,
   address,
   walletClient,
+  threshold,
 }: {
   cid: string;
   spaceID: Hex;
   address: Address;
   walletClient: WalletClient;
+  threshold: number;
 }) => {
   // https://www.npmjs.com/package/w3name
 
@@ -123,7 +125,7 @@ export const createIPNS = async ({
     body: JSON.stringify({
       ipfsCID: cid,
       spaceID,
-      threshold: 1,
+      threshold,
     }),
   });
   const data = (await response.json()) as {

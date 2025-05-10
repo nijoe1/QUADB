@@ -18,6 +18,10 @@ interface SolhintData {
       enabled: boolean;
       runs: number;
     };
+    evmVersion: string;
+    metadata: {
+      useLiteralContent: boolean;
+    };
   };
 }
 
@@ -51,7 +55,7 @@ task("verify-contract", "Verifies a contract on Filfox")
         const response = await fetch(url, {
           method: "POST",
           headers: headers,
-          body: JSON.stringify(verificationData),
+          body: JSON.stringify(verificationData, null, 2),
         });
 
         const result = await response.json();
@@ -124,10 +128,10 @@ function extractVerificationData(network: string, contractName: string) {
   const optimize = solhint.settings.optimizer.enabled;
   const optimizeRuns = solhint.settings.optimizer.runs;
   const license = "";
-  const evmVersion = "default";
+  const evmVersion = solhint.settings.evmVersion;
   const viaIR = true;
-  const libraries = "";
-  const metadata = "";
+  const libraries = ``;
+  const metadata = solhint.settings.metadata;
 
   return {
     address: deployments.address,

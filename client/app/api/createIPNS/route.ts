@@ -41,7 +41,7 @@ const getInstanceID = (instanceID: Hex, IPNS: string) => {
   const _newInstanceID = ethers.utils.keccak256(
     encodePacked(["bytes32", "string"], [instanceID, IPNS])
   );
-  return _newInstanceID;
+  return _newInstanceID.toLowerCase();
 };
 
 function uint8ArrayToString(array: Uint8Array | Buffer): string {
@@ -50,32 +50,26 @@ function uint8ArrayToString(array: Uint8Array | Buffer): string {
 }
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { threshold, ipfsCID, spaceID } = body as {
-    threshold: number;
+  const { ipfsCID, spaceID } = body as {
     ipfsCID: string;
     spaceID: Hex;
   };
   try {
     console.log("🚀 Starting Get Custom Lit Action Code process...");
 
-    if (threshold === undefined || typeof threshold !== "number") {
-      return NextResponse.json(
-        { error: "threshold must be a number" },
-        { status: 400 }
-      );
-    }
-
     const name = await Name.create();
 
     console.log("🔄 Publishing the name...", name.toString());
 
+    console.log("Space ID:", spaceID);
+
     const instanceID = getInstanceID(spaceID, name.toString());
+
+    console.log("Instance ID:", instanceID);
     // Replace placeholders with provided values
     const litActionCode = code
-      .replace("$threshold", threshold.toString())
       .replace("$ipns", `"${name.toString()}"`)
       .replace("$instanceID", `"${instanceID}"`)
-      .replace("$tables", JSON.stringify(tables));
     const litNodeClient = new LitNodeClient({
       litNetwork: LIT_NETWORK.DatilTest,
       debug: false,
@@ -134,6 +128,9 @@ export async function POST(req: NextRequest) {
     ] satisfies AccessControlConditions;
 
     const revision = await Name.v0(name, ipfsCID);
+    const ONE_YEAR = 1000 * 60 * 60 * 24 * 365;
+
+    revision._validity = new Date(Date.now() + ONE_YEAR * 100).toISOString();
 
     await Name.publish(revision, name.key);
 

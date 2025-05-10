@@ -24,26 +24,41 @@
 (async () => {
   let stringifiedApiKey;
   let namePrivateKey;
-
+  let threshold;
   // REPLACE THESE VALUES
-  const threshold = $threshold;
   const ipns = $ipns;
   const instanceID = $instanceID;
-  const tables = $tables;
+  const tables = {
+    spaces: "db_spaces_314_70",
+    spaceInstances: "db_spaces_instances_314_71",
+    codes: "instances_codes_314_72",
+    subscriptions: "subscriptions_314_73",
+    members: "members_314_74",
+  };
   let addresses = [];
   try {
     const baseUrl = "https://tableland.network/api/v1/query?statement=";
-    const query = `SELECT DISTINCT address FROM (
-    SELECT member as address FROM ${tables.members} WHERE InstanceID = '${instanceID}'
-    UNION ALL
-    SELECT creator as address FROM ${tables.spaceInstances} WHERE InstanceID = '${instanceID}'
-  )`;
+    const query = `
+    SELECT 'member' as role, m.member as address, s.threshold 
+    FROM ${tables.members} m, ${tables.spaceInstances} s 
+    WHERE m.InstanceID=s.InstanceID AND m.InstanceID='${instanceID}'
+    UNION ALL 
+    SELECT 'creator' as role, s.creator as address, s.threshold 
+    FROM ${tables.spaceInstances} s 
+    WHERE s.InstanceID='${instanceID}'
+  `;
     const url = baseUrl + encodeURIComponent(query);
-    const resp = await fetch(url).then((response) => response.json());
-    console.log(resp);
+    const resp = await fetch(url).then(async (response) => {
+      if (!response.ok) {
+        throw new Error("Failed to fetch data");
+      }
+      const data = await response.json();
+      return data;
+    });
     addresses = resp.map((address) => address.address);
+    threshold = resp[0].threshold;
   } catch (error) {
-    console.error(error);
+    console.log(JSON.stringify(error));
   }
 
   try {
@@ -57,7 +72,7 @@
       });
       namePrivateKey = new Uint8Array(Buffer.from(stringifiedApiKey, "base64"));
     } catch (error) {
-      console.error(error);
+      console.log(JSON.stringify(error));
       Lit.Actions.setResponse({
         response: JSON.stringify({
           success: false,
@@ -69,7 +84,7 @@
     const res = await Lit.Actions.runOnce(
       {
         waitForResponse: true,
-        name: "conditional-threshold-check-ipns-record-update",
+        name: "multisig-ipns-updates",
       },
       async () => {
         const usedAddresses = [];
@@ -93,12 +108,18 @@
           revision,
           newCid.replace("\n", "")
         );
-        if (usedAddresses.length >= threshold) {
+        const ONE_YEAR = 1000 * 60 * 60 * 24 * 365;
+        nextRevision._validity = new Date(
+          Date.now() + ONE_YEAR * 100
+        ).toISOString();
+        if (usedAddresses.length >= Number(threshold)) {
           const nameKey = await W3Name.from(namePrivateKey);
           const resp = await W3Name.publish(nextRevision, nameKey.key);
           return `Threshold reached, updated IPNS record ${ipns} with new CID ${newCid.replace("\n", "")}`;
         } else {
-          return `Threshold not reached, required: ${threshold}, got: ${usedAddresses.length}`;
+          throw new Error(
+            `Threshold not reached, required: ${threshold}, got: ${usedAddresses.length}`
+          );
         }
       }
     );
@@ -110,7 +131,7 @@
       }),
     });
   } catch (error) {
-    console.error(error);
+    console.log(JSON.stringify(error));
     Lit.Actions.setResponse({
       response: JSON.stringify({
         success: false,

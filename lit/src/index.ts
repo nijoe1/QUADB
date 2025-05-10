@@ -44,26 +44,6 @@ export const decryptApiKey = async (
   customAddresses: string[] = [],
   customThreshold: number = 2
 ) => {
-  // Fetch the compiled action with custom values
-  // const code = await fetch(
-  //   "http://localhost:3000/api/get-custom-lit-action-code",
-  //   {
-  //     method: "POST",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //     body: JSON.stringify({
-  //       signatures: customSignatures,
-  //       addresses: customAddresses,
-  //       threshold: customThreshold,
-  //     }),
-  //   }
-  // ).then((res) => {
-  //   if (!res.ok) {
-  //     throw new Error(`Failed to fetch custom lit action: ${res.statusText}`);
-  //   }
-  //   return res.text();
-  // });
 
   let litNodeClient: LitNodeClient;
 
@@ -115,7 +95,12 @@ export const decryptApiKey = async (
         uses: "1",
       });
     console.log("✅ Capacity Delegation Auth Sig created");
-    const hash = await Hash.of(code2);
+    const name = await Name.create();
+    const code = code2
+      .replace("$ipns", `"${name.toString()}"`)
+      .replace("$instanceID", `"${instanceID}"`)
+      .replace("$tables", JSON.stringify(tables));
+    const hash = await Hash.of(code);
 
     console.log("🔄 Hash of the code:", hash);
 
@@ -144,7 +129,7 @@ export const decryptApiKey = async (
     const value =
       "/ipfs/bafkreiem4twkqzsq2aj4shbycd4yvoj2cx72vezicletlhi7dijjciqpui";
 
-    const name = await Name.create();
+   
 
     console.log("🔄 Publishing the name...", name.toString());
 
