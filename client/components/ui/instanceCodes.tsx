@@ -121,6 +121,8 @@ const InstanceCodes = ({
                     Update Notebook
                   </Button>
                   <UpdateIPNS
+                    threshold={code.threshold}
+                    currentIPNSValue={code.IPNS}
                     isOpen={isUpdateOpen}
                     onClose={onUpdateClose}
                     isDataset={false}
