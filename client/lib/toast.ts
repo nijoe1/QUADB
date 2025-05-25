@@ -1,4 +1,4 @@
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/useToast";
 
 export const showToast = {
   success: (title: string, description?: string) => {
