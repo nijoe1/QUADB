@@ -13,7 +13,7 @@ import {
 import DatasetViewer from "@/components/datasetViewer";
 import InstanceCodes from "@/components/InstanceCodes";
 import { useAccount } from "wagmi";
-import { Container } from "@/primitives/ui/container";
+import { Container } from "@/ui-shadcn/container";
 import { CardItem } from "./components/CardItem";
 import Loading from "@/components/animation/loading";
 import useInstanceData from "@/hooks/useInstanceData";

@@ -1,6 +1,6 @@
 "use client";
 
-import { Container } from "@/components/ui/container";
+import { Container } from "@/ui-shadcn/container";
 import React from "react";
 import { motion } from "framer-motion";
 import {

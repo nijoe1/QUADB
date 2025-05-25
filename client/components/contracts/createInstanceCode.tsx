@@ -21,7 +21,7 @@ import {
   CodeFormData,
   useCreateInstanceCode,
 } from "@/hooks/useCreateInstanceCode";
-import { Alert } from "@/primitives/ui/Alert";
+import { Alert } from "@/primitives/Alert/Alert";
 import { toast } from "sonner";
 import { Hex } from "viem";
 

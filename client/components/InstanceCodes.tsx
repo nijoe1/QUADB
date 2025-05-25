@@ -15,7 +15,7 @@ import {
   MenuList,
   MenuItem,
 } from "@chakra-ui/react";
-import { Container } from "@/primitives/ui/container";
+import { Container } from "@/ui-shadcn/container";
 import CodeViewer from "@/components/CodeViewer";
 import CreateNewInstanceCode from "@/components/contracts/createInstanceCode";
 import { FaEllipsisV } from "react-icons/fa";
@@ -24,7 +24,7 @@ import Loading from "@/components/animation/loading";
 import { getIpfsGatewayUri, resolveIPNS } from "@/lib/ipfs";
 import { FaArrowLeft } from "react-icons/fa";
 import makeBlockie from "ethereum-blockies-base64";
-import router from "next/router";
+import { useRouter } from "next/navigation";
 import { Hex } from "viem";
 import UpdateCode from "@/components/UpdateCode";
 
@@ -37,6 +37,7 @@ const InstanceCodes = ({
 }) => {
   const [code, setCode] = useState<any | null>(null);
   const [viewAllCodes, setViewAllCodes] = useState(true);
+  const router = useRouter();
 
   const {
     isOpen,
@@ -231,9 +232,7 @@ const InstanceCodes = ({
                                 }
                                 alt="Sender Avatar"
                                 onClick={() => {
-                                  router.push({
-                                    pathname: "/profile" + code.creator,
-                                  });
+                                  router.push("/profile" + code.creator);
                                 }}
                               />
                             </Box>
@@ -245,9 +244,7 @@ const InstanceCodes = ({
                               mb="1"
                               cursor="pointer"
                               onClick={() => {
-                                router.push({
-                                  pathname: "/profile" + code?.creator,
-                                });
+                                router.push("/profile" + code?.creator);
                               }}
                             >
                               {code.profile?.name}

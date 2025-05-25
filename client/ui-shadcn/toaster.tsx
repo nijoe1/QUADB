@@ -8,7 +8,7 @@ import {
   ToastProvider,
   ToastTitle,
   ToastViewport,
-} from "@/primitives/ui/toast";
+} from "@/ui-shadcn/toast";
 
 export function Toaster() {
   const { toasts } = useToast();

@@ -1,8 +1,8 @@
 "use client";
 import React, { useState } from "react";
-import { Container } from "@/components/ui/container";
-import Logo from "@/components/menu/NavbarLogo";
-import NavLinks, { NavLinksResponsive } from "@/components/menu/NavLinks";
+import { Container } from "@/ui-shadcn/container";
+import Logo from "@/components/layout/NavbarLogo";
+import NavLinks, { NavLinksResponsive } from "@/components/layout/NavLinks";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 export default function Navbar(): JSX.Element {

@@ -2,7 +2,7 @@ import React from "react";
 import { FormData, useCreateInstance } from "@/hooks/useCreateInstance";
 import { toast } from "sonner";
 
-import { Alert } from "@/primitives/ui/Alert";
+import { Alert } from "@/primitives/Alert/Alert";
 
 import { Modal, ModalContent, ModalOverlay } from "@chakra-ui/react";
 import { Form } from "@/components/Form/Form";

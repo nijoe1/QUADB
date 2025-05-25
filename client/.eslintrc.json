@@ -34,5 +34,15 @@
     "prefer-const": "error",
     "tailwindcss/no-custom-classname": "off"
   },
-  "ignorePatterns": ["*.js", "*.jsx", "*.config.js", "*.config.ts"]
+  "ignorePatterns": [
+    "*.js",
+    "*.jsx",
+    "*.config.js",
+    "*.config.ts",
+    "dist",
+    "node_modules",
+    "build",
+    "next-env.d.ts"
+    
+  ]
 }

@@ -1,6 +1,6 @@
 "use client";
 import { Benefits, HowItWorks, Hero } from "@/components/landing";
-import { Container } from "@/components/ui/container";
+import { Container } from "@/ui-shadcn/container";
 import Head from "next/head";
 
 export default function LandingPage() {

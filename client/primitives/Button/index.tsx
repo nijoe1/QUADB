@@ -1,1 +1,1 @@
-export * from "@/primitives/Button/Button";
+export * from "./Button";

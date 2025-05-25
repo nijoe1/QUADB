@@ -2,7 +2,7 @@ import clsx from "clsx";
 import { ImageIcon } from "lucide-react";
 import { ComponentProps, useRef, useState, useEffect } from "react";
 import { useController, useFormContext } from "react-hook-form";
-import { IconButton } from "@/components/ui/Button";
+import { Button } from "@/primitives/Button";
 
 type Props = { name: string } & ComponentProps<"div">;
 
@@ -69,11 +69,10 @@ export function ImageUpload({ name, className }: Props) {
       </div>
 
       {/* IconButton */}
-      <IconButton
-        // @ts-ignore
+      <Button
         onClick={handleClick}
-        icon={ImageIcon}
         className="absolute bottom-1 right-1 z-10"
+        icon={<ImageIcon className="text-gray-400" size={50} />}
       />
 
       {/* Hidden File Input */}

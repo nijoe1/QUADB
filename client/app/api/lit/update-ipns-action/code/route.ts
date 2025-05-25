@@ -96,15 +96,11 @@ export async function POST(req: NextRequest) {
         uri,
         expiration,
         resourceAbilityRequests,
-      }: {
-        uri: string;
-        expiration: Date;
-        resourceAbilityRequests: LitActionResource[];
       }) => {
         const toSign = await createSiweMessage({
           uri,
-          expiration: expiration.toISOString(),
-          resources: resourceAbilityRequests as any,
+          expiration,
+          resources: resourceAbilityRequests,
           walletAddress: ethersWallet.address,
           nonce: await litNodeClient.getLatestBlockhash(),
           litNodeClient,

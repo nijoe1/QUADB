@@ -23,7 +23,7 @@ import {
 import { FiDownload } from "react-icons/fi";
 import { MdMoreVert } from "react-icons/md";
 import Loading from "@/components/animation/loading";
-import { Container } from "@/primitives/ui/container";
+import { Container } from "@/ui-shadcn/container";
 import UpdateIPNS from "@/components/UpdateIPNS";
 import { useAccount } from "wagmi";
 

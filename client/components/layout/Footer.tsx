@@ -1,4 +1,4 @@
-import NavbarLogo from "@/components/menu/NavbarLogo";
+import NavbarLogo from "@/components/layout/NavbarLogo";
 import Link from "next/link";
 export default function Footer() {
   return (

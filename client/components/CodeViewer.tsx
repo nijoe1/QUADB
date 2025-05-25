@@ -14,7 +14,7 @@ import {
   Badge,
 } from "@chakra-ui/react";
 import { NotebookPreviewer } from "@/components/NotebookPreviewer";
-import { Button } from "@/primitives/ui/Button";
+import { Button } from "@/primitives/Button";
 
 const CodeViewer = ({ code, onClose }: { code: any; onClose: () => void }) => {
   const toast = useToast();

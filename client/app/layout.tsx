@@ -13,7 +13,7 @@ import {
   getDefaultConfig,
 } from "@rainbow-me/rainbowkit";
 import { Inter } from "next/font/google";
-import { Toaster } from "@/primitives/ui/toaster";
+import { Toaster } from "@/ui-shadcn/toaster";
 
 const _filecoin = {
   ...filecoin,

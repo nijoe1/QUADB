@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/primitives/Button";
 import { ArrowRightIcon } from "@chakra-ui/icons";
 import HeroAnimation from "@/components/animation/HeroAnimation";
 import Link from "next/link";

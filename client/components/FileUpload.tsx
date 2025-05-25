@@ -1,6 +1,6 @@
 import { ComponentProps, useRef } from "react";
 import { Controller, useFormContext } from "react-hook-form";
-import { IconButton } from "@/components/ui/Button";
+import { Button } from "@/primitives/Button";
 import { FileIcon } from "lucide-react";
 import clsx from "clsx";
 
@@ -18,10 +18,10 @@ export function FileUpload({ name, className }: Props) {
       render={({ field: { value, onChange } }) => {
         return (
           <div className={clsx("relative overflow-hidden", className)}>
-            <IconButton
+            <Button
               // @ts-ignore
               onClick={() => ref.current?.click()}
-              icon={FileIcon}
+              icon={<FileIcon size={20} />}
               className="absolute bottom-1 right-1 bg-transparent fill-white"
             />
 

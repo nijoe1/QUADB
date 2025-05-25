@@ -23,7 +23,7 @@ import {
 import { createComponent } from "@/components";
 import { cn } from "@/utils/classNames";
 import { useInterval } from "react-use";
-import { IconButton } from "@/primitives/ui/Button";
+import { Button } from "@/primitives/Button";
 import { PlusIcon, Search, Trash } from "lucide-react";
 
 const inputBase = [
@@ -206,12 +206,12 @@ export function FieldArray<S extends z.Schema>({
           {renderField(field, i)}
 
           <div className="flex justify-end">
-            <IconButton
+            <Button
               // @ts-ignore
               tabIndex={-1}
               type="button"
               variant="ghost"
-              icon={Trash}
+              icon={<Trash size={20} />}
               onClick={() => remove(i)}
             />
           </div>
@@ -219,15 +219,14 @@ export function FieldArray<S extends z.Schema>({
       ))}
       <div className="flex justify-end">
         {/* @ts-ignore */}
-        <IconButton
+        <Button
           type="button"
           size="sm"
-          icon={PlusIcon}
+          icon={<PlusIcon size={20} />}
           className="text-white"
           onClick={() => append("")}
-        >
-          Add curator
-        </IconButton>
+          value="Add curator"
+        />
       </div>
     </div>
   );

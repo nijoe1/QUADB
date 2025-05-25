@@ -17,7 +17,7 @@ import {
   MenuItem,
 } from "@chakra-ui/react";
 import { FaEllipsisV } from "react-icons/fa";
-import { Container } from "@/primitives/ui/container";
+import { Container } from "@/ui-shadcn/container";
 import { useRouter } from "next/navigation";
 import { CreateNewInstance } from "@/components/contracts/createNewInstance";
 import Loading from "@/components/animation/loading";

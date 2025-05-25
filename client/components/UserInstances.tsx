@@ -15,7 +15,7 @@ import {
   MenuItem,
 } from "@chakra-ui/react";
 import { FaEllipsisV } from "react-icons/fa";
-import { Container } from "@/components/ui/container";
+import { Container } from "@/ui-shadcn/container";
 import { useRouter } from "next/navigation";
 import { getIpfsGatewayUri } from "@/lib/ipfs";
 import { getUserInstances } from "@/lib/tableland";

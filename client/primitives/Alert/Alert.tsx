@@ -1,5 +1,5 @@
 import { tv } from "tailwind-variants";
-import { createComponent } from "..";
+import { createComponent } from "@/components";
 import { type ComponentProps, createElement } from "react";
 import { type LucideIcon } from "lucide-react";
 

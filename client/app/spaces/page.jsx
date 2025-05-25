@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { Box, Flex, Select, useDisclosure } from "@chakra-ui/react";
-import { Container } from "@/components/ui/container";
+import { Container } from "@/ui-shadcn/container";
 import Tree from "react-d3-tree";
 import { useRouter } from "next/navigation";
 import CreateSubSpaceModal from "@/components/contracts/createSubSpace";
