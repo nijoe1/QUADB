@@ -1,4 +1,4 @@
-import { usePublicClient, useWalletClient } from "wagmi";
+import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { parseEther } from "viem";
 
 interface GasEstimate {
@@ -11,7 +11,7 @@ interface GasEstimate {
 
 export const useGasEstimation = () => {
   const publicClient = usePublicClient();
-  const { data: walletClient } = useWalletClient();
+  const { address } = useAccount();
 
   const estimateGas = async (
     contractAddress: string,
@@ -40,6 +40,7 @@ export const useGasEstimation = () => {
         functionName,
         args,
         value: value ? parseEther(value) : undefined,
+        account: address,
       });
 
       // Add 60% buffer to gas limit for safety

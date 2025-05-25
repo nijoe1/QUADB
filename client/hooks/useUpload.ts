@@ -1,4 +1,3 @@
-import { createIPNSName } from "@/lib/ipfs"; // Assume these functions exist
 import { useMutation } from "@tanstack/react-query";
 import { uploadFiles } from "@/hooks/lighthouse";
 import { getUserAPIKey } from "@/hooks/lighthouse/utils";

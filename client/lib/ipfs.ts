@@ -120,7 +120,7 @@ export const createIPNS = async ({
 }) => {
   // https://www.npmjs.com/package/w3name
 
-  const response = await fetch(`/api/createIPNS`, {
+  const response = await fetch("/api/lit/create-ipns-action/instance", {
     method: "POST",
     body: JSON.stringify({
       ipfsCID: cid,

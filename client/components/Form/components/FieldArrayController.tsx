@@ -1,8 +1,7 @@
 import React from "react";
 import { Controller, useFormContext } from "react-hook-form";
-import { FieldArray } from "@/components/ui/Form";
+import { FieldArray } from "@/components/Form";
 import { Input } from "@/ui-shadcn/input";
-import { Elsie } from "next/font/google";
 
 export interface FieldArrayControllerProps {
   name: string;

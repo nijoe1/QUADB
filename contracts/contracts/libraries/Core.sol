@@ -15,7 +15,6 @@ import {Tableland} from "./Tableland.sol";
  */
 
 abstract contract Core is FNS, Gated, Tableland {
-    
     enum Types {
         NULL,
         PAID_PRIVATE_INSTANCE,
@@ -120,7 +119,9 @@ abstract contract Core is FNS, Gated, Tableland {
                 getAccess(_sender, _gatedAddress) ||
                 instances[_instance].creator == _sender;
         } else if (_instanceType == Types.OPEN_PRIVATE_INSTANCE) {
-            access = getAccess(_sender, _gatedAddress);
+            access =
+                getAccess(_sender, _gatedAddress) ||
+                instances[_instance].creator == _sender;
         } else if (_instanceType == Types.OPEN_INSTANCE) {
             access = true;
         }

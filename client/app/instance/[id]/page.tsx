@@ -10,10 +10,10 @@ import {
   Button,
   useDisclosure,
 } from "@chakra-ui/react";
-import DatasetViewer from "@/components/ui/datasetViewer";
-import InstanceCodes from "@/components/ui/instanceCodes";
+import DatasetViewer from "@/components/datasetViewer";
+import InstanceCodes from "@/components/InstanceCodes";
 import { useAccount } from "wagmi";
-import { Container } from "@/components/ui/container";
+import { Container } from "@/primitives/ui/container";
 import { CardItem } from "./components/CardItem";
 import Loading from "@/components/animation/loading";
 import useInstanceData from "@/hooks/useInstanceData";
@@ -28,8 +28,7 @@ const InstanceDetailsPage = ({
   const { address } = useAccount();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { data, isLoading, error } = useInstanceData(instanceID);
-  const { data: instanceMembers, isLoading: isLoadingInstanceMembers } =
-    useInstanceMembers(instanceID);
+  const { data: instanceMembers } = useInstanceMembers(instanceID);
 
   if (isLoading) {
     return (
@@ -106,59 +105,45 @@ const InstanceDetailsPage = ({
               mb={4}
               p={["2", "4"]}
             >
-              {
-                //   (hasAccess ||
-                // instanceMembers.find(
-                //   (member) => member.toLowerCase() === address.toLowerCase()
-                //     )) &&
-                <Tabs
-                  isFitted
-                  variant="enclosed"
-                  className="text-white"
-                  minWidth={["150px", "200px"]}
-                  colorScheme="white"
-                  mb="4"
-                >
-                  <TabList mb="4">
-                    <Tab>Dataset</Tab>
-                    <Tab>Codes</Tab>
-                  </TabList>
-                  <TabPanels>
-                    <TabPanel>
-                      <DatasetViewer
-                        cid={instance?.cid}
-                        threshold={instance?.threshold}
-                        IPNS={instance?.IPNS}
-                        EncryptedKeyCID={instance?.IPNSEncryptedKey}
-                        isEncrypted={instance?.price > 0}
-                        spaceID={instanceID}
-                        // hasAccess={
-                        //   (instance?.creator?.toLowerCase() ==
-                        //     address?.toLowerCase() ||
-                        //     instanceMembers?.find(
-                        //       (member: any) =>
-                        //         member?.toLowerCase() === address?.toLowerCase()
-                        //     )) as boolean
-                        // }
-                      />
-                    </TabPanel>
+              <Tabs
+                isFitted
+                variant="enclosed"
+                className="text-white"
+                minWidth={["150px", "200px"]}
+                colorScheme="white"
+                mb="4"
+              >
+                <TabList mb="4">
+                  <Tab>Dataset</Tab>
+                  <Tab>Codes</Tab>
+                </TabList>
+                <TabPanels>
+                  <TabPanel>
+                    <DatasetViewer
+                      cid={instance?.cid}
+                      threshold={instance?.threshold}
+                      IPNS={instance?.IPNS}
+                      EncryptedKeyCID={instance?.IPNSEncryptedKey}
+                      isEncrypted={instance?.price > 0}
+                      spaceID={instanceID}
+                    />
+                  </TabPanel>
 
-                    <TabPanel>
-                      <InstanceCodes
-                        hasAccess={
-                          (instance?.creator?.toLowerCase() ==
-                            address?.toLowerCase() ||
-                            instanceMembers?.find(
-                              (member: any) =>
-                                member?.toLowerCase() === address?.toLowerCase()
-                            )) as boolean
-                        }
-                        spaceID={instance?.spaceID}
-                      />
-                    </TabPanel>
-                  </TabPanels>
-                </Tabs>
-              }
+                  <TabPanel>
+                    <InstanceCodes
+                      hasAccess={
+                        (instance?.creator?.toLowerCase() ==
+                          address?.toLowerCase() ||
+                          instanceMembers?.find(
+                            (member: any) =>
+                              member?.toLowerCase() === address?.toLowerCase()
+                          )) as boolean
+                      }
+                      InstanceID={instance?.InstanceID}
+                    />
+                  </TabPanel>
+                </TabPanels>
+              </Tabs>
             </Box>
           </div>
         )}

@@ -9,6 +9,7 @@ contract GatedInstance is ERC721, Initializable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
     address public admin;
+
     // Constructor
     constructor() ERC721("GatedInstance", "GI") {}
 

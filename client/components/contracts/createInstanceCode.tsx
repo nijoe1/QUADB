@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
 import {
-  Input,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -8,7 +7,6 @@ import {
   ModalBody,
   ModalFooter,
   Button,
-  useToast,
   Stack,
   FormControl,
   FormLabel,
@@ -16,130 +14,73 @@ import {
   InputRightElement,
   Icon,
   Text,
+  Input,
 } from "@chakra-ui/react";
-import { useAccount, usePublicClient, useWalletClient } from "wagmi";
-import { CONTRACT_ABI, CONTRACT_ADDRESSES } from "@/constants/contracts";
-import { useRouter } from "next/navigation";
-import { useCreateIPNS } from "@/hooks/lighthouse/useIPNS";
 import { FaFileUpload } from "react-icons/fa";
-import { Address } from "viem";
+import {
+  CodeFormData,
+  useCreateInstanceCode,
+} from "@/hooks/useCreateInstanceCode";
+import { Alert } from "@/primitives/ui/Alert";
+import { toast } from "sonner";
+import { Hex } from "viem";
 
 const CreateNewInstanceCode = ({
   isOpen,
   onClose,
-  spaceID,
+  instanceID,
 }: {
   isOpen: boolean;
   onClose: () => void;
-  spaceID: `0x${string}`;
+  instanceID: Hex;
 }) => {
-  const toast = useToast();
-  const { address: account } = useAccount();
-  const publicClient = usePublicClient();
-  const chainID = publicClient?.getChainId();
-  const { data: walletClient } = useWalletClient();
-  const { mutateAsync: createIPNSName } = useCreateIPNS();
-
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = React.useState<CodeFormData>({
     name: "",
     about: "",
-    members: [],
-    chatID: "",
-    IPNS: "",
-    IPNSEncryptedKey: "",
-    file: null, // Initialize file to null
-    instanceID: "",
+    file: null as unknown as File,
   });
-  const router = useRouter();
-  const { address } = useAccount();
-  const [tags, setTags] = useState([]);
-  const [isUploading, setIsUploading] = useState(false);
-  const [isProcessingTransaction, setIsProcessingTransaction] = useState(false);
-  const getLoadingMessage = () => {
-    if (isUploading) {
-      return "Uploading On IPFS and pointing to IPNS...";
-    }
-    if (isProcessingTransaction) {
-      return "Processing transaction...";
-    }
-    return "";
-  };
 
-  const handleFileChange = (e: any) => {
-    console.log("File Change Event:", e);
-    e.stopPropagation();
-    e.preventDefault();
-    e.persist();
-    const file = e.target.files[0];
-    console.log("Selected File:", file);
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      file: file,
-    }));
-  };
+  const create = useCreateInstanceCode({
+    instanceID,
+    onClose: () => {
+      toast.success("Your code has been created successfully!");
+      onClose();
+    },
+  });
 
-  const createIPNS = async () => {
-    const response = await createIPNSName({
-      file: formData.file ?? (new File([""], "") as File),
-      address: account as Address,
-      spaceID,
-      isEncrypted: false,
-    });
-    return response;
-  };
-
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleCreate = async () => {
-    try {
-      console.log(formData);
-      setIsUploading(true);
-      const res = await createIPNS();
-      setIsUploading(false);
-      const data = await publicClient?.simulateContract({
-        account,
-        address: CONTRACT_ADDRESSES,
-        abi: CONTRACT_ABI,
-        functionName: "createInstanceCode",
-        args: [
-          spaceID,
-          formData.name,
-          formData.about,
-          res.name,
-          res.cid,
-        ],
-      });
-
-      if (!walletClient || !publicClient || !data) {
-        console.log("Wallet client not found");
-        return;
-      }
-      setIsProcessingTransaction(true);
-      const hash = await walletClient.writeContract(data.request);
-
-      const transaction = await publicClient.waitForTransactionReceipt({
-        hash,
-      });
-      setIsProcessingTransaction(false);
-
-      onClose();
-
-      toast({
-        title: "Instance code created successfully",
-        description: "Your instance code has been created successfully!",
-        status: "success",
-        duration: 9000,
-        isClosable: true,
-      });
-
-      console.log(transaction);
-    } catch (error) {
-      console.log(error);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFormData({ ...formData, file: e.target.files[0] });
     }
   };
+
+  const handleSubmit = async () => {
+    if (!formData.name || !formData.about || !formData.file) {
+      toast.error("Please fill all fields");
+      return;
+    }
+
+    toast.info("Creating code...");
+
+    await create.mutation.mutateAsync({
+      name: formData.name,
+      about: formData.about,
+      file: formData.file,
+    });
+  };
+
+  if (create.mutation.isSuccess) {
+    return (
+      <Alert variant="success" title="Code Created!">
+        Your code has been successfully created.
+      </Alert>
+    );
+  }
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
@@ -152,17 +93,22 @@ const CreateNewInstanceCode = ({
               <FormLabel>Name</FormLabel>
               <Input
                 name="name"
-                placeholder="Enter instance name"
+                placeholder="Enter code name"
                 value={formData.name}
                 onChange={handleChange}
-                className="rounded-md bg-[#424242] text-white focus:border-white"
+                bg="#424242"
+                color="white"
+                borderRadius="md"
+                _focus={{
+                  borderColor: "white",
+                }}
               />
             </FormControl>
             <FormControl>
               <FormLabel>About</FormLabel>
               <Input
                 name="about"
-                placeholder="Enter instance about"
+                placeholder="Enter code description"
                 value={formData.about}
                 onChange={handleChange}
                 bg="#424242"
@@ -175,34 +121,39 @@ const CreateNewInstanceCode = ({
             </FormControl>
             <FormControl>
               <FormLabel>Code</FormLabel>
-              <InputGroup>
-                <Input
-                  type="file"
-                  onChange={handleFileChange}
-                  id="_file-upload"
-                  accept="*"
-                />
-                <InputRightElement>
+              <div className="  rounded-md bg-[#424242] text-white focus:border-white">
+                <InputGroup className="flex justify-between items-center p-2">
+                  <Input
+                    type="file"
+                    onChange={handleFileChange}
+                    id="_file-upload"
+                    className="hidden"
+                    accept=".ipynb"
+                  />
+                  <Text className="text-gray-400 text-sm">
+                    Upload Model Code
+                  </Text>
+
                   <label htmlFor="_file-upload">
                     <Icon as={FaFileUpload} cursor="pointer" />
                   </label>
-                </InputRightElement>
-              </InputGroup>
-              <Text>Upload Model Code</Text>
+                </InputGroup>
+              </div>
             </FormControl>
           </Stack>
         </ModalBody>
         <ModalFooter>
-          <Button onClick={handleCreate}>Create</Button>
-          <Button onClick={onClose}>Cancel</Button>
+          <Button
+            onClick={handleSubmit}
+            isLoading={create.isLoading || create.mutation.isPending}
+            loadingText={create.isLoading ? "Creating..." : "Processing..."}
+          >
+            Create
+          </Button>
+          <Button onClick={onClose} ml={3}>
+            Cancel
+          </Button>
         </ModalFooter>
-        {isUploading || isProcessingTransaction ? (
-          <div className="mx-auto my-3">
-            <span className="text-white" style={{ fontSize: "md" }}>
-              {getLoadingMessage()}
-            </span>
-          </div>
-        ) : null}
       </ModalContent>
     </Modal>
   );

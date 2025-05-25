@@ -29,7 +29,7 @@ export const useCreateInstance = ({
   const { address: account } = useAccount();
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
-  const toast = useToast();
+  const { toast } = useToast();
   const { estimateGas, formatGasEstimate } = useGasEstimation();
 
   const { mutateAsync: uploadFile } = useUploadFile();
@@ -126,8 +126,7 @@ export const useCreateInstance = ({
     onSuccess: () => {
       toast({
         title: "Dataset Created",
-        message: "Your dataset has been created successfully.",
-        type: "success",
+        description: "Your dataset has been created successfully.",
         duration: 5000,
       });
       onClose();
@@ -135,8 +134,8 @@ export const useCreateInstance = ({
     onError: (error) => {
       toast({
         title: "Error",
-        message: `An error occurred: ${error.message}`,
-        type: "error",
+        description: `An error occurred: ${error.message}`,
+        variant: "destructive",
         duration: 5000,
       });
     },

@@ -9,7 +9,6 @@ const buildChildren = async (
   const children = [];
   const addedChildrenIDs = new Set(); // Track added children IDs
 
-  sampleSpacesData = sampleSpacesData ? sampleSpacesData : [];
   for (const node of sampleSpacesData) {
     if (
       node.DBSubSpaceOfID.toLowerCase() === parentID.toLowerCase() &&
@@ -17,11 +16,11 @@ const buildChildren = async (
     ) {
       const childHierarchy = parentHierarchy
         ? `${node.DBSubSpaceName}.${parentHierarchy}`
-        : node.DBSubSpaceName;
+        : (node.DBSubSpaceName ?? "");
       const childChildren = await buildChildren(
         node.DBSpaceID,
         childHierarchy,
-        sampleSpacesData
+        sampleSpacesData ?? []
       );
       const nodeType = (childChildren.length ? "branch" : "leaf") as any;
       const childObject = {

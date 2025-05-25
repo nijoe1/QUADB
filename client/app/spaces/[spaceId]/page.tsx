@@ -17,11 +17,11 @@ import {
   MenuItem,
 } from "@chakra-ui/react";
 import { FaEllipsisV } from "react-icons/fa";
-import { Container } from "@/components/ui/container";
+import { Container } from "@/primitives/ui/container";
 import { useRouter } from "next/navigation";
 import { CreateNewInstance } from "@/components/contracts/createNewInstance";
 import Loading from "@/components/animation/loading";
-import useFetchSpaceInstances from "@/hooks/useFetchSpaceInstances"; // Importing the custom hook
+import useFetchSpaceInstances from "@/hooks/useFetchSpaceInstances";
 
 const SingleSpacePage = ({
   params: { spaceId },
@@ -32,10 +32,7 @@ const SingleSpacePage = ({
   const { isOpen, onOpen, onClose } = useDisclosure();
   const spaceID = spaceId;
 
-  // Using the custom hook to fetch instances
   const { instances, fetched } = useFetchSpaceInstances(spaceID);
-
-  console.log(instances);
 
   const handleNewClick = () => {
     onOpen();

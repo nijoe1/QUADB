@@ -31,6 +31,10 @@ contract QUADB is Core {
         )
     {}
 
+    mapping(bytes32 => mapping(address => uint256)) public instanceStakes;
+
+    error InsufficientStakeClaim();
+
     /**
      * @dev Create a new space under the given node
      * @param _name The name of the new space
@@ -117,6 +121,50 @@ contract QUADB is Core {
     }
 
     /**
+     * @dev Stake on an instance
+     * @param _instance The instance to stake on
+     * @param _note The note of the stake
+     * @notice The stake is stored in the instanceStakes mapping and the tableland table
+     */
+    function stakeOnInstance(
+        bytes32 _instance,
+        string calldata _note
+    ) external payable {
+        instanceStakes[_instance][msg.sender] += msg.value;
+        stakeInsertion(
+            _instance,
+            msg.sender,
+            instanceStakes[_instance][msg.sender],
+            _note
+        );
+    }
+
+    /**
+     * @dev Unstake from an instance
+     * @param _instance The instance to unstake from
+     * @param _amount The amount to unstake
+     * @param _note The note of the unstake
+     * @notice The stake is stored in the instanceStakes mapping and the tableland table
+     */
+    function unstakeFromInstance(
+        bytes32 _instance,
+        uint256 _amount,
+        string calldata _note
+    ) external {
+        if (instanceStakes[_instance][msg.sender] < _amount) {
+            revert InsufficientStakeClaim();
+        }
+        instanceStakes[_instance][msg.sender] -= _amount;
+        payable(msg.sender).transfer(_amount);
+        stakeUpdate(
+            _instance,
+            msg.sender,
+            instanceStakes[_instance][msg.sender],
+            _note
+        );
+    }
+
+    /**
      * @dev Create a new instance under the given node
      * @param _instance The parent node
      * @param _name The name of the new instance
@@ -154,6 +202,10 @@ contract QUADB is Core {
         );
     }
 
+    /**
+     * @dev Purchase a subscription for an instance
+     * @param _instanceID The instance to purchase a subscription for
+     */
     function purchaseInstanceSubscription(
         bytes32 _instanceID
     ) external payable {
@@ -161,6 +213,10 @@ contract QUADB is Core {
         insertSubscription(_instanceID, msg.sender, getTime() + MONTH);
     }
 
+    /**
+     * @dev Extend a subscription for an instance
+     * @param _instanceID The instance to extend a subscription for
+     */
     function extendInstanceSubscription(bytes32 _instanceID) external payable {
         uint256 remaining = getRemainingSubscriptionTime(
             _instanceID,
@@ -172,6 +228,12 @@ contract QUADB is Core {
         updateSubscription(_instanceID, msg.sender, remaining + MONTH);
     }
 
+    /**
+     * @dev Update a code
+     * @param _codeID The code to update
+     * @param _name The name of the code
+     * @param _about The about of the code
+     */
     function updateCode(
         bytes32 _codeID,
         string calldata _name,
@@ -183,6 +245,11 @@ contract QUADB is Core {
         updateInstanceCode(_codeID, _name, _about);
     }
 
+    /**
+     * @dev Update an instance
+     * @param _instanceID The instance to update
+     * @param _metadataCID The metadataCID of the instance
+     */
     function updateInstance(
         bytes32 _instanceID,
         string calldata _metadataCID

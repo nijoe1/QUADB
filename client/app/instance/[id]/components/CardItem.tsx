@@ -11,7 +11,6 @@ import {
 } from "@chakra-ui/react";
 import { useAccount } from "wagmi";
 import makeBlockie from "ethereum-blockies-base64";
-import { useRouter } from "next/navigation";
 
 interface ProfileInfo {
   picture?: string;
@@ -32,7 +31,6 @@ interface CardItemProps {
 }
 
 export const CardItem: React.FC<CardItemProps> = ({ profileInfo, creator }) => {
-  const router = useRouter();
   const { address } = useAccount();
   const [showModal, setShowModal] = useState<boolean>(false);
   const [conributors, setContributors] = useState<Contributor[]>([]);

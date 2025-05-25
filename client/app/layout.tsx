@@ -1,8 +1,8 @@
 "use client";
 import "@/styles/globals.css";
 import { ChakraProvider } from "@chakra-ui/react";
-import Navbar from "@/components/menu/Navbar";
-import Footer from "@/components/menu/Footer";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 import "@rainbow-me/rainbowkit/styles.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider, http } from "wagmi";
@@ -13,6 +13,7 @@ import {
   getDefaultConfig,
 } from "@rainbow-me/rainbowkit";
 import { Inter } from "next/font/google";
+import { Toaster } from "@/primitives/ui/toaster";
 
 const _filecoin = {
   ...filecoin,
@@ -73,6 +74,7 @@ export default function RootLayout({
             </QueryClientProvider>
           </WagmiProvider>
         </ChakraProvider>
+        <Toaster />
       </body>
     </html>
   );
