@@ -6,9 +6,9 @@ import Tree from "react-d3-tree";
 import { useRouter } from "next/navigation";
 import CreateSubSpaceModal from "@/components/contracts/createSubSpace";
 import Loading from "@/components/animation/loading";
-import useFetchTreeData from "@/hooks/useFetchTreeData"; // Importing the custom hook
-import { useWindowDimensions } from "@/hooks/useWindowDimensions"; // Importing the window dimensions hook
-import { useFetchRootObject } from "/hooks/useFetchRootObject"; // Importing the root object hook
+import { useFetchTreeData } from "@/hooks/helpers";
+import { useWindowDimensions } from "@/hooks/helpers";
+import { useFetchRootObject } from "@/hooks/helpers";
 import Link from "next/link";
 
 const SpacesGraph = () => {
@@ -23,7 +23,6 @@ const SpacesGraph = () => {
   const [isRoot, setIsRoot] = useState();
   const [clickedID, setClickedID] = useState();
 
-  // Using the custom hooks
   const { fetchTreeData, isLoading: isTreeLoading } =
     useFetchTreeData(setCategoryOptions);
   const { data: rootObject, isLoading: isRootLoading } = useFetchRootObject();

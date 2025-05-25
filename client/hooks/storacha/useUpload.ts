@@ -6,7 +6,9 @@ type UploadOptions = {
   onUploadError?: (error: any) => void;
 };
 
-export const useFileUpload = (options?: UploadOptions) => {
+export const useFileUpload = (
+  options?: UploadOptions
+): ((file: string | File | Blob) => Promise<string>) => {
   const mutation = useUploadFile();
   const { toast } = useToast();
   const uploadFile = async (file: string | File | Blob) => {
@@ -25,9 +27,7 @@ export const useFileUpload = (options?: UploadOptions) => {
         duration: 5000,
       });
 
-      if (options?.onUploadSuccess) {
-        options.onUploadSuccess(cid);
-      }
+      return cid;
     } catch (error: any) {
       toast({
         title: "File upload failed",
@@ -45,7 +45,9 @@ export const useFileUpload = (options?: UploadOptions) => {
   return uploadFile;
 };
 
-export const useFolderUpload = (options?: UploadOptions) => {
+export const useFolderUpload = (
+  options?: UploadOptions
+): ((files: string[] | File[] | Blob[]) => Promise<string>) => {
   const mutation = useUploadFolder();
   const { toast } = useToast();
 
@@ -64,10 +66,6 @@ export const useFolderUpload = (options?: UploadOptions) => {
         description: "Your folder has been uploaded successfully.",
         duration: 5000,
       });
-
-      if (options?.onUploadSuccess) {
-        options.onUploadSuccess(cid);
-      }
 
       return cid;
     } catch (error: any) {

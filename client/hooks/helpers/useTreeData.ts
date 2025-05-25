@@ -1,7 +1,30 @@
+import { useEffect } from "react";
+
+export const useTreeData = (
+  fetchTreeData: any,
+  selectedCategory: any,
+  tempTreeData: any,
+  setTreeData: any
+) => {
+  useEffect(() => {
+    fetchTreeData();
+  }, [fetchTreeData]);
+
+  useEffect(() => {
+    if (selectedCategory && tempTreeData) {
+      const categoryNode = { ...tempTreeData };
+      categoryNode.children = categoryNode.children.filter(
+        (child: any) => child.name.split(".")[0] === selectedCategory
+      );
+      setTreeData(categoryNode);
+    }
+  }, [selectedCategory, tempTreeData, setTreeData]);
+};
+
 import { useMutation } from "@tanstack/react-query";
 import { constructObject } from "@/lib/tableland";
 
-const useFetchTreeData = (
+export const useFetchTreeData = (
   setCategoryOptions: any,
   setTreeData: any,
   setTempTreeData: any
@@ -25,5 +48,3 @@ const useFetchTreeData = (
 
   return { fetchTreeData: mutate, error };
 };
-
-export default useFetchTreeData;

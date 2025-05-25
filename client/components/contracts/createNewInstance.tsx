@@ -1,13 +1,12 @@
 import React from "react";
-import { FormData, useCreateInstance } from "@/hooks/useCreateInstance";
-import { toast } from "sonner";
+import { FormData, useCreateInstance } from "@/hooks/contracts";
 
 import { Alert } from "@/primitives/Alert/Alert";
 
 import { Modal, ModalContent, ModalOverlay } from "@chakra-ui/react";
 import { Form } from "@/components/Form/Form";
 import { FormField } from "@/components/Form/types/fieldTypes";
-import { notification } from "@/hooks/utils/notification";
+import { toast } from "@/hooks/useToast";
 import { deleteFormValues } from "../Form/utils/deleteFormValues";
 
 const fields: FormField[] = [
@@ -90,7 +89,11 @@ export function CreateNewInstance({
   const create = useCreateInstance({
     spaceID,
     onClose: () => {
-      toast.success("Your dataset has been created successfully!");
+      toast({
+        title: "Your dataset has been created successfully!",
+        description: "Your dataset has been created successfully!",
+        variant: "default",
+      });
       onClose();
     },
   });
@@ -111,7 +114,11 @@ export function CreateNewInstance({
           {...args}
           onSubmit={async (formData: FormData) => {
             console.log("Form Data", formData);
-            notification.info("Creating dataset...");
+            toast({
+              title: "Creating dataset...",
+              description: "Creating dataset...",
+              variant: "default",
+            });
 
             await create.mutation.mutateAsync({
               name: formData.name,

@@ -21,7 +21,7 @@ import { Container } from "@/ui-shadcn/container";
 import { useRouter } from "next/navigation";
 import { CreateNewInstance } from "@/components/contracts/createNewInstance";
 import Loading from "@/components/animation/loading";
-import useFetchSpaceInstances from "@/hooks/useFetchSpaceInstances";
+import { useFetchSpaceInstances } from "@/hooks/contracts/queries";
 
 const SingleSpacePage = ({
   params: { spaceId },
@@ -35,7 +35,7 @@ const SingleSpacePage = ({
   const { instances, fetched } = useFetchSpaceInstances(spaceID);
 
   const handleNewClick = () => {
-    onOpen();
+    router.push(`/spaces/${spaceId}/create`);
   };
 
   return (

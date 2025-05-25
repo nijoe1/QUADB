@@ -16,9 +16,9 @@ import { useAccount } from "wagmi";
 import { Container } from "@/ui-shadcn/container";
 import { CardItem } from "./components/CardItem";
 import Loading from "@/components/animation/loading";
-import useInstanceData from "@/hooks/useInstanceData";
+import { useInstanceData } from "@/hooks/contracts/queries";
 import { Subscribe } from "@/components/contracts/subscribe";
-import useInstanceMembers from "@/hooks/useInstanceMembers";
+import { useInstanceMembers } from "@/hooks/contracts/queries";
 const InstanceDetailsPage = ({
   params: { id },
 }: {

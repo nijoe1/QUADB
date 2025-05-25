@@ -202,7 +202,6 @@ const DatasetViewer = ({
                   EncryptedKeyCID={EncryptedKeyCID}
                   currentCSV={csvText}
                   spaceID={spaceID}
-                  isEncrypted={isEncrypted}
                   threshold={threshold || 0}
                 />
               </div>

@@ -24,12 +24,10 @@ const fetchInstanceData = async (instanceID: string) => {
   };
 };
 
-const useInstanceData = (instanceID: string) => {
+export const useInstanceData = (instanceID: string) => {
   return useQuery({
     queryKey: ["instanceData", instanceID],
     queryFn: () => fetchInstanceData(instanceID),
     enabled: !!instanceID,
   });
 };
-
-export default useInstanceData;

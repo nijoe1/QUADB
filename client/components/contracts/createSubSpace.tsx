@@ -11,7 +11,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
-import { CONTRACT_ABI, CONTRACT_ADDRESSES } from "@/constants/contracts";
+import { CONTRACT_ABI, CONTRACT_ADDRESSES } from "@/app/constants/contracts";
 const CreateSubSpaceModal = ({
   isOpen,
   onClose,

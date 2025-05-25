@@ -18,7 +18,7 @@ const fetchInstanceCodes = async (userAddress: any, address: any) => {
   return data;
 };
 
-const useUserInstanceCodes = (userAddress: string) => {
+export const useUserInstanceCodes = (userAddress: string) => {
   const { address } = useAccount();
 
   return useQuery({
@@ -26,5 +26,3 @@ const useUserInstanceCodes = (userAddress: string) => {
     queryFn: () => fetchInstanceCodes(userAddress, address),
   });
 };
-
-export default useUserInstanceCodes;

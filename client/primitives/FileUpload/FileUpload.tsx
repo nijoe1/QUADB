@@ -1,7 +1,6 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
-import { CloudUpload, Image } from "lucide-react";
-import { nanoid } from "nanoid";
+import { CloudUpload } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -41,11 +40,10 @@ const FilePreview: React.FC<{
       )}
       <div
         onClick={onClick}
-        className=" flex cursor-pointer items-center justify-center transition-opacity duration-300 group-hover:opacity-100"
+        className=" cursor-pointer items-center justify-center transition-opacity duration-300 group-hover:opacity-100 absolute  hover:flex inset-0"
       >
-        <div className="flex size-10 items-center justify-center gap-2 rounded-full bg-white p-3">
-          <CloudUpload className="text-black" />
-          <div className="text-xs">Change file</div>
+        <div className="flex size-10 items-center justify-center gap-2 rounded-full bg-white p-3 bg-black/80 ">
+          <CloudUpload className="text-black hidden group-hover:block" />
         </div>
       </div>
     </div>
@@ -113,7 +111,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   return (
     <div
       className={cn(
-        "flex h-[134px] flex-col items-center justify-center rounded-lg border border-dashed border-grey-300 bg-white",
+        "flex h-[134px] flex-col items-center justify-center rounded-lg border  relative border-dashed border-grey-300 bg-white",
         preview ? "" : "px-4 py-6",
         className,
         isDragging ? "border-blue-500" : ""

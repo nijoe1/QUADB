@@ -11,7 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { formatEther } from "viem";
-import { CONTRACT_ABI, CONTRACT_ADDRESSES } from "@/constants/contracts";
+import { CONTRACT_ABI, CONTRACT_ADDRESSES } from "@/app/constants/contracts";
 export const Subscribe = ({
   isOpen,
   onClose,

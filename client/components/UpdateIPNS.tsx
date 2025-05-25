@@ -32,17 +32,11 @@ import {
 import { useAccount } from "wagmi";
 import { FaFileUpload } from "react-icons/fa";
 import { ObjectMatcher } from "@/lib/merge";
-import { useCSVHandler } from "@/hooks/useCSVHandler";
-import { useProposals } from "@/hooks/useProposals";
+import { useCSVHandler } from "@/hooks/helpers";
+import { useProposals } from "@/hooks/backend";
 import { useWalletClient } from "wagmi";
 import * as W3Name from "w3name";
-import { uploadFiles, uploadFilesEncrypted } from "@/hooks/lighthouse";
-import {
-  getUserAPIKey,
-  getUserJWT,
-  getViewConditions,
-} from "@/hooks/lighthouse/utils";
-import { QUADB } from "@/constants/contracts";
+import { useFileUpload } from "@/hooks/storacha";
 import { fetchIPFS } from "@/lib/ipfs";
 
 const UpdateIPNS = ({
@@ -52,7 +46,6 @@ const UpdateIPNS = ({
   IPNS,
   EncryptedKeyCID,
   currentCSV,
-  isEncrypted,
   spaceID,
   threshold,
   currentIPNSValue,
@@ -63,7 +56,6 @@ const UpdateIPNS = ({
   IPNS: string;
   EncryptedKeyCID: string;
   currentCSV: string;
-  isEncrypted: boolean;
   spaceID: string;
   threshold: number;
   currentIPNSValue: string;
@@ -147,33 +139,14 @@ const UpdateIPNS = ({
     });
   };
 
+  const uploadFiles = useFileUpload();
+
   const uploadFile = async (file: File): Promise<string> => {
     if (!walletClient || !address) {
       throw new Error("Wallet client not found");
     }
 
-    if (!isEncrypted) {
-      return (await uploadFiles(
-        [file],
-        await getUserAPIKey(address, walletClient)
-      )) as string;
-    } else {
-      const viewAccessControlConditions = getViewConditions({
-        contractAddress: QUADB,
-        chainID: 314,
-        instanceID: spaceID,
-      });
-      const jwt = (await getUserJWT(address, walletClient)) as string;
-      const apiKey = await getUserAPIKey(address, walletClient);
-      return await uploadFilesEncrypted(
-        [file],
-        apiKey,
-        address,
-        jwt,
-        viewAccessControlConditions.conditions,
-        viewAccessControlConditions.aggregator
-      );
-    }
+    return (await uploadFiles(file)) as unknown as string;
   };
 
   const handleCreateProposal = async () => {

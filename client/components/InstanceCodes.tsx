@@ -121,16 +121,10 @@ const InstanceCodes = ({
                     Update Notebook
                   </Button>
                   <UpdateCode
-                    threshold={code.threshold}
-                    currentIPNSValue={code.IPNS}
                     isOpen={isUpdateOpen}
                     onClose={onUpdateClose}
-                    isDataset={false}
                     IPNS={code.IPNS}
                     EncryptedKeyCID={code.IPNSEncryptedKey}
-                    isEncrypted={code.isEncrypted}
-                    spaceID={InstanceID}
-                    currentCSV=""
                   />
                 </div>
               )}

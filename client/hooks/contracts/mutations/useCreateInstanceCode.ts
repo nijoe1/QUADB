@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
-import { CONTRACT_ABI, CONTRACT_ADDRESSES } from "@/constants/contracts";
+import { CONTRACT_ABI, CONTRACT_ADDRESSES } from "@/app/constants/contracts";
 import { Abi, Address, TransactionReceipt } from "viem";
 import { useToast } from "@/hooks/useToast";
-import { useUploadFile } from "@/hooks/lighthouse/useUpload";
-import { useGasEstimation } from "@/hooks/useGasEstimation";
+import { useFileUpload } from "@/hooks/storacha";
+import { useGasEstimation } from "@/hooks/contracts";
 
 export interface CodeFormData {
   name: string;
@@ -28,12 +28,12 @@ export const useCreateInstanceCode = ({
   const { toast } = useToast();
   const { estimateGas } = useGasEstimation();
 
-  const { mutateAsync: uploadFile } = useUploadFile();
+  const uploadFile = useFileUpload();
 
   const [isLoading, setIsLoading] = useState(false);
 
   const uploadCodeToIPFS = async (file: File) => {
-    return await uploadFile({ files: [file] });
+    return (await uploadFile(file)) as unknown as string;
   };
 
   // Function to create IPNS using the createCode API route
@@ -86,9 +86,9 @@ export const useCreateInstanceCode = ({
         );
 
         // Upload the ipnsMetadataFile to IPFS
-        const ipnsMetadataCID = await uploadFile({
-          files: [ipnsMetadataFile],
-        });
+        const ipnsMetadataCID = (await uploadFile(
+          ipnsMetadataFile
+        )) as unknown as string;
 
         // Prepare contract call arguments
         const contractCallArgs = {

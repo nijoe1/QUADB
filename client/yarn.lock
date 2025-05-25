@@ -3106,6 +3106,13 @@
     "@safe-global/safe-apps-sdk" "^9.1.0"
     events "^3.3.0"
 
+"@safe-global/safe-apps-react-sdk@^4.7.2":
+  version "4.7.2"
+  resolved "https://registry.yarnpkg.com/@safe-global/safe-apps-react-sdk/-/safe-apps-react-sdk-4.7.2.tgz#94fa2f7231d60a85401287253441f2983eda5fce"
+  integrity sha512-du7Bp3yPT2nQ8HhbfiyGit/ItcYwZ1tLEG5fbajMe8tjgr2D2YQMgNcNFmBpgHFyq+FpoA4a+toEKMEifQCMPg==
+  dependencies:
+    "@safe-global/safe-apps-sdk" "^9.1.0"
+
 "@safe-global/safe-apps-sdk@9.1.0", "@safe-global/safe-apps-sdk@^9.1.0":
   version "9.1.0"
   resolved "https://registry.yarnpkg.com/@safe-global/safe-apps-sdk/-/safe-apps-sdk-9.1.0.tgz#0e65913e0f202e529ed3c846e0f5a98c2d35aa98"

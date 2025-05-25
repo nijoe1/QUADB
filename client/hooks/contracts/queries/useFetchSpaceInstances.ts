@@ -3,7 +3,7 @@ import { getSpaceInstances } from "@/lib/tableland";
 import { getIpfsGatewayUri } from "@/lib/ipfs";
 import axios from "axios";
 
-const useFetchSpaceInstances = (spaceID: string) => {
+export const useFetchSpaceInstances = (spaceID: string) => {
   const [instances, setInstances] = useState({
     openInstances: [],
     openPrivateInstances: [],
@@ -15,6 +15,7 @@ const useFetchSpaceInstances = (spaceID: string) => {
   const getMetadataCID = async (data: any) => {
     const temp = [];
     for (const item of data) {
+      if (!item.metadataCID) continue;
       const metadataCIDLink = getIpfsGatewayUri(item.metadataCID);
       const res = await axios(metadataCIDLink);
       item.metadata = res.data; // obj that contains => name about imageUrl
@@ -56,5 +57,3 @@ const useFetchSpaceInstances = (spaceID: string) => {
 
   return { instances, fetched } as { instances: any; fetched: boolean };
 };
-
-export default useFetchSpaceInstances;

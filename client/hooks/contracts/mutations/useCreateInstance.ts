@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { createIPNS, createIPNSNameWithCID } from "@/lib/ipfs"; // Assume these functions exist
-import { CONTRACT_ABI, CONTRACT_ADDRESSES } from "@/constants/contracts"; // Assume these constants exist
+import { createIPNS } from "@/lib/ipfs";
+import { CONTRACT_ABI, CONTRACT_ADDRESSES } from "@/app/constants/contracts";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { Abi, Address, TransactionReceipt, isAddress } from "viem";
 import { useToast } from "@/hooks/useToast";
-import { useUploadFile } from "@/hooks/lighthouse/useUpload";
-import { useGasEstimation } from "@/hooks/useGasEstimation";
+import { useFileUpload } from "@/hooks/storacha";
+import { useGasEstimation } from "@/hooks/contracts";
 export interface FormData {
   name: string;
   about: string;
@@ -25,14 +25,13 @@ export const useCreateInstance = ({
   onClose,
   spaceID,
 }: UseCreateInstanceProps) => {
-  console.log("spaceID", spaceID);
   const { address: account } = useAccount();
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
   const { toast } = useToast();
   const { estimateGas, formatGasEstimate } = useGasEstimation();
 
-  const { mutateAsync: uploadFile } = useUploadFile();
+  const uploadFile = useFileUpload();
 
   const [isLoading, setIsLoading] = useState(false);
   const reader = new FileReader();
@@ -52,7 +51,7 @@ export const useCreateInstance = ({
     const metadataFile = new File([JSON.stringify(metadata)], "metadata.json", {
       type: "application/json",
     });
-    return await uploadFile({ files: [metadataFile] });
+    return (await uploadFile(metadataFile)) as unknown as string;
   };
 
   const mutation = useMutation<TransactionReceipt, Error, FormData>({
@@ -65,9 +64,7 @@ export const useCreateInstance = ({
 
       try {
         const metadataCID = await uploadMetadata(formData);
-        const fileCID = await uploadFile({
-          files: [formData.file],
-        });
+        const fileCID = (await uploadFile(formData.file)) as unknown as string;
 
         const ipnsResult = await createIPNS({
           cid: fileCID ?? "",

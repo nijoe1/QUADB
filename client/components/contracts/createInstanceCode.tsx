@@ -20,7 +20,7 @@ import { FaFileUpload } from "react-icons/fa";
 import {
   CodeFormData,
   useCreateInstanceCode,
-} from "@/hooks/useCreateInstanceCode";
+} from "@/hooks/contracts";
 import { Alert } from "@/primitives/Alert/Alert";
 import { toast } from "sonner";
 import { Hex } from "viem";

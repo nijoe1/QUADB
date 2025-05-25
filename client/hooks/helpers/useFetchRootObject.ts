@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getSpaces } from "@/lib/tableland"; // Ensure this is the correct import for your getSpaces function
+import { getSpaces } from "@/lib/tableland";
 
 const buildChildren = async (
   parentID: any,

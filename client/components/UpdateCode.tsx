@@ -26,35 +26,20 @@ import { useAccount } from "wagmi";
 import { FaFileUpload } from "react-icons/fa";
 import { useWalletClient } from "wagmi";
 import * as W3Name from "w3name";
-import { uploadFiles, uploadFilesEncrypted } from "@/hooks/lighthouse";
-import {
-  getUserAPIKey,
-  getUserJWT,
-  getViewConditions,
-} from "@/hooks/lighthouse/utils";
-import { QUADB } from "@/constants/contracts";
+import { useFileUpload } from "@/hooks/storacha";
 import { fetchIPFS } from "@/lib/ipfs";
-import { useCSVHandler } from "@/hooks/useCSVHandler";
+import { useCSVHandler } from "@/hooks/helpers";
 
 const UpdateCode = ({
   isOpen,
   onClose,
-  isDataset,
   IPNS,
   EncryptedKeyCID,
-  isEncrypted,
-  spaceID,
 }: {
   isOpen: boolean;
   onClose: () => void;
-  isDataset: boolean;
   IPNS: string;
   EncryptedKeyCID: string;
-  currentCSV: string;
-  isEncrypted: boolean;
-  spaceID: string;
-  threshold: number;
-  currentIPNSValue: string;
 }) => {
   const { address } = useAccount();
   const { data: walletClient } = useWalletClient();
@@ -62,35 +47,16 @@ const UpdateCode = ({
 
   const [isUpdatingIPNS, setIsUpdatingIPNS] = useState(false);
 
-  const { file, newRows, setNewRows, handleUploadCSV } = useCSVHandler();
+  const uploadFiles = useFileUpload();
+
+  const { file, handleUploadCSV } = useCSVHandler();
 
   const uploadFile = async (file: File): Promise<string> => {
     if (!walletClient || !address) {
       throw new Error("Wallet client not found");
     }
 
-    if (!isEncrypted) {
-      return (await uploadFiles(
-        [file],
-        await getUserAPIKey(address, walletClient)
-      )) as string;
-    } else {
-      const viewAccessControlConditions = getViewConditions({
-        contractAddress: QUADB,
-        chainID: 314,
-        instanceID: spaceID,
-      });
-      const jwt = (await getUserJWT(address, walletClient)) as string;
-      const apiKey = await getUserAPIKey(address, walletClient);
-      return await uploadFilesEncrypted(
-        [file],
-        apiKey,
-        address,
-        jwt,
-        viewAccessControlConditions.conditions,
-        viewAccessControlConditions.aggregator
-      );
-    }
+    return (await uploadFiles(file)) as unknown as string;
   };
 
   const handleSignUpdateCode = async () => {
@@ -107,13 +73,10 @@ const UpdateCode = ({
 
     try {
       const cid = await uploadFile(file);
-      console.log("cid", cid);
 
       const name = W3Name.parse(IPNS);
       const revision = await W3Name.resolve(name);
       const sequence = revision.sequence.toString();
-
-      console.log("sequence", sequence);
 
       const signature = await walletClient.signMessage({
         message: `I acknowledge updating the current ipns record : ${IPNS} contents to point to this new ipfs cid : ${cid} and the previous sequence number is ${sequence}`,
@@ -216,7 +179,7 @@ const UpdateCode = ({
     <Modal isOpen={isOpen} onClose={onClose} isCentered size="3xl">
       <ModalOverlay />
       <ModalContent bgGradient="linear(to-br, #333333, #222222)" color="white">
-        <ModalHeader>Update {isDataset ? "dataset" : "code"}</ModalHeader>
+        <ModalHeader>Update Code</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <Tabs index={0}>
@@ -243,7 +206,7 @@ const UpdateCode = ({
                       </InputRightElement>
                     </InputGroup>
                     <Text cursor="pointer" color="white" ml="2">
-                      {`Upload ${isDataset ? "dataset" : "code"} file`}
+                      Upload Code file
                     </Text>
                   </FormControl>
 
