@@ -1,32 +1,28 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { Card, CardContent } from "@/ui-shadcn/card";
+import { Button } from "@/primitives/Button";
 import {
-  Flex,
-  Box,
-  Image,
-  Text,
-  Button,
-  Grid,
-  GridItem,
-  useDisclosure,
-  IconButton,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-} from "@chakra-ui/react";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/ui-shadcn/dropdown-menu";
 import { Container } from "@/ui-shadcn/container";
 import CodeViewer from "@/components/CodeViewer";
 import CreateNewInstanceCode from "@/components/contracts/createInstanceCode";
-import { FaEllipsisV } from "react-icons/fa";
+import { MoreVertical, ArrowLeft } from "lucide-react";
 import { getInstanceCodes } from "@/lib/tableland";
 import Loading from "@/components/animation/loading";
-import { getIpfsGatewayUri, resolveIPNS } from "@/lib/ipfs";
-import { FaArrowLeft } from "react-icons/fa";
+import {
+  getFileMetadata,
+  getIpfsGatewayUri,
+  resolveIPNS,
+} from "@/lib/ipfs";
 import makeBlockie from "ethereum-blockies-base64";
 import { useRouter } from "next/navigation";
 import { Hex } from "viem";
-import UpdateCode from "@/components/UpdateCode";
+import { UpdateCode } from "@/components/UpdateCode";
 
 const InstanceCodes = ({
   hasAccess,
@@ -36,17 +32,11 @@ const InstanceCodes = ({
   InstanceID: string;
 }) => {
   const [code, setCode] = useState<any | null>(null);
-  const [viewAllCodes, setViewAllCodes] = useState(true);
+  const [/* viewAllCodes */, setViewAllCodes] = useState(true);
   const router = useRouter();
 
-  const {
-    isOpen,
-    onOpen,
-    onClose,
-    isOpen: isUpdateOpen,
-    onOpen: onUpdateOpen,
-    onClose: onUpdateClose,
-  } = useDisclosure();
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isUpdateOpen, setIsUpdateOpen] = useState(false);
 
   const [codes, setCodes] = useState([] as any[]);
   const [fetched, setFetched] = useState(false);
@@ -54,16 +44,14 @@ const InstanceCodes = ({
   async function fetchInstanceCodes() {
     const data = await getInstanceCodes(InstanceID);
     for (const key in data) {
-      data[key].codeCID = getIpfsGatewayUri(await resolveIPNS(data[key].IPNS));
+      const ipnsValue = await resolveIPNS(data[key].IPNS);
+      data[key].codeCID = getIpfsGatewayUri(
+        (await getFileMetadata(ipnsValue)).dataCID
+      );
       data[key].blockie = makeBlockie(data[key].creator);
-      data[key].profile = await getProfileInfo(data[key].creator);
     }
     return data;
   }
-
-  const getProfileInfo = async (address: any) => {
-    return;
-  };
 
   useEffect(() => {
     if (!fetched) {
@@ -75,11 +63,11 @@ const InstanceCodes = ({
   }, [InstanceID]);
 
   const handleNewClick = async () => {
-    onOpen();
+    setIsCreateOpen(true);
   };
 
   const handleUpdateClick = async () => {
-    onUpdateOpen();
+    setIsUpdateOpen(true);
   };
 
   const handleClick = (instance: any) => {
@@ -103,28 +91,20 @@ const InstanceCodes = ({
           {code ? (
             <>
               {hasAccess && (
-                <div className="flex flex-wrap">
-                  <IconButton
-                    icon={<FaArrowLeft />}
-                    aria-label="Go back to All Codes"
-                    variant="outline"
-                    mb="4"
-                    ml={"6%"}
-                    onClick={handleBack}
-                  />
+                <div className="mb-4 flex flex-wrap gap-3">
+                  <Button onClick={handleBack} className="mb-4">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to All Codes
+                  </Button>
                   <Button
-                    colorScheme="black"
-                    ml="3"
                     className="bg-black/80 text-white"
                     onClick={handleUpdateClick}
-                  >
-                    Update Notebook
-                  </Button>
+                    value="Update Notebook"
+                  />
                   <UpdateCode
                     isOpen={isUpdateOpen}
-                    onClose={onUpdateClose}
+                    onClose={() => setIsUpdateOpen(false)}
                     IPNS={code.IPNS}
-                    EncryptedKeyCID={code.IPNSEncryptedKey}
                   />
                 </div>
               )}
@@ -135,90 +115,55 @@ const InstanceCodes = ({
             <div>
               <Button
                 onClick={handleNewClick}
-                colorScheme="black"
-                ml="3"
-                className="bg-black/80 text-white"
-                my="4"
-              >
-                Create Code
-              </Button>
+                className="my-4 bg-black/80 text-white"
+                value="Create Code"
+              />
               <CreateNewInstanceCode
-                onClose={onClose}
-                isOpen={isOpen}
+                onClose={() => setIsCreateOpen(false)}
+                isOpen={isCreateOpen}
                 instanceID={InstanceID as Hex}
               />
-              <Flex justify="center">
-                <Grid
-                  templateColumns={[
-                    "1fr",
-                    "repeat(2, 1fr)",
-                    "repeat(3, 1fr)",
-                    "repeat(4, 1fr)",
-                  ]}
-                  gap={6}
-                  width="100%"
-                  className="relative flex md:justify-between lg:grid lg:px-3"
-                >
+
+              <div className="flex justify-center">
+                <div className="grid w-full grid-cols-1 gap-6 px-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {codes.map((code) => (
-                    <GridItem key={code.InstanceID}>
-                      <Box
-                        pb="4"
-                        px="2"
-                        pt="2"
-                        bg="#333333"
-                        // borderRadius="md"
-                        boxShadow="md"
-                        position="relative"
-                        className="border-1 cursor-pointer border-white"
-                      >
-                        <Box
-                          height="100px"
-                          className="border-1 cursor-pointer border-white"
-                        >
-                          <Box
-                            display="flex"
-                            justifyContent="flex-start"
-                            alignItems="flex-start"
-                            position="absolute"
-                            top="0"
-                            right="0"
-                            zIndex="1"
-                          >
-                            <Menu>
-                              <MenuButton
-                                as={IconButton}
-                                icon={<FaEllipsisV />}
-                                aria-label="Options"
-                                variant="black"
-                                color="white"
-                                size="sm"
-                                mb="3"
-                              />
-                              <MenuList zIndex="15" scale={0.2}>
-                                <MenuItem
+                    <Card
+                      key={code.InstanceID}
+                      className="relative cursor-pointer border border-white bg-[#333333]"
+                    >
+                      <CardContent className="p-4">
+                        <div className="relative h-[130px] cursor-pointer border-none">
+                          <div className="absolute right-0 top-0 z-10">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  className="h-8 w-8 p-0 text-white"
+                                >
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent className="border-grey-600 bg-black text-white">
+                                <DropdownMenuItem
                                   onClick={() => console.log("Download code")}
+                                  className="text-white hover:bg-grey-700"
                                 >
-                                  Download code{" "}
-                                </MenuItem>
-                                <MenuItem
+                                  Download code
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
                                   onClick={() => console.log("View code")}
+                                  className="text-white hover:bg-grey-700"
                                 >
-                                  View code{" "}
-                                </MenuItem>
-                              </MenuList>
-                            </Menu>
-                          </Box>
-                          <div className="border-1 mb-2 flex cursor-pointer flex-wrap items-center rounded-md border-white">
-                            <Box
-                              borderRadius="md"
-                              boxSize="35px"
-                              mr={2}
-                              bg="#333333"
-                              cursor={"pointer"}
-                              className="border-1 cursor-pointer border-white"
-                            >
-                              <Image
-                                className=" rounded-md"
+                                  View code
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+
+                          <div className="mb-2 flex items-center rounded-md border border-white p-2">
+                            <div className="mr-2 h-[35px] w-[35px] cursor-pointer rounded-md border border-white bg-[#333333]">
+                              <img
+                                className="h-full w-full rounded-md object-cover"
                                 src={
                                   code.profile?.picture
                                     ? code.profile?.picture
@@ -229,49 +174,35 @@ const InstanceCodes = ({
                                   router.push("/profile" + code.creator);
                                 }}
                               />
-                            </Box>
-                            <Text
-                              fontWeight="semibold"
-                              fontSize="sm"
-                              noOfLines={1}
-                              color="white"
-                              mb="1"
-                              cursor="pointer"
+                            </div>
+                            <span
+                              className="mb-1 cursor-pointer truncate text-sm font-semibold text-white"
                               onClick={() => {
                                 router.push("/profile" + code?.creator);
                               }}
                             >
                               {code.profile?.name}
-                            </Text>
+                            </span>
                           </div>
 
-                          <Text
-                            fontWeight="semibold"
-                            fontSize="sm"
-                            noOfLines={1}
-                            color="white"
-                            mb="1"
-                            cursor="pointer"
+                          <h3
+                            className="mb-1 cursor-pointer truncate text-sm font-semibold text-white"
                             onClick={() => handleClick(code)}
                           >
                             {code.name.slice(0, 30)}
-                          </Text>
-                          <Text
-                            cursor="pointer"
-                            fontSize="xs"
-                            noOfLines={2}
-                            color="white"
-                            mb="1"
+                          </h3>
+                          <p
+                            className="mb-1 line-clamp-2 cursor-pointer text-xs text-white"
                             onClick={() => handleClick(code)}
                           >
                             {code.about.slice(0, 50)}
-                          </Text>
-                        </Box>
-                      </Box>
-                    </GridItem>
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
                   ))}
-                </Grid>
-              </Flex>
+                </div>
+              </div>
             </div>
           )}
         </Container>

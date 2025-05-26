@@ -1,7 +1,13 @@
 "use client";
 import React, { useState } from "react";
-import { Box, Flex, Select, useDisclosure } from "@chakra-ui/react";
 import { Container } from "@/ui-shadcn/container";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/ui-shadcn/select";
 import Tree from "react-d3-tree";
 import { useRouter } from "next/navigation";
 import CreateSubSpaceModal from "@/components/contracts/createSubSpace";
@@ -10,26 +16,50 @@ import { useFetchTreeData } from "@/hooks/helpers";
 import { useWindowDimensions } from "@/hooks/helpers";
 import { useFetchRootObject } from "@/hooks/helpers";
 import Link from "next/link";
+import { Hex } from "viem";
 
 const SpacesGraph = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
-  const [selectedCategory, setSelectedCategory] = useState();
-  const [windowDimensions, setWindowDimensions] = useState({
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [windowDimensions, setWindowDimensions] = useState<{
+    width: number | undefined;
+    height: number | undefined;
+  }>({
     width: undefined,
     height: undefined,
   });
-  const [categoryOptions, setCategoryOptions] = useState([]);
-  const [isRoot, setIsRoot] = useState();
-  const [clickedID, setClickedID] = useState();
+  const [/* tempTreeData */, setTempTreeData] = useState<any>(null);
 
-  const { fetchTreeData, isLoading: isTreeLoading } =
-    useFetchTreeData(setCategoryOptions);
+  const [categoryOptions, setCategoryOptions] = useState([]);
+  const [isRoot, setIsRoot] = useState(false);
+  const [clickedID, setClickedID] = useState<Hex | null>(null);
+
+  const { fetchTreeData, isPending: isTreeLoading } = useFetchTreeData(
+    setCategoryOptions,
+    selectedCategory,
+    setTempTreeData
+  );
+
   const { data: rootObject, isLoading: isRootLoading } = useFetchRootObject();
   useWindowDimensions(setWindowDimensions); // Call the window dimensions hook
 
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
   // Define the custom node rendering function
-  const renderCustomNodeElement = ({ nodeDatum, toggleNode }) => (
+  const renderCustomNodeElement = ({
+    nodeDatum,
+    toggleNode,
+  }: {
+    nodeDatum: any;
+    toggleNode: any;
+  }) => (
     <g>
       <circle
         r="15"
@@ -88,7 +118,7 @@ const SpacesGraph = () => {
     fetchTreeData();
   }, [fetchTreeData]);
 
-  const handleLabelClick = async (nodeDatum) => {
+  const handleLabelClick = async (nodeDatum: any) => {
     // Implement navigation logic here, for example:
     if (nodeDatum.attributes?.nodeType !== "root") {
       // Update this path according to your app's routing structure
@@ -96,10 +126,10 @@ const SpacesGraph = () => {
     }
   };
 
-  const handleNewClick = (nodeDatum, toggleNode) => {
+  const handleNewClick = (nodeDatum: any) => {
     setIsRoot(nodeDatum.attributes.nodeType == "root");
-    setClickedID(nodeDatum.id);
-    onOpen();
+    setClickedID(nodeDatum.id as Hex);
+    handleOpenModal();
   };
 
   return (
@@ -110,50 +140,31 @@ const SpacesGraph = () => {
         </div>
       ) : (
         <Container>
-          <Box
-            borderWidth="1px"
-            borderColor={"black"}
-            borderRadius="lg"
-            overflow="hidden"
-            boxShadow="md"
-            height="calc(100vh - 150px)"
-            display="flex"
-            alignItems="center"
-          >
-            <Flex
-              direction="column"
-              align="center"
-              justify="center"
-              height="100%"
-              width="100%"
-            >
+          <div className="flex h-[calc(100vh-150px)] items-center overflow-hidden rounded-lg border border-black shadow-md">
+            <div className="flex h-full w-full flex-col items-center justify-center">
               {/* Category dropdown */}
-              <Select
-                placeholder="All categories..."
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                mb={4}
-                mt="6%"
-                width={["90%", "70%", "50%"]}
-                _focus={{
-                  borderColor: "white",
-                }}
-              >
-                {categoryOptions.map((category) => (
-                  <option key={category.value} value={category.value}>
-                    {category.label}
-                  </option>
-                ))}
-              </Select>
+              <div className="mb-4 mt-[6%] w-[90%] md:w-[70%] lg:w-1/2">
+                <Select
+                  value={selectedCategory || ""}
+                  onValueChange={setSelectedCategory}
+                >
+                  <SelectTrigger className="w-full focus:border-white">
+                    <SelectValue placeholder="All categories..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categoryOptions.map((category: any) => (
+                      <SelectItem key={category.value} value={category.value}>
+                        {category.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               {/* Display tree */}
               {rootObject && (
-                <Box
+                <div
                   id="treeWrapper"
-                  width="100%"
-                  height="calc(100vh - 250px)"
-                  display="flex"
-                  justifyContent="center"
-                  alignItems="center"
+                  className="flex h-[calc(100vh-250px)] w-full items-center justify-center"
                 >
                   <Tree
                     data={rootObject}
@@ -163,23 +174,27 @@ const SpacesGraph = () => {
                     leafNodeClassName="node__leaf"
                     renderCustomNodeElement={renderCustomNodeElement}
                     translate={{
-                      x: windowDimensions.width / 2.8,
-                      y: windowDimensions.height / 7,
+                      x: windowDimensions.width
+                        ? windowDimensions.width / 2.8
+                        : 0,
+                      y: windowDimensions.height
+                        ? windowDimensions.height / 7
+                        : 0,
                     }}
                     zoom={1}
                     separation={{ siblings: 2, nonSiblings: 2 }}
                     initialDepth={1}
                   />
-                </Box>
+                </div>
               )}
-            </Flex>
+            </div>
             <CreateSubSpaceModal
-              isOpen={isOpen}
-              onClose={onClose}
+              isOpen={isModalOpen}
+              onClose={handleCloseModal}
               isRoot={isRoot}
-              clickedID={clickedID}
+              clickedID={clickedID as Hex}
             />
-          </Box>
+          </div>
         </Container>
       )}
     </div>

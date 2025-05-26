@@ -1,7 +1,14 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import axios from "axios";
-import { tables } from "@/app/api/constants";
+
+const tables = {
+  spaces: "db_spaces_314_70",
+  spaceInstances: "db_spaces_instances_314_71",
+  codes: "instances_codes_314_72",
+  subscriptions: "subscriptions_314_73",
+  members: "members_314_74",
+};
 // Initialize Supabase client
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,

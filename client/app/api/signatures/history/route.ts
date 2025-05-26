@@ -43,8 +43,8 @@ export async function GET(request: Request) {
         { status: 500 }
       );
     }
-
-    return NextResponse.json({ success: true, data });
+    console.log(data);
+    return NextResponse.json({ success: true, data: data });
   } catch (error) {
     console.error("Error in signatures history API:", error);
     return NextResponse.json(

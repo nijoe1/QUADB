@@ -1,0 +1,31 @@
+{
+  "short_name": "QUADB",
+  "name": "QUADB",
+  "description": "The leading platform for decentralized data management and access control. It enables secure organization, sharing, and monetization of datasets.",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "any",
+      "type": "image/png"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#FFFFFF",
+  "background_color": "#FFFFFF",
+  "permissions": [
+    "camera",
+    "microphone",
+    "geolocation",
+    "clipboard-read",
+    "clipboard-write",
+    "display-capture",
+    "fullscreen",
+    "notifications",
+    "payment",
+    "persistent-storage",
+    "screen-wake-lock",
+    "storage-access",
+    "window-management"
+  ]
+}

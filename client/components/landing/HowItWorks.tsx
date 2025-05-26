@@ -1,15 +1,16 @@
-export type Step = {
+import { motion } from "framer-motion";
+
+export interface Step {
   title: string;
   description: string;
   icon: JSX.Element;
-};
+}
 
 const steps: Step[] = [
   {
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className="icon icon-tabler icon-tabler-user-circle"
         width="44"
         height="44"
         viewBox="0 0 24 24"
@@ -33,7 +34,6 @@ const steps: Step[] = [
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className="icon icon-tabler icon-tabler-home-ribbon"
         width="44"
         height="44"
         viewBox="0 0 24 24"
@@ -57,7 +57,6 @@ const steps: Step[] = [
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className="icon icon-tabler icon-tabler-users-group"
         width="44"
         height="44"
         viewBox="0 0 24 24"
@@ -84,7 +83,6 @@ const steps: Step[] = [
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className="icon icon-tabler icon-tabler-progress"
         width="44"
         height="44"
         viewBox="0 0 24 24"
@@ -110,7 +108,6 @@ const steps: Step[] = [
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className="icon icon-tabler icon-tabler-progress-check"
         width="44"
         height="44"
         viewBox="0 0 24 24"
@@ -137,7 +134,6 @@ const steps: Step[] = [
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className="icon icon-tabler icon-tabler-currency-ethereum"
         width="44"
         height="44"
         viewBox="0 0 24 24"
@@ -158,25 +154,82 @@ const steps: Step[] = [
   },
 ];
 export function HowItWorks(): JSX.Element {
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+        delayChildren: 0.3,
+      },
+    },
+  };
+
+  const headerVariants = {
+    hidden: { opacity: 0, y: -30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.8,
+        ease: "easeOut",
+      },
+    },
+  };
+
+  const stepVariants = {
+    hidden: { opacity: 0, x: -50 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.6,
+        ease: "easeOut",
+      },
+    },
+  };
+
   return (
-    <section className="py-10" id="how-it-works">
-      <header className="my-5 text-center font-bold">
-        <p className="text-md text-muted-foreground/60">How it works</p>
-        <h1 className="text-primary text-4xl font-extrabold">
+    <motion.section
+      variants={containerVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.3 }}
+      className="py-10"
+      id="how-it-works"
+    >
+      <motion.header
+        variants={headerVariants}
+        className="my-5 text-center font-bold"
+      >
+        <motion.p
+          variants={headerVariants}
+          className="text-lg text-muted-foreground/60"
+        >
+          How it works
+        </motion.p>
+        <motion.h1
+          variants={headerVariants}
+          className="text-4xl font-extrabold text-grey-600"
+        >
           Step-by-step guide
-        </h1>
-      </header>
-      <div className="mx-auto grid max-w-[900px]">
+        </motion.h1>
+      </motion.header>
+      <motion.div
+        variants={containerVariants}
+        className="mx-auto grid max-w-[900px]"
+      >
         {steps.map((step, index) => (
-          <StepElement
-            key={index}
-            step={step}
-            index={index}
-            isLast={index === steps.length - 1}
-          />
+          <motion.div key={index} variants={stepVariants}>
+            <StepElement
+              step={step}
+              index={index}
+              isLast={index === steps.length - 1}
+            />
+          </motion.div>
         ))}
-      </div>
-    </section>
+      </motion.div>
+    </motion.section>
   );
 }
 
@@ -189,38 +242,121 @@ function StepElement({
   index: number;
   isLast?: boolean;
 }): JSX.Element {
+  const iconVariants = {
+    hidden: { scale: 0, rotate: -180 },
+    visible: {
+      scale: 1,
+      rotate: 0,
+      transition: {
+        duration: 0.6,
+        ease: "easeOut",
+        delay: index * 0.1,
+      },
+    },
+  };
+
+  const pulseAnimation = {
+    scale: [1, 1.05, 1],
+    transition: {
+      duration: 2,
+      repeat: Infinity,
+      ease: "easeInOut",
+    },
+  };
+
   return (
-    <div className="flex ">
+    <motion.div
+      whileHover={{ scale: 1.02 }}
+      transition={{ duration: 0.2 }}
+      className="flex"
+    >
       <div className="mr-6 flex flex-col items-center">
         {index === 0 && <div className="h-10 w-px opacity-0 sm:h-full" />}
         {index > 0 && !isLast && (
-          <div className="h-[30px] w-px bg-gray-300 sm:h-1/2" />
+          <motion.div
+            initial={{ height: 0 }}
+            animate={{ height: "30px" }}
+            transition={{ duration: 0.5, delay: index * 0.2 }}
+            className="w-px bg-grey-300 sm:h-1/2"
+          />
         )}
-        {isLast && <div className="h-[30px] w-px bg-gray-300 sm:h-1/3" />}
-        <div>
-          <div className="flex size-8 items-center justify-center rounded-full border text-xs font-medium">
+        {isLast && (
+          <motion.div
+            initial={{ height: 0 }}
+            animate={{ height: "30px" }}
+            transition={{ duration: 0.5, delay: index * 0.2 }}
+            className="w-px bg-grey-300 sm:h-1/3"
+          />
+        )}
+        <motion.div
+          variants={iconVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+        >
+          <motion.div
+            animate={pulseAnimation}
+            className="flex size-8 items-center justify-center rounded-full border text-xs font-medium"
+          >
             {index + 1}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
         {index === 0 ? (
-          <div className="h-full w-px bg-gray-300" />
+          <motion.div
+            initial={{ height: 0 }}
+            animate={{ height: "100%" }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            className="w-px bg-grey-300"
+          />
         ) : (
-          !isLast && <div className="h-4/5 w-px bg-gray-300 sm:h-1/2" />
+          !isLast && (
+            <motion.div
+              initial={{ height: 0 }}
+              animate={{ height: "80%" }}
+              transition={{ duration: 0.5, delay: index * 0.2 + 0.3 }}
+              className="w-px bg-grey-300 sm:h-1/2"
+            />
+          )
         )}
       </div>
-      <div className="show flex flex-col pb-6 sm:flex-row sm:items-center sm:pb-0">
+      <motion.div
+        whileHover={{ x: 10 }}
+        transition={{ duration: 0.2 }}
+        className="show flex flex-col pb-6 sm:flex-row sm:items-center sm:pb-0"
+      >
         <div className="sm:mr-5">
-          <div className="my-3 flex size-16 items-center justify-center rounded-full bg-indigo-50 sm:size-24">
+          <motion.div
+            whileHover={{ rotate: 360, scale: 1.1 }}
+            transition={{ duration: 0.6 }}
+            className="my-3 flex size-16 items-center justify-center rounded-full bg-indigo-50 sm:size-24"
+          >
             {step?.icon}
-          </div>
+          </motion.div>
         </div>
-        <div>
-          <h1 className="text-primary text-xl font-bold sm:text-base">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: index * 0.1 + 0.2 }}
+          viewport={{ once: true }}
+        >
+          <motion.h1
+            whileHover={{ color: "#4f46e5" }}
+            transition={{ duration: 0.2 }}
+            className="text-xl font-bold text-grey-600 sm:text-base"
+          >
             {step?.title}
-          </h1>
-          <p className="pr-2 text-sm text-gray-700">{step?.description}</p>
-        </div>
-      </div>
-    </div>
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: index * 0.1 + 0.4 }}
+            viewport={{ once: true }}
+            className="pr-2 text-sm text-grey-700"
+          >
+            {step?.description}
+          </motion.p>
+        </motion.div>
+      </motion.div>
+    </motion.div>
   );
 }

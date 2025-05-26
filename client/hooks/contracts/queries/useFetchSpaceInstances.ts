@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { getSpaceInstances } from "@/lib/tableland";
-import { getIpfsGatewayUri } from "@/lib/ipfs";
-import axios from "axios";
+import { fetchIPFSFile } from "@/lib/ipfs";
 
 export const useFetchSpaceInstances = (spaceID: string) => {
   const [instances, setInstances] = useState({
@@ -16,9 +15,18 @@ export const useFetchSpaceInstances = (spaceID: string) => {
     const temp = [];
     for (const item of data) {
       if (!item.metadataCID) continue;
-      const metadataCIDLink = getIpfsGatewayUri(item.metadataCID);
-      const res = await axios(metadataCIDLink);
-      item.metadata = res.data; // obj that contains => name about imageUrl
+      try {
+        const metadata = await fetchIPFSFile(
+          item.metadataCID,
+          true,
+          "data.json"
+        );
+
+        item.metadata = metadata; // obj that contains => name about imageUrl
+      } catch (error) {
+        console.error(error);
+        continue;
+      }
       temp.push(item); // Push fetched JSON metadata directly
     }
     return temp;

@@ -1,4 +1,4 @@
-import { useAccount, usePublicClient, useWalletClient } from "wagmi";
+import { useAccount, usePublicClient } from "wagmi";
 import { parseEther } from "viem";
 
 interface GasEstimate {

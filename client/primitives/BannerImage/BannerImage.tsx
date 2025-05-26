@@ -2,9 +2,6 @@ import { useMemo } from "react";
 
 import { tv } from "tailwind-variants";
 import { match, P } from "ts-pattern";
-
-import DefaultBanner from "@/assets/images/default_banner.jpg";
-
 const bannerVariants = tv({
   variants: {
     rounding: {

@@ -1,26 +1,16 @@
 import React from "react";
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
-  Stack,
-  FormControl,
-  FormLabel,
-  InputGroup,
-  InputRightElement,
-  Icon,
-  Text,
-  Input,
-} from "@chakra-ui/react";
-import { FaFileUpload } from "react-icons/fa";
-import {
-  CodeFormData,
-  useCreateInstanceCode,
-} from "@/hooks/contracts";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/ui-shadcn/dialog";
+import { Input } from "@/ui-shadcn/input";
+import { Button } from "@/primitives/Button";
+import { Card, CardContent } from "@/ui-shadcn/card";
+import { Upload } from "lucide-react";
+import { CodeFormData, useCreateInstanceCode } from "@/hooks/contracts";
 import { Alert } from "@/primitives/Alert/Alert";
 import { toast } from "sonner";
 import { Hex } from "viem";
@@ -83,46 +73,40 @@ const CreateNewInstanceCode = ({
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered>
-      <ModalOverlay />
-      <ModalContent className="rounded-md bg-[#333333]">
-        <ModalHeader>Create New Code</ModalHeader>
-        <ModalBody>
-          <Stack spacing="4">
-            <FormControl>
-              <FormLabel>Name</FormLabel>
-              <Input
-                name="name"
-                placeholder="Enter code name"
-                value={formData.name}
-                onChange={handleChange}
-                bg="#424242"
-                color="white"
-                borderRadius="md"
-                _focus={{
-                  borderColor: "white",
-                }}
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel>About</FormLabel>
-              <Input
-                name="about"
-                placeholder="Enter code description"
-                value={formData.about}
-                onChange={handleChange}
-                bg="#424242"
-                color="white"
-                borderRadius="md"
-                _focus={{
-                  borderColor: "white",
-                }}
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel>Code</FormLabel>
-              <div className="  rounded-md bg-[#424242] text-white focus:border-white">
-                <InputGroup className="flex justify-between items-center p-2">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="border-grey-300 bg-[#333333] text-white sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-white">Create New Code</DialogTitle>
+        </DialogHeader>
+
+        <div className="py-4">
+          <Card className="border-none bg-transparent">
+            <CardContent className="space-y-4 p-0">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-white">Name</label>
+                <Input
+                  name="name"
+                  placeholder="Enter code name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="border-grey-600 bg-[#424242] text-white placeholder:text-grey-400 focus:border-white"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-white">About</label>
+                <Input
+                  name="about"
+                  placeholder="Enter code description"
+                  value={formData.about}
+                  onChange={handleChange}
+                  className="border-grey-600 bg-[#424242] text-white placeholder:text-grey-400 focus:border-white"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-white">Code</label>
+                <div className="relative">
                   <Input
                     type="file"
                     onChange={handleFileChange}
@@ -130,32 +114,37 @@ const CreateNewInstanceCode = ({
                     className="hidden"
                     accept=".ipynb"
                   />
-                  <Text className="text-gray-400 text-sm">
-                    Upload Model Code
-                  </Text>
-
-                  <label htmlFor="_file-upload">
-                    <Icon as={FaFileUpload} cursor="pointer" />
+                  <label
+                    htmlFor="_file-upload"
+                    className="flex w-full cursor-pointer items-center justify-between rounded-md border border-grey-600 bg-[#424242] p-3 text-white transition-colors hover:border-white"
+                  >
+                    <span className="text-sm text-grey-400">
+                      Upload Model Code
+                    </span>
+                    <Upload className="h-4 w-4" />
                   </label>
-                </InputGroup>
+                </div>
               </div>
-            </FormControl>
-          </Stack>
-        </ModalBody>
-        <ModalFooter>
+            </CardContent>
+          </Card>
+        </div>
+
+        <DialogFooter className="flex flex-row justify-end space-x-2">
           <Button
             onClick={handleSubmit}
-            isLoading={create.isLoading || create.mutation.isPending}
-            loadingText={create.isLoading ? "Creating..." : "Processing..."}
-          >
-            Create
-          </Button>
-          <Button onClick={onClose} ml={3}>
-            Cancel
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+            disabled={create.isLoading || create.mutation.isPending}
+            value={
+              create.isLoading
+                ? "Creating..."
+                : create.mutation.isPending
+                  ? "Processing..."
+                  : "Create"
+            }
+          />
+          <Button onClick={onClose} value="Cancel" />
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 

@@ -40,10 +40,10 @@ const FilePreview: React.FC<{
       )}
       <div
         onClick={onClick}
-        className=" cursor-pointer items-center justify-center transition-opacity duration-300 group-hover:opacity-100 absolute  hover:flex inset-0"
+        className=" absolute inset-0 cursor-pointer items-center justify-center transition-opacity duration-300  hover:flex group-hover:opacity-100"
       >
-        <div className="flex size-10 items-center justify-center gap-2 rounded-full bg-white p-3 bg-black/80 ">
-          <CloudUpload className="text-black hidden group-hover:block" />
+        <div className="flex size-10 items-center justify-center gap-2 rounded-full  bg-white p-3 ">
+          <CloudUpload className="hidden text-black group-hover:block" />
         </div>
       </div>
     </div>
@@ -140,7 +140,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
               <CloudUpload />
             </span>
             <div className="flex">
-              <a className="text-moss-700 cursor-pointer hover:underline">
+              <a className="cursor-pointer text-moss-700 hover:underline">
                 {"Upload a file"}
               </a>
               &nbsp;

@@ -1,32 +1,30 @@
 import { Dispatch, SetStateAction } from "react";
 import { RxCrossCircled } from "react-icons/rx";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { Button, Text } from "@chakra-ui/react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-export type link = {
+export interface link {
   text: string;
   href: string;
-};
+}
 
 function NavLink({ text, href }: link): JSX.Element {
   return (
     <Link
       href={href}
-      passHref
-      className=" rounded-xl px-3 py-1 text-gray-200 transition-all hover:text-gray-50 "
+      className="rounded-xl px-3 py-1 text-grey-200 transition-all hover:text-grey-50"
     >
-      <Text>{text}</Text>
+      <span>{text}</span>
     </Link>
   );
 }
 
-type ResponsiveNavLinkProps = {
+interface ResponsiveNavLinkProps {
   text: string;
   href: string;
   setIsSidebarOpen: Dispatch<SetStateAction<boolean>>;
-};
+}
 
 function ResponsiveNavLink({
   text,
@@ -34,22 +32,22 @@ function ResponsiveNavLink({
   setIsSidebarOpen,
 }: ResponsiveNavLinkProps): JSX.Element {
   return (
-    <Link href={href} passHref>
+    <Link href={href}>
       <div
-        className="text-gray w-full cursor-pointer py-3 text-center transition-all hover:bg-black/20"
+        className="w-full cursor-pointer py-3 text-center text-grey-200 transition-all hover:bg-black/20"
         onClick={() => setIsSidebarOpen(false)}
       >
-        <Text className="text-gray hover:text-white">{text}</Text>
+        <span className="hover:text-white">{text}</span>
       </div>
     </Link>
   );
 }
 
-type NavLinksResponsiveProps = {
+interface NavLinksResponsiveProps {
   isSidebarOpen: boolean;
   setIsSidebarOpen: Dispatch<SetStateAction<boolean>>;
   isConnected: boolean;
-};
+}
 
 export function NavLinksResponsive({
   isSidebarOpen,
@@ -59,7 +57,7 @@ export function NavLinksResponsive({
   return (
     <div
       className={cn(
-        "fixed inset-y-0 left-[-400px] z-10 h-screen w-[400px] transform overflow-y-auto bg-white p-6 shadow-lg transition-transform duration-300 ease-in-out dark:bg-gray-900",
+        "fixed inset-y-0 left-[-400px] z-10 h-screen w-[400px] transform overflow-y-auto bg-white p-6 shadow-lg transition-transform duration-300 ease-in-out dark:bg-grey-900",
         isSidebarOpen && "translate-x-[400px]"
       )}
     >
@@ -87,7 +85,7 @@ export function NavLinksResponsive({
 
 export default function NavLinks(): JSX.Element {
   return (
-    <ul className="text-primary hidden grow flex-row items-center justify-center gap-3 font-bold lg:flex">
+    <ul className="hidden grow flex-row items-center justify-center gap-3 font-bold text-grey-600 lg:flex">
       {links.map((item) => (
         <NavLink key={item.text} text={item.text} href={item.href} />
       ))}

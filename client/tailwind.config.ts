@@ -1,4 +1,6 @@
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate";
+import { colors } from "./colors";
 
 const config: Config = {
   content: [
@@ -9,7 +11,22 @@ const config: Config = {
     "./ui-shadcn/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {
+    extend: {      fontFamily: {
+      "ui-mono": ["DM Mono", "serif"],
+      "ui-sans": ["DM Sans", "sans-serif"],
+    },
+    fontSize: {
+      p: [
+        "1rem",
+        {
+          lineHeight: "1.75rem",
+          fontWeight: "400",
+          letterSpacing: undefined,
+        },
+      ],
+      body: ["0.875rem", { lineHeight: "1.5rem", fontWeight: "400", letterSpacing: undefined }],
+    },
+
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
@@ -66,13 +83,14 @@ const config: Config = {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        ...colors,
       },
       keyframes: {
         "accordion-down": {
           from: {
             height: "0",
           },
-          to: {
+          to: {  
             height: "var(--radix-accordion-content-height)",
           },
         },
@@ -89,8 +107,11 @@ const config: Config = {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
+      aspectRatio: {
+        "3/1": "3 / 1",
+      },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [tailwindcssAnimate],
 };
 export default config;

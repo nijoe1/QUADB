@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
-import { code } from "../../../litActionCode.js";
+import { code } from "@/app/api/lit/actions/instance.js";
 // @ts-ignore
 import { LitNodeClient } from "@lit-protocol/lit-node-client";
 import { encryptString } from "@lit-protocol/encryption";
@@ -40,8 +40,6 @@ export async function POST(req: NextRequest) {
     console.log("🚀 Starting Get Custom Lit Action Code process...");
 
     const name = await Name.create();
-
-    console.log("🔄 Publishing the name...", name.toString());
 
     const instanceID = getInstanceID(spaceID, name.toString());
 

@@ -28,12 +28,12 @@ import { PlusIcon, Search, Trash } from "lucide-react";
 
 const inputBase = [
   "bg-transparent",
-  "text-gray-700",
+  "text-grey-700",
   "p-2",
   "border-2",
   "rounded",
   "disabled:opacity-30",
-  "checked:bg-gray-800",
+  "checked:bg-grey-800",
 ];
 export const Input = createComponent(
   "input",
@@ -56,10 +56,10 @@ export const InputWrapper = createComponent(
 export const InputAddon = createComponent(
   "div",
   tv({
-    base: "absolute right-0 inline-flex h-full items-center justify-center border-l border-gray-300 px-4 font-semibold text-gray-900 dark:border-gray-800",
+    base: "absolute right-0 inline-flex h-full items-center justify-center border-l border-grey-300 px-4 font-semibold text-grey-900 dark:border-grey-800",
     variants: {
       disabled: {
-        true: "text-gray-800",
+        true: "text-grey-800",
       },
     },
   })
@@ -68,7 +68,7 @@ export const InputAddon = createComponent(
 export const InputIcon = createComponent(
   "div",
   tv({
-    base: "absolute left-0 inline-flex h-full items-center justify-center px-4 text-gray-800",
+    base: "absolute left-0 inline-flex h-full items-center justify-center px-4 text-grey-800",
   })
 );
 
@@ -87,14 +87,14 @@ export const Select = createComponent(
 export const Checkbox = createComponent(
   "input",
   tv({
-    base: [...inputBase, "checked:hover:bg-gray-700 checked:focus:bg-gray-700"],
+    base: [...inputBase, "checked:hover:bg-grey-700 checked:focus:bg-grey-700"],
   })
 );
 
 export const Label = createComponent(
   "label",
   tv({
-    base: "text-gray-00 block font-semibold tracking-wider",
+    base: "block font-semibold tracking-wider text-grey-800",
   })
 );
 export const Textarea = createComponent(
@@ -153,14 +153,14 @@ export const FormControl = ({
         </Label>
       )}
       {description && (
-        <div className="mb-2 text-xs text-gray-800 ">{description}</div>
+        <div className="mb-2 text-xs text-grey-800 ">{description}</div>
       )}
       {cloneElement(children as ReactElement, {
         id: name,
         error: Boolean(error),
         ...register(name, { valueAsNumber }),
       })}
-      {hint && <div className="pt-1 text-xs text-gray-800 ">{hint}</div>}
+      {hint && <div className="pt-1 text-xs text-grey-800 ">{hint}</div>}
       {error && <ErrorMessage>{error.message}</ErrorMessage>}
     </fieldset>
   );
@@ -196,7 +196,7 @@ export function FieldArray<S extends z.Schema>({
   return (
     <div className="space-y-2">
       {hint && (
-        <div className="pb-2 text-xs text-gray-500 dark:text-gray-400">
+        <div className="pb-2 text-xs text-grey-500 dark:text-grey-400">
           {hint}
         </div>
       )}
@@ -243,16 +243,17 @@ export function FieldsRow<S extends z.Schema>({
   required?: boolean;
   hint?: string;
   name: string;
-
   renderField: (field: z.infer<S>, index: number) => ReactNode;
 }) {
   const form = useFormContext();
-  const { fields, append, remove } = useFieldArray({
+  const { fields } = useFieldArray({
     control: form.control,
     name,
   });
 
   const error = form.formState.errors[name]?.message ?? "";
+
+  console.log(fields);
 
   return (
     <section className="mb-8">
@@ -263,7 +264,7 @@ export function FieldsRow<S extends z.Schema>({
         </Label>
       )}
       {hint && (
-        <div className="pb-2 text-xs text-gray-500 dark:text-gray-400">
+        <div className="pb-2 text-xs text-grey-500 dark:text-grey-400">
           {hint}
         </div>
       )}
@@ -292,7 +293,7 @@ export function FormSection({
   return (
     <section className={`mb-8 ${className}`}>
       <h3 className="mb-1 text-xl font-semibold">{title}</h3>
-      <p className="mb-4 leading-loose text-gray-600 dark:text-gray-400">
+      <p className="mb-4 leading-loose text-grey-600 dark:text-grey-400">
         {description}
       </p>
       {children}

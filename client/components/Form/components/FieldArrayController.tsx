@@ -8,7 +8,7 @@ export interface FieldArrayControllerProps {
 }
 
 const RenderField: React.FC<{ field: any; index: number; name: string }> = ({
-  field,
+  // field,
   index,
   name,
 }) => {
@@ -33,9 +33,7 @@ const RenderField: React.FC<{ field: any; index: number; name: string }> = ({
 export const FieldArrayController: React.FC<FieldArrayControllerProps> = ({
   name,
 }) => {
-  const { control, formState } = useFormContext();
-
-  React.useEffect(() => {}, [formState]);
+  const { control } = useFormContext();
 
   const renderField = (field: any, index: number) => (
     <RenderField field={field} index={index} name={name} />

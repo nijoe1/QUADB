@@ -1,17 +1,17 @@
 import React, { useState } from "react";
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
-  useToast,
-} from "@chakra-ui/react";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/ui-shadcn/dialog";
+import { Button } from "@/primitives/Button";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { formatEther } from "viem";
 import { CONTRACT_ABI, CONTRACT_ADDRESSES } from "@/app/constants/contracts";
+import { useToast } from "@/hooks/useToast";
+
 export const Subscribe = ({
   isOpen,
   onClose,
@@ -23,12 +23,13 @@ export const Subscribe = ({
   instanceID: string;
   price: string;
 }) => {
-  const toast = useToast();
+  const { toast } = useToast();
 
   const { address: account } = useAccount();
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
   const [isProcessingTransaction, setIsProcessingTransaction] = useState(false);
+
   const getLoadingMessage = () => {
     if (isProcessingTransaction) {
       return "Processing transaction...";
@@ -67,39 +68,49 @@ export const Subscribe = ({
       toast({
         title: "Subscription Created",
         description: "You Subscribed successfully",
-        status: "success",
-        duration: 9000,
-        isClosable: true,
+        variant: "default",
       });
       console.log(transaction);
     } catch (error) {
       console.log(error);
+      setIsProcessingTransaction(false);
+      toast({
+        title: "Error",
+        description: "Failed to subscribe",
+        variant: "destructive",
+      });
     }
   };
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered>
-      <ModalOverlay />
-      <ModalContent bg="#333333" color="white" borderRadius="md">
-        <ModalHeader>Subscribe to Dataset</ModalHeader>
-        <ModalBody bg={"#333333"}>
-          {"Subsription Price: " + formatEther(BigInt(price)) + "FIL"}
-        </ModalBody>
-        <ModalFooter>
-          <Button colorScheme="white" mr={3} onClick={handleCreate}>
-            Subscribe
-          </Button>
-          <Button variant="white" onClick={onClose}>
-            Cancel
-          </Button>
-        </ModalFooter>
-        {isProcessingTransaction ? (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="border-grey-300 bg-[#333333] text-white sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-white">Subscribe to Dataset</DialogTitle>
+        </DialogHeader>
+
+        <div className="bg-[#333333] py-4">
+          <p className="text-white">
+            {"Subscription Price: " + formatEther(BigInt(price)) + "FIL"}
+          </p>
+        </div>
+
+        <DialogFooter className="flex flex-row justify-end space-x-2">
+          <Button
+            variant="primary"
+            onClick={handleCreate}
+            disabled={isProcessingTransaction}
+            value="Subscribe"
+          />
+          <Button onClick={onClose} value="Cancel" />
+        </DialogFooter>
+
+        {isProcessingTransaction && (
           <div className="mx-auto my-3">
-            <span className="text-white" style={{ fontSize: "md" }}>
-              {getLoadingMessage()}
-            </span>
+            <span className="text-sm text-white">{getLoadingMessage()}</span>
           </div>
-        ) : null}
-      </ModalContent>
-    </Modal>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 };

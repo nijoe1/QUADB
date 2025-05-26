@@ -1,12 +1,46 @@
-import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { createIPNS } from "@/lib/ipfs";
 import { CONTRACT_ABI, CONTRACT_ADDRESSES } from "@/app/constants/contracts";
-import { useAccount, usePublicClient, useWalletClient } from "wagmi";
-import { Abi, Address, TransactionReceipt, isAddress } from "viem";
+import { Abi, Address, Hex, isAddress } from "viem";
 import { useToast } from "@/hooks/useToast";
-import { useFileUpload } from "@/hooks/storacha";
-import { useGasEstimation } from "@/hooks/contracts";
+import { storachaUploadFile } from "@/hooks/storacha";
+import { useCreateInstanceIPNS } from "@/hooks/ipns/create/useCreateInstance";
+import { useContractTransaction } from "../utlis";
+import {
+  ProgressModalProps,
+  ProgressStatus,
+  useSteps,
+  UseStepsProps,
+} from "@/components/ProgressModal";
+import { useMemo } from "react";
+
+const InitialProgressModalProps: ProgressModalProps = {
+  isOpen: false,
+  heading: "Creating dataset...",
+  subheading: "Please hold while your dataset is being created.",
+  steps: [
+    {
+      name: "Uploading metadata",
+      description: "Uploading dataset metadata",
+      status: ProgressStatus.NOT_STARTED,
+    },
+    {
+      name: "Uploading file",
+      description: "Uploading dataset file",
+      status: ProgressStatus.NOT_STARTED,
+    },
+    {
+      name: "Creating IPNS",
+      description: "Creating dataset IPNS",
+      status: ProgressStatus.NOT_STARTED,
+    },
+    {
+      name: "Creating dataset",
+      description: "Creating dataset on chain",
+      status: ProgressStatus.NOT_STARTED,
+    },
+  ],
+};
+
 export interface FormData {
   name: string;
   about: string;
@@ -25,58 +59,86 @@ export const useCreateInstance = ({
   onClose,
   spaceID,
 }: UseCreateInstanceProps) => {
-  const { address: account } = useAccount();
-  const publicClient = usePublicClient();
-  const { data: walletClient } = useWalletClient();
   const { toast } = useToast();
-  const { estimateGas, formatGasEstimate } = useGasEstimation();
+  const createIPNS = useCreateInstanceIPNS();
 
-  const uploadFile = useFileUpload();
+  const { executeContractTransaction: createInstance } =
+    useContractTransaction();
 
-  const [isLoading, setIsLoading] = useState(false);
-  const reader = new FileReader();
+  const uploadInstanceMetadata = useMutation({
+    mutationFn: async (formData: FormData) => {
+      const imageBase64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(formData.image);
+      });
+      const metadata = {
+        name: formData.name,
+        about: formData.about,
+        imageUrl: imageBase64,
+      };
+      const metadataFile = new File(
+        [JSON.stringify(metadata)],
+        "metadata.json",
+        {
+          type: "application/json",
+        }
+      );
+      return (await storachaUploadFile(metadataFile)) as unknown as string;
+    },
+  });
 
-  const uploadMetadata = async (formData: FormData) => {
-    const imageBase64 = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(formData.image);
-    });
-    const metadata = {
-      name: formData.name,
-      about: formData.about,
-      imageUrl: imageBase64,
-    };
-    const metadataFile = new File([JSON.stringify(metadata)], "metadata.json", {
-      type: "application/json",
-    });
-    return (await uploadFile(metadataFile)) as unknown as string;
-  };
+  const uploadInstanceFile = useMutation({
+    mutationFn: storachaUploadFile,
+  });
 
-  const mutation = useMutation<TransactionReceipt, Error, FormData>({
+  const stepsConfig = InitialProgressModalProps.steps.reduce(
+    (acc, step, index) => {
+      acc[index] = {
+        mutation:
+          index === 0
+            ? uploadInstanceMetadata
+            : index === 1
+              ? uploadInstanceFile
+              : index === 2
+                ? createIPNS
+                : createInstance,
+        step,
+      };
+      return acc;
+    },
+    {} as UseStepsProps
+  );
+
+  const { steps } = useSteps(stepsConfig);
+
+  console.log("steps statuses ", steps);
+
+  const progressModalProps = useMemo(
+    () => ({
+      ...InitialProgressModalProps,
+      steps,
+    }),
+    [steps]
+  );
+
+  const mutation = useMutation<Hex, Error, FormData>({
     mutationFn: async (formData) => {
-      if (!walletClient || !publicClient || !account) {
-        throw new Error("Wallet not connected");
-      }
-
-      setIsLoading(true);
-
       try {
-        const metadataCID = await uploadMetadata(formData);
-        const fileCID = (await uploadFile(formData.file)) as unknown as string;
+        const metadataCID = await uploadInstanceMetadata.mutateAsync(formData);
+        const fileCID = (await uploadInstanceFile.mutateAsync(
+          formData.file
+        )) as unknown as string;
 
-        const ipnsResult = await createIPNS({
+        const ipnsResult = await createIPNS.mutateAsync({
           cid: fileCID ?? "",
           spaceID,
-          address: account,
-          walletClient,
           threshold: formData.threshold || 1,
         });
 
-        const contractCallArgs = {
-          account,
-          address: CONTRACT_ADDRESSES as Address,
+        const hash = await createInstance.mutateAsync({
+          contractAddress: CONTRACT_ADDRESSES as Address,
           abi: CONTRACT_ABI as Abi,
           functionName: "createSpaceInstance",
           args: [
@@ -88,36 +150,12 @@ export const useCreateInstance = ({
             ipnsResult.name,
             ipnsResult.lit_config_cid,
           ],
-        };
-
-        const estimatedGas = await estimateGas(
-          contractCallArgs.address,
-          contractCallArgs.abi,
-          contractCallArgs.functionName,
-          contractCallArgs.args
-        );
-
-        console.log("estimatedGas", estimatedGas);
-
-        // Simulate contract call
-        const simulation = await publicClient.simulateContract({
-          ...contractCallArgs,
-          gas: estimatedGas.gasLimit,
-          maxFeePerGas: estimatedGas.maxFeePerGas,
-          maxPriorityFeePerGas: estimatedGas.maxPriorityFeePerGas,
         });
-        console.log("simulation", simulation.request);
 
-        // Send transaction
-        const hash = await walletClient.writeContract({
-          ...contractCallArgs,
-          gas: estimatedGas.gasLimit,
-          maxFeePerGas: estimatedGas.maxFeePerGas,
-          maxPriorityFeePerGas: estimatedGas.maxPriorityFeePerGas,
-        });
-        return await publicClient.waitForTransactionReceipt({ hash });
-      } finally {
-        setIsLoading(false);
+        return hash;
+      } catch (error) {
+        console.error(error);
+        throw error;
       }
     },
     onSuccess: () => {
@@ -126,6 +164,10 @@ export const useCreateInstance = ({
         description: "Your dataset has been created successfully.",
         duration: 5000,
       });
+      uploadInstanceMetadata.reset();
+      uploadInstanceFile.reset();
+      createIPNS.reset();
+      createInstance.reset();
       onClose();
     },
     onError: (error) => {
@@ -138,5 +180,5 @@ export const useCreateInstance = ({
     },
   });
 
-  return { mutation, isLoading };
+  return { mutation, progressModalProps };
 };

@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 export const useCSVHandler = () => {
-  const [file, setFile] = useState();
+  const [file, setFile] = useState<File | null>(null);
   const [newRows, setNewRows] = useState([]);
 
   const handleUploadCSV = (event: any) => {
@@ -22,7 +22,7 @@ export const useCSVHandler = () => {
     const objects = [];
     for (let i = 1; i < lines.length; i++) {
       const values = lines[i].split(",");
-      const obj: { [key: string]: string } = {};
+      const obj: Record<string, string> = {};
       values.forEach((value: string, index: number) => {
         obj[headers[index]] = value.trim();
       });
@@ -51,9 +51,6 @@ export const useCSVHandler = () => {
   const downloadCsv = (data: any, filename: any) => {
     const csvString = objectToCsv(data);
     const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
-    const file = new File([blob], filename, {
-      type: "text/csv;charset=utf-8;",
-    });
     const link = document.createElement("a");
     if (link.download !== undefined) {
       const url = URL.createObjectURL(blob);

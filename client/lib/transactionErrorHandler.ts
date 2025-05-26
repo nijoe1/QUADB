@@ -1,4 +1,3 @@
-import { showToast } from "./toast";
 import {
   BaseError,
   ContractFunctionExecutionError,
@@ -7,7 +6,10 @@ import {
   UserRejectedRequestError,
 } from "viem";
 
-export function handleTransactionError(error: BaseError) {
+export function handleTransactionError(error: BaseError): {
+  title: string;
+  description: string;
+} {
   if (error instanceof BaseError) {
     const revertError = error.walk(
       (err) =>
@@ -22,24 +24,38 @@ export function handleTransactionError(error: BaseError) {
         revertError.message
           .split("reverted with the following reason:")[1]
           ?.trim() ?? errorName;
-      showToast.error("Transaction Failed", revertReason);
-      return;
+      return {
+        title: "Transaction Failed",
+        description: revertReason,
+      };
     }
     if (revertError instanceof UserRejectedRequestError) {
-      showToast.error("Transaction Failed", "User rejected the transaction");
-      return;
+      return {
+        title: "Transaction Failed",
+        description: "User rejected the transaction",
+      };
     }
     if (revertError instanceof ContractFunctionExecutionError) {
       const errorName = revertError.cause?.shortMessage ?? "";
       const revertReason = errorName;
-      showToast.error("Transaction Failed", revertReason);
-      console.error(revertError);
-      return;
+      return {
+        title: "Transaction Failed",
+        description: revertReason,
+      };
     }
     if (error instanceof InsufficientFundsError) {
-      showToast.error("Transaction Failed", "Insufficient funds");
+      return {
+        title: "Transaction Failed",
+        description: "Insufficient funds",
+      };
     }
-    showToast.error("Transaction Failed", "An unknown error occurred");
+    return {
+      title: "Transaction Failed",
+      description: "An unknown error occurred",
+    };
   }
-  return;
+  return {
+    title: "Transaction Failed",
+    description: "An unknown error occurred",
+  };
 }

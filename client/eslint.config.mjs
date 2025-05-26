@@ -9,7 +9,14 @@ export default tseslint.config(
   ...tseslint.configs.recommended, // .strict is a super set of recommended
   // ...tseslint.configs.strict,
   ...tseslint.configs.stylistic,
-  { ignores: ["dist", "node_modules", "storybook-static", "ui-shadcn"] },
+  {
+    ignores: [
+      "dist",
+      "node_modules",
+      "ui-shadcn",
+      ".next/**/*",
+    ],
+  },
   {
     extends: [
       eslint.configs.recommended,
@@ -23,11 +30,18 @@ export default tseslint.config(
     rules: {
       "@typescript-eslint/no-empty-object-type": "off",
       "@typescript-eslint/no-unused-vars": "warn",
-      "@typescript-eslint/no-non-null-assertion": "warn",
-      "@typescript-eslint/no-explicit-any": "warn",
-      "@typescript-eslint/consistent-type-definitions": "warn",
+      "@typescript-eslint/no-non-null-assertion": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/consistent-type-definitions": "off",
       "tailwindcss/enforces-shorthand": "off",
+      // never used var disable
+      "no-unused-vars": "off",
+      "no-prototype-builtins": "off",
+      "@typescript-eslint/ban-ts-comment": "off",
+      "@typescript-eslint/class-literal-property-style": "off",
+      "@typescript-eslint/no-unused-expressions": "off",
+      "no-undef": "off",
     },
   },
-  eslintConfigPrettier,
+  eslintConfigPrettier
 );

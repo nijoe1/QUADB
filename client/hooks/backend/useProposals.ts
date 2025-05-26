@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useToast } from "@chakra-ui/react";
+import { useToast } from "@/hooks/useToast";
 import { useWalletClient } from "wagmi";
 
 interface Proposal {
@@ -18,7 +18,7 @@ interface Proposal {
 }
 
 export const useProposals = (instanceId: string, sequence: string) => {
-  const toast = useToast();
+  const { toast } = useToast();
   const queryClient = useQueryClient();
   const { data: walletClient } = useWalletClient();
 
@@ -106,9 +106,8 @@ export const useProposals = (instanceId: string, sequence: string) => {
     onSuccess: () => {
       toast({
         title: "Proposal created",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
+        description: "Your proposal has been created successfully.",
+        variant: "default",
       });
       queryClient.invalidateQueries({
         queryKey: ["proposals", instanceId, sequence],
@@ -118,9 +117,7 @@ export const useProposals = (instanceId: string, sequence: string) => {
       toast({
         title: "Error creating proposal",
         description: error instanceof Error ? error.message : "Unknown error",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
+        variant: "destructive",
       });
     },
   });
@@ -172,9 +169,8 @@ export const useProposals = (instanceId: string, sequence: string) => {
     onSuccess: () => {
       toast({
         title: "Signature added",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
+        description: "Your signature has been added successfully.",
+        variant: "default",
       });
       queryClient.invalidateQueries({
         queryKey: ["proposals", instanceId, sequence],
@@ -184,9 +180,7 @@ export const useProposals = (instanceId: string, sequence: string) => {
       toast({
         title: "Error adding signature",
         description: error instanceof Error ? error.message : "Unknown error",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
+        variant: "destructive",
       });
     },
   });

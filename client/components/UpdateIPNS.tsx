@@ -1,45 +1,34 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
-  Input,
-  Text,
-  Button,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  FormControl,
-  InputGroup,
-  InputRightElement,
-  Icon,
-  Box,
-  VStack,
-  HStack,
-  Badge,
-  Progress,
-  Textarea,
-  useToast,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/ui-shadcn/dialog";
+import { Input } from "@/ui-shadcn/input";
+import { TextArea } from "@/primitives/TextArea";
+import { Button } from "@/primitives/Button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui-shadcn/tabs";
+import { Card, CardContent } from "@/ui-shadcn/card";
+import { Badge } from "@/ui-shadcn/badge";
+import { Progress } from "@/ui-shadcn/progress";
+import {
   Select,
-  Divider,
-  Tabs,
-  TabList,
-  TabPanels,
-  Tab,
-  TabPanel,
-} from "@chakra-ui/react";
-import { useAccount } from "wagmi";
-import { FaFileUpload } from "react-icons/fa";
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/ui-shadcn/select";
+import { Separator } from "@/ui-shadcn/separator";
+import { Upload } from "lucide-react";
 import { ObjectMatcher } from "@/lib/merge";
 import { useCSVHandler } from "@/hooks/helpers";
-import { useProposals } from "@/hooks/backend";
-import { useWalletClient } from "wagmi";
-import * as W3Name from "w3name";
-import { useFileUpload } from "@/hooks/storacha";
-import { fetchIPFS } from "@/lib/ipfs";
+import { useUpdateIPNSManager } from "@/hooks/ipns";
+import { Spinner } from "@/primitives/Spinner";
+import { toast } from "@/hooks/useToast";
 
-const UpdateIPNS = ({
+export const UpdateIPNS = ({
   isOpen,
   onClose,
   isDataset,
@@ -60,16 +49,8 @@ const UpdateIPNS = ({
   threshold: number;
   currentIPNSValue: string;
 }) => {
-  const { address } = useAccount();
-  const { data: walletClient } = useWalletClient();
-  const toast = useToast();
-  const [sequence, setSequence] = useState<string>("");
   const [proposalDescription, setProposalDescription] = useState<string>("");
-  const [isCreatingProposal, setIsCreatingProposal] = useState(false);
-  const [selectedSequence, setSelectedSequence] = useState<string>("");
-  const [historicalSequences, setHistoricalSequences] = useState<string[]>([]);
-  const [isUpdatingIPNS, setIsUpdatingIPNS] = useState(false);
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState("proposals");
 
   const {
     file,
@@ -80,46 +61,36 @@ const UpdateIPNS = ({
     csvToObjectArray,
   } = useCSVHandler();
 
-  const { proposals, isLoading, createProposal, addSignature } = useProposals(
+  const {
+    // Data
+    currentSequence,
+    historicalSequences,
+    selectedSequence,
+    proposals,
+
+    // Loading states
+    isLoadingProposals,
+    isCreatingProposal,
+    isSigningProposal,
+    isUpdatingIPNS,
+
+    // Actions
+    setSelectedSequence,
+    handleCreateProposal,
+    handleSignProposal,
+    handleUpdateIPNS,
+    refetchProposals,
+
+    // Helper functions
+    hasSigned,
+    hasReachedQuorum,
+    isProposalExecuted,
+  } = useUpdateIPNSManager({
+    IPNS,
     spaceID,
-    selectedSequence || sequence
-  );
-
-  useEffect(() => {
-    const fetchSequences = async () => {
-      try {
-        const name = await W3Name.parse(IPNS);
-        const revision = await W3Name.resolve(name);
-        const currentSequence = revision.sequence.toString();
-        setSequence(currentSequence);
-        setSelectedSequence(currentSequence);
-
-        const response = await fetch(
-          `/api/signatures/history?instanceId=${spaceID}`
-        );
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        const sequences = data.data
-          .filter((p: any) => p.signatures.length >= threshold)
-          .map((p: any) => p.sequence);
-        setHistoricalSequences([currentSequence, ...sequences]);
-      } catch (error) {
-        console.error("Error fetching sequences:", error);
-        toast({
-          title: "Error fetching sequences",
-          description: error instanceof Error ? error.message : "Unknown error",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
-      }
-    };
-    if (IPNS) {
-      fetchSequences();
-    }
-  }, [IPNS, spaceID, threshold, toast]);
+    threshold,
+    EncryptedKeyCID,
+  });
 
   const handleMergeArrays = () => {
     const matcher = new ObjectMatcher(csvToObjectArray(currentCSV)[0]);
@@ -129,381 +100,251 @@ const UpdateIPNS = ({
     ) as any;
     setNewRows(merged);
     downloadCsv(merged, "merged.csv");
-    toast({
-      title: "Data merged successfully",
-      description:
-        "The merged data has been downloaded. You can now upload it to create a proposal.",
-      status: "success",
-      duration: 5000,
-      isClosable: true,
-    });
   };
 
-  const uploadFiles = useFileUpload();
-
-  const uploadFile = async (file: File): Promise<string> => {
-    if (!walletClient || !address) {
-      throw new Error("Wallet client not found");
-    }
-
-    return (await uploadFiles(file)) as unknown as string;
-  };
-
-  const handleCreateProposal = async () => {
-    if (!walletClient || !address || !file) {
-      toast({
-        title: "Error",
-        description: "Please connect your wallet and select a file",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
-      return;
-    }
+  const onCreateProposal = async () => {
+    if (!file) return;
 
     try {
-      setIsCreatingProposal(true);
-      const cid = await uploadFile(file);
-
-      const signature = await walletClient.signMessage({
-        message: `I acknowledge updating the current ipns record : ${IPNS} contents to point to this new ipfs cid : ${cid} and the previous sequence number is ${sequence}`,
+      toast({
+        title: "Sign the proposal to execute it",
+        description: "Please wait while we create the proposal",
+        variant: "default",
       });
-
-      const response = await createProposal.mutateAsync({
-        cid,
-        proposalDescription,
-        signature,
-      });
-
-      if (!response.success) {
-        throw new Error(response.error || "Failed to create proposal");
-      }
-
+      await handleCreateProposal(file, proposalDescription);
+      await refetchProposals();
       toast({
         title: "Proposal created successfully",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
+        description: "Please wait while we fetch the proposals",
+        variant: "default",
       });
-      setActiveTab(0); // Switch to proposals tab
-      setProposalDescription(""); // Clear the description
+      setActiveTab("proposals");
+      setProposalDescription("");
     } catch (error) {
       console.error("Error creating proposal:", error);
-      toast({
-        title: "Error creating proposal",
-        description: error instanceof Error ? error.message : "Unknown error",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
-    } finally {
-      setIsCreatingProposal(false);
     }
-  };
-
-  const handleSignProposal = async (cid: string) => {
-    if (!walletClient || !address) return;
-
-    try {
-      const signature = await walletClient.signMessage({
-        message: `I acknowledge updating the current ipns record : ${IPNS} contents to point to this new ipfs cid : ${cid} and the previous sequence number is ${sequence}`,
-      });
-
-      await addSignature.mutateAsync({
-        cid,
-        signature,
-      });
-    } catch (error) {
-      console.error("Error signing proposal:", error);
-      toast({
-        title: "Error signing proposal",
-        description: error instanceof Error ? error.message : "Unknown error",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
-    }
-  };
-  interface updateIPNSBody {
-    signatures: string[];
-    newCid: string;
-    ipns: string;
-    ciphertext: string;
-    dataToEncryptHash: string;
-    instanceID: string;
-    codeHash: string;
-  }
-
-  interface IPNSConfig {
-    instanceID: string;
-    ipns: string;
-    ciphertext: string;
-    dataToEncryptHash: string;
-    codeCID: string;
-  }
-
-  const handleUpdateIPNS = async (proposal: any) => {
-    if (!walletClient || !address) return;
-
-    try {
-      setIsUpdatingIPNS(true);
-
-      const signatures = proposal.signatures.map((sig: any) => sig.signature);
-
-      const ipnsConfig = (await fetchIPFS(EncryptedKeyCID)) as IPNSConfig;
-
-      console.log("ipnsConfig", ipnsConfig);
-
-      const body: updateIPNSBody = {
-        signatures,
-        newCid: proposal.cid,
-        ipns: ipnsConfig.ipns,
-        ciphertext: ipnsConfig.ciphertext,
-        dataToEncryptHash: ipnsConfig.dataToEncryptHash,
-        instanceID: ipnsConfig.instanceID,
-        codeHash: ipnsConfig.codeCID,
-      };
-
-      const response = await fetch("/api/lit/update-ipns-action/instance", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      toast({
-        title: "IPNS updated successfully",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-      });
-
-      const name = await W3Name.parse(IPNS);
-      const revision = await W3Name.resolve(name);
-      setSequence(revision.sequence.toString());
-      setSelectedSequence(revision.sequence.toString());
-    } catch (error) {
-      console.error("Error updating IPNS:", error);
-      toast({
-        title: "Error updating IPNS",
-        description: error instanceof Error ? error.message : "Unknown error",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
-    } finally {
-      setIsUpdatingIPNS(false);
-    }
-  };
-
-  const hasSigned = (proposal: any) => {
-    return proposal.signatures.some((sig: any) => sig.address === address);
-  };
-
-  const hasReachedQuorum = (proposal: any) => {
-    return proposal.signatures.length >= threshold;
   };
 
   const renderProposal = (proposal: any) => (
-    <Box
-      key={proposal.id}
-      p={4}
-      borderWidth={1}
-      borderRadius="md"
-      borderColor="gray.600"
-    >
-      <VStack align="stretch" spacing={2}>
-        <HStack justify="space-between">
-          <Text fontWeight="bold">CID: {proposal.cid}</Text>
-          <Badge colorScheme={hasSigned(proposal) ? "green" : "gray"}>
-            {hasSigned(proposal) ? "Signed" : "Not Signed"}
+    <Card key={proposal.id} className="border border-grey-600 bg-[#333333] p-4">
+      <CardContent className="space-y-4 p-0">
+        <div className="flex items-center justify-between">
+          <span className="font-bold text-white">CID: {proposal.cid}</span>
+          <Badge variant={hasSigned(proposal) ? "default" : "secondary"}>
+            {hasSigned(proposal) && !isProposalExecuted(proposal)
+              ? "Signed"
+              : isProposalExecuted(proposal)
+                ? "Executed"
+                : "Not Signed"}
           </Badge>
-        </HStack>
-        <Text>{proposal.proposal_description}</Text>
-        <Box>
-          <Text mb={2}>
+        </div>
+        <p className="text-white">{proposal.proposal_description}</p>
+        <div>
+          <p className="mb-2 text-white">
             Signatures: {proposal.signatures.length}/{threshold}
-          </Text>
+          </p>
           <Progress
             value={(proposal.signatures.length / threshold) * 100}
-            colorScheme={hasReachedQuorum(proposal) ? "green" : "blue"}
+            className={`w-full ${hasReachedQuorum(proposal) ? "bg-green-500" : "bg-blue-500"}`}
           />
-        </Box>
-        {!hasSigned(proposal) && selectedSequence === sequence && (
+        </div>
+        {!hasSigned(proposal) && selectedSequence === currentSequence && (
           <Button
             onClick={() => handleSignProposal(proposal.cid)}
-            colorScheme="green"
-            size="sm"
-          >
-            Sign Proposal
-          </Button>
+            className="w-full bg-black text-white"
+            disabled={isSigningProposal}
+            icon={isSigningProposal ? <Spinner /> : null}
+            value={isSigningProposal ? "Signing..." : "Sign Proposal"}
+          />
         )}
-        {hasReachedQuorum(proposal) && selectedSequence === sequence && (
+        {hasReachedQuorum(proposal) && selectedSequence === currentSequence && (
           <Button
             onClick={() => handleUpdateIPNS(proposal)}
-            colorScheme="blue"
-            size="sm"
-            isLoading={isUpdatingIPNS}
-          >
-            Execute Proposal
-          </Button>
+            disabled={isUpdatingIPNS}
+            className="w-full bg-black text-white"
+            value="Execute Proposal"
+          />
         )}
-      </VStack>
-    </Box>
+      </CardContent>
+    </Card>
   );
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered size="3xl">
-      <ModalOverlay />
-      <ModalContent bgGradient="linear(to-br, #333333, #222222)" color="white">
-        <ModalHeader>Update {isDataset ? "dataset" : "code"}</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          <Tabs index={activeTab} onChange={setActiveTab}>
-            <TabList>
-              <Tab>Proposals</Tab>
-              <Tab>Create New</Tab>
-              {isDataset && <Tab>Merge Data</Tab>}
-            </TabList>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="border-grey-300 bg-gradient-to-br from-[#333333] to-[#222222] text-white sm:max-w-3xl">
+        <DialogHeader>
+          <DialogTitle className="text-white">
+            Update {isDataset ? "dataset" : "code"}
+          </DialogTitle>
+        </DialogHeader>
 
-            <TabPanels>
-              <TabPanel>
-                <VStack spacing={4} align="stretch">
-                  <Box>
-                    <Text mb={2}>Current IPNS Value</Text>
-                    <Text fontSize="sm" color="gray.400">
-                      {currentIPNSValue}
-                    </Text>
-                  </Box>
+        <div className="py-4">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="w-full"
+          >
+            <TabsList
+              className={`grid w-full ${isDataset ? "grid-cols-3" : "grid-cols-2"} mb-4 bg-[#424242]`}
+            >
+              <TabsTrigger
+                value="proposals"
+                className="text-white data-[state=active]:bg-white data-[state=active]:text-black"
+              >
+                Proposals
+              </TabsTrigger>
+              <TabsTrigger
+                value="create"
+                className="text-white data-[state=active]:bg-white data-[state=active]:text-black"
+              >
+                Create New
+              </TabsTrigger>
+              {isDataset && (
+                <TabsTrigger
+                  value="merge"
+                  className="text-white data-[state=active]:bg-white data-[state=active]:text-black"
+                >
+                  Merge Data
+                </TabsTrigger>
+              )}
+            </TabsList>
 
-                  <Select
-                    value={selectedSequence}
-                    onChange={(e) => setSelectedSequence(e.target.value)}
-                    bg="gray.700"
-                  >
+            <TabsContent value="proposals">
+              <div className="space-y-4">
+                <div>
+                  <p className="mb-2 text-white">Current IPNS Value</p>
+                  <p className="text-sm text-grey-400">{currentIPNSValue}</p>
+                </div>
+
+                <Select
+                  value={selectedSequence}
+                  onValueChange={setSelectedSequence}
+                >
+                  <SelectTrigger className="border-grey-600 bg-grey-700 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="border-grey-600 bg-grey-700 text-white">
                     {historicalSequences.map((seq) => (
-                      <option key={seq} value={seq}>
+                      <SelectItem
+                        key={seq}
+                        value={seq}
+                        className="bg-black text-white hover:bg-white "
+                      >
                         Sequence {seq}
-                      </option>
+                      </SelectItem>
                     ))}
-                  </Select>
+                  </SelectContent>
+                </Select>
 
-                  <Divider />
+                <Separator className="bg-grey-600" />
 
-                  {isLoading ? (
-                    <Text>Loading proposals...</Text>
-                  ) : proposals?.length === 0 ? (
-                    <Text>No proposals found</Text>
-                  ) : (
-                    <VStack spacing={4}>
-                      {proposals?.map(renderProposal)}
-                    </VStack>
-                  )}
-                </VStack>
-              </TabPanel>
+                {isLoadingProposals ? (
+                  <p className="text-white">Loading proposals...</p>
+                ) : proposals?.length === 0 ? (
+                  <p className="text-white">No proposals found</p>
+                ) : (
+                  <div className="space-y-4">
+                    {proposals?.map(renderProposal)}
+                  </div>
+                )}
+              </div>
+            </TabsContent>
 
-              <TabPanel>
-                <VStack spacing={4}>
-                  <FormControl>
-                    <InputGroup>
+            <TabsContent value="create">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <div className="relative">
+                    <Input
+                      type="file"
+                      onChange={handleUploadCSV}
+                      className="hidden"
+                      id="__file-upload"
+                      accept="*"
+                    />
+                    <label
+                      htmlFor="__file-upload"
+                      className="flex w-full cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-grey-600 p-4 transition-colors hover:border-grey-500"
+                    >
+                      <Upload className="mr-2 h-4 w-4" />
+                      <span className="text-white">
+                        {file ? file.name : `Upload new dataset file`}
+                      </span>
+                    </label>
+                  </div>
+                </div>
+
+                <TextArea
+                  placeholder="Proposal description"
+                  value={proposalDescription}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                    setProposalDescription(e.target.value)
+                  }
+                  className="border-grey-600 bg-grey-700 text-black placeholder:text-grey-400"
+                />
+
+                <Button
+                  onClick={onCreateProposal}
+                  variant="primary"
+                  disabled={isCreatingProposal || !file}
+                  className="w-full"
+                  value="Create Proposal"
+                />
+              </div>
+            </TabsContent>
+
+            {isDataset && (
+              <TabsContent value="merge">
+                <div className="space-y-4">
+                  <div>
+                    <p className="mb-2 text-white">Current Data</p>
+                    <p className="text-sm text-grey-400">
+                      {currentCSV ? "Current data loaded" : "No current data"}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="relative">
                       <Input
                         type="file"
                         onChange={handleUploadCSV}
-                        display="none"
-                        id="__file-upload"
+                        className="hidden"
+                        id="__merge-file-upload"
                         accept="*"
                       />
-                      <InputRightElement>
-                        <label htmlFor="__file-upload">
-                          <Icon as={FaFileUpload} cursor="pointer" />
-                        </label>
-                      </InputRightElement>
-                    </InputGroup>
-                    <Text cursor="pointer" color="white" ml="2">
-                      {`Upload ${isDataset ? "dataset" : "code"} file`}
-                    </Text>
-                  </FormControl>
-
-                  <FormControl>
-                    <Textarea
-                      placeholder="Proposal description"
-                      value={proposalDescription}
-                      onChange={(e) => setProposalDescription(e.target.value)}
-                      bg="gray.700"
-                    />
-                  </FormControl>
+                      <label
+                        htmlFor="__merge-file-upload"
+                        className="flex w-full cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-grey-600 p-4 transition-colors hover:border-grey-500"
+                      >
+                        <Upload className="mr-2 h-4 w-4" />
+                        <span className="text-white">
+                          Upload new data to merge
+                        </span>
+                      </label>
+                    </div>
+                  </div>
 
                   <Button
-                    onClick={handleCreateProposal}
-                    colorScheme="green"
-                    isLoading={isCreatingProposal}
-                    width="full"
-                  >
-                    Create Proposal
-                  </Button>
-                </VStack>
-              </TabPanel>
+                    onClick={handleMergeArrays}
+                    variant="secondary"
+                    disabled={!currentCSV || !file}
+                    className="w-full"
+                    value="Merge & Download"
+                  />
 
-              {isDataset && (
-                <TabPanel>
-                  <VStack spacing={4}>
-                    <Box>
-                      <Text mb={2}>Current Data</Text>
-                      <Text fontSize="sm" color="gray.400">
-                        {currentCSV ? "Current data loaded" : "No current data"}
-                      </Text>
-                    </Box>
-
-                    <FormControl>
-                      <InputGroup>
-                        <Input
-                          type="file"
-                          onChange={handleUploadCSV}
-                          display="none"
-                          id="__merge-file-upload"
-                          accept="*"
-                        />
-                        <InputRightElement>
-                          <label htmlFor="__merge-file-upload">
-                            <Icon as={FaFileUpload} cursor="pointer" />
-                          </label>
-                        </InputRightElement>
-                      </InputGroup>
-                      <Text cursor="pointer" color="white" ml="2">
-                        Upload new data to merge
-                      </Text>
-                    </FormControl>
-
-                    <Button
-                      onClick={handleMergeArrays}
-                      colorScheme="blue"
-                      width="full"
-                      isDisabled={!currentCSV || !file}
-                    >
-                      Merge & Download
-                    </Button>
-
-                    <Text fontSize="sm" color="gray.400">
-                      After merging and downloading, you can upload the merged
-                      file in the Create New tab to create a proposal.
-                    </Text>
-                  </VStack>
-                </TabPanel>
-              )}
-            </TabPanels>
+                  <p className="text-sm text-grey-400">
+                    After merging and downloading, you can upload the merged
+                    file in the Create New tab to create a proposal.
+                  </p>
+                </div>
+              </TabsContent>
+            )}
           </Tabs>
-        </ModalBody>
-        <ModalFooter>
-          <Button onClick={onClose}>Close</Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+        </div>
+
+        <DialogFooter>
+          <Button onClick={onClose} value="Close" />
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
-
-export default UpdateIPNS;

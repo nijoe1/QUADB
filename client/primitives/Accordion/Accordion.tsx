@@ -12,7 +12,7 @@ const accordionVariants = tv({
     trigger:
       "flex flex-1 items-center justify-between rounded-lg py-4 font-medium transition-all [&[data-state=open]>svg]:rotate-180",
     content:
-      "data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm transition-all",
+      "overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down",
     contentInner: "py-4",
   },
   variants: {
@@ -35,12 +35,12 @@ const accordionVariants = tv({
         content: "",
       },
       sm: {
-        item: "border-grey-100 rounded-lg border",
-        content: "border-grey-100 border-t",
+        item: "rounded-lg border border-grey-100",
+        content: "border-t border-grey-100",
       },
       md: {
-        item: "border-grey-100 rounded-lg border-2",
-        content: "border-grey-100 border-t-2",
+        item: "rounded-lg border-2 border-grey-100",
+        content: "border-t-2 border-grey-100",
       },
     },
     padding: {
@@ -69,7 +69,9 @@ export type AccordionVariants = VariantProps<typeof accordionVariants>;
 
 const AccordionRoot = AccordionPrimitive.Root;
 
-type AccordionItemProps = React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Item> &
+type AccordionItemProps = React.ComponentPropsWithoutRef<
+  typeof AccordionPrimitive.Item
+> &
   AccordionVariants & {
     className?: string;
   };
@@ -79,11 +81,19 @@ const AccordionItem = React.forwardRef<
   AccordionItemProps
 >(({ className, variant, border, ...props }, ref) => {
   const { item } = accordionVariants({ variant, border });
-  return <AccordionPrimitive.Item ref={ref} className={cn(item(), className)} {...props} />;
+  return (
+    <AccordionPrimitive.Item
+      ref={ref}
+      className={cn(item(), className)}
+      {...props}
+    />
+  );
 });
 AccordionItem.displayName = "AccordionItem";
 
-type AccordionTriggerProps = React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger> &
+type AccordionTriggerProps = React.ComponentPropsWithoutRef<
+  typeof AccordionPrimitive.Trigger
+> &
   AccordionVariants & {
     className?: string;
   };
@@ -95,7 +105,11 @@ const AccordionTrigger = React.forwardRef<
   const { trigger } = accordionVariants({ variant, border, padding });
   return (
     <AccordionPrimitive.Header className="flex">
-      <AccordionPrimitive.Trigger ref={ref} className={cn(trigger(), className)} {...props}>
+      <AccordionPrimitive.Trigger
+        ref={ref}
+        className={cn(trigger(), className)}
+        {...props}
+      >
         {children}
         <ChevronDown className="size-4 shrink-0 transition-transform duration-200" />
       </AccordionPrimitive.Trigger>
@@ -104,7 +118,9 @@ const AccordionTrigger = React.forwardRef<
 });
 AccordionTrigger.displayName = "AccordionTrigger";
 
-type AccordionContentProps = React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content> &
+type AccordionContentProps = React.ComponentPropsWithoutRef<
+  typeof AccordionPrimitive.Content
+> &
   AccordionVariants & {
     className?: string;
   };
@@ -115,7 +131,11 @@ const AccordionContent = React.forwardRef<
 >(({ className, children, variant, border, ...props }, ref) => {
   const { content, contentInner } = accordionVariants({ variant, border });
   return (
-    <AccordionPrimitive.Content ref={ref} className={cn(content(), className)} {...props}>
+    <AccordionPrimitive.Content
+      ref={ref}
+      className={cn(content(), className)}
+      {...props}
+    >
       <div className={cn(contentInner())}>{children}</div>
     </AccordionPrimitive.Content>
   );
@@ -140,8 +160,16 @@ export const Accordion: React.FC<AccordionProps> = ({
   isOpen = true,
 }: AccordionProps) => {
   return (
-    <AccordionRoot type="multiple" defaultValue={isOpen ? ["item-1"] : undefined}>
-      <AccordionItem variant={variant} border={border} value="item-1" className="flex flex-col">
+    <AccordionRoot
+      type="multiple"
+      defaultValue={isOpen ? ["item-1"] : undefined}
+    >
+      <AccordionItem
+        variant={variant}
+        border={border}
+        value="item-1"
+        className="flex flex-col"
+      >
         <AccordionTrigger variant={variant} border={border} padding={padding}>
           {header}
         </AccordionTrigger>

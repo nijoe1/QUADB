@@ -4,19 +4,29 @@ import { Signer } from "@web3-storage/w3up-client/principal/ed25519";
 import * as Proof from "@web3-storage/w3up-client/proof";
 import { StoreMemory } from "@web3-storage/w3up-client/stores/memory";
 
+import { encodeFile } from "@/app/api/storacha/lib/unixfs";
+import {
+  createServerFile,
+  modifyFile,
+  getExtensionFromMimeType,
+  validateEnvironment,
+  validateFile,
+} from "./utils";
+import {
+  getPieceMetadata,
+  getParsedMetadata,
+} from "../lib/getPieceMetadata";
 export async function POST(request: NextRequest) {
   try {
+    // Validate environment variables
+    validateEnvironment();
+
     // Extract the file from the request
     const form = await request.formData();
     const file = form.get("file") as unknown as File;
 
-    //  if file size is greater than 1MB, return error
-    if (file.size > 1 * 1024 * 1024) {
-      return NextResponse.json(
-        { error: "File size is greater than 1MB" },
-        { status: 400 }
-      );
-    }
+    // Validate the file
+    validateFile(file);
 
     // Setup the client
     const principal = Signer.parse(process.env.KEY!);
@@ -28,17 +38,62 @@ export async function POST(request: NextRequest) {
     const space = await client.addSpace(proof);
     await client.setCurrentSpace(space.did());
 
-    // Upload the file on Storacha
-    const cid = await client.uploadFile(file, {
-      onShardStored: (shard) => {
-        console.log("Shard stored", shard);
+    const pieceMetadata = getParsedMetadata(
+      await getPieceMetadata(file, principal, space, proof)
+    );
+
+    const dataFileCID = (await encodeFile(file)).cid;
+
+    const fileExtension = getExtensionFromMimeType(file.type);
+
+    const dataFileName = `data.${fileExtension}`;
+
+    // Create metadata JSON content
+    const metadataContent = JSON.stringify(
+      {
+        name: file.name,
+        path: dataFileName,
+        type: file.type,
+        size: file.size,
+        lastModified: file.lastModified,
+        uploadedAt: new Date().toISOString(),
+        pieceMetadata,
+        dataCID: dataFileCID.toString(),
       },
+      null,
+      2
+    );
+
+    // Create a server-compatible file object for the metadata
+    const metadataFile = createServerFile(metadataContent, `metadata.json`, {
+      type: "application/json",
     });
 
-    // Return the CID
-    return NextResponse.json({ cid: cid.toString() }, { status: 200 });
-  } catch (e) {
-    console.log(e);
-    return NextResponse.json({ error: (e as Error).message }, { status: 500 });
+    const dataFile = await modifyFile(file, dataFileName, file.type);
+
+    // Upload the file on Storacha
+    const cid = (
+      await client.uploadDirectory([metadataFile, dataFile])
+    ).toString();
+
+    // Return the CID and additional metadata
+    return NextResponse.json(
+      {
+        success: true,
+        cid,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error occurred";
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: errorMessage,
+      },
+      { status: 500 }
+    );
   }
 }

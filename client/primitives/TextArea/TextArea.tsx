@@ -5,7 +5,7 @@ import { tv } from "tailwind-variants";
 import { cn } from "@/lib/utils";
 
 const textareaVariants = tv({
-  base: "border-grey-100 placeholder:text-grey-500 focus-visible:ring-grey-300 flex w-full rounded-md border bg-white text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+  base: "flex w-full rounded-md border border-grey-100 bg-white text-sm placeholder:text-grey-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-grey-300 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
   variants: {
     size: {
       xs: "min-h-[60px] px-2 py-1",
@@ -20,7 +20,8 @@ const textareaVariants = tv({
   },
 });
 
-export interface TextAreaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+export interface TextAreaProps
+  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   className?: string;
   size?: "xs" | "sm" | "md" | "lg" | "xl";
   heading?: React.ReactNode; // New heading prop
@@ -31,12 +32,18 @@ const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
     return (
       <div className="flex flex-col gap-2">
         {heading && (
-          <div className="font-ui-sans text-[16px] font-bold leading-[24px]">{heading}</div>
+          <div className="font-ui-sans text-[16px] font-bold leading-[24px]">
+            {heading}
+          </div>
         )}
-        <textarea className={cn(textareaVariants({ size }), className)} ref={ref} {...props} />
+        <textarea
+          className={cn(textareaVariants({ size }), className)}
+          ref={ref}
+          {...props}
+        />
       </div>
     );
-  },
+  }
 );
 
 TextArea.displayName = "TextArea";

@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
-import { code } from "../../../litActionCode.js";
+import { code } from "@/app/api/lit/actions/code.js";
 // @ts-ignore
 import { LitNodeClient } from "@lit-protocol/lit-node-client";
 import { encryptString } from "@lit-protocol/encryption";
@@ -42,8 +42,6 @@ export async function POST(req: NextRequest) {
 
     const name = await Name.create();
 
-    console.log("🔄 Publishing the name...", name.toString());
-
     const codeID = getInstanceID(instanceID, name.toString());
 
     const litActionCode = code
@@ -59,8 +57,6 @@ export async function POST(req: NextRequest) {
     console.log("✅ Connected to the Lit network");
 
     const hash = await Hash.of(litActionCode);
-
-    console.log("🔄 Hash of the code:", hash);
 
     const accessControlConditions = [
       {

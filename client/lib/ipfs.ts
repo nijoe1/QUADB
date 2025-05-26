@@ -13,8 +13,6 @@ export const resolveIPNSName = async (IPNS: string) => {
 export const createIPNS = async ({
   cid,
   spaceID,
-  address,
-  walletClient,
   threshold,
 }: {
   cid: string;
@@ -62,12 +60,46 @@ export const fetchIPFS = async (cid: string) => {
   return data;
 };
 
-export const fetchAndParseCSV = async (
+interface FileMetadata {
+  name: string;
+  path: string;
+  type: string;
+  size: number;
+  lastModified: string;
+  uploadedAt: string;
+  pieceMetadata: {
+    version: number;
+    roots: string[];
+    size: number;
+    cid: string;
+    piece: string;
+  };
+  dataCID: string;
+}
+
+export const getFileMetadata = async (cid: string) => {
+  const metadataRes = await fetch(getIpfsGatewayUri(cid, "metadata.json"));
+  const metadata = (await metadataRes.json()) as FileMetadata;
+  return metadata;
+};
+
+export const fetchIPFSFile = async (
   cid: string,
-  isEncrypted: boolean,
-  address: string,
-  jwt: string
+  asJson = true,
+  path?: string
 ) => {
+  if (path) {
+    const res = await fetch(getIpfsGatewayUri(cid, path));
+    const data = asJson ? await res.json() : await res.text();
+    return data;
+  }
+  const metadata = await getFileMetadata(cid);
+  const res = await fetch(getIpfsGatewayUri(metadata.dataCID, path));
+  const data = asJson ? await res.json() : await res.text();
+  return data;
+};
+
+export const fetchAndParseCSV = async (cid: string) => {
   const customCsvParser = (csvString: any) => {
     const rows = csvString.split("\n").map((row: any) => row.split(","));
     const headers = rows[0];
@@ -87,9 +119,12 @@ export const fetchAndParseCSV = async (
 };
 
 export const getIpfsGatewayUri = (cid: string, path?: string) => {
-  console.log("DEBUG: ", cid, path);
-  const WEB3_STORAGE_IPFS_GATEWAY = "https://w3s.link/ipfs/{cid}";
-  return WEB3_STORAGE_IPFS_GATEWAY.replace("{cid}", cid);
+  const WEB3_STORAGE_IPFS_GATEWAY = "https://w3s.link/ipfs/{cid}/{path}";
+
+  return WEB3_STORAGE_IPFS_GATEWAY.replace("{cid}", cid).replace(
+    "{path}",
+    path ?? ""
+  );
 };
 
 export const getIpfsCID = (ipfsCIDLink: string) => {

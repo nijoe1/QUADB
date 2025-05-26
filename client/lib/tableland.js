@@ -2,8 +2,8 @@ import axios from "axios";
 import { tables } from "@/app/constants/TablelandTables";
 const TablelandGateway = "https://tableland.network/api/v1/query?statement=";
 
-const TestnetTablelandGateway =
-  "https://testnets.tableland.network/api/v1/query?statement=";
+// const TestnetTablelandGateway =
+//   "https://testnets.tableland.network/api/v1/query?statement=";
 
 export const getSpaces = async () => {
   const getAllSchemasQuery =

@@ -60,18 +60,26 @@ export function Form({
 
   return (
     <FormProvider {...form}>
-      <div className="bg-grey-50 flex flex-col gap-6 rounded-2xl p-6">
+      <div className="flex flex-col gap-6 rounded-2xl bg-grey-50 p-6">
         <div className="flex flex-col gap-3">
           {/* Form Title */}
-          <div className="font-ui-sans text-[24px]/[32px] font-medium">{formTitle}</div>
+          <div className="font-ui-sans text-[24px]/[32px] font-medium">
+            {formTitle}
+          </div>
           {/* Form Description */}
-          <div className="font-ui-sans text-grey-900 text-[18px]/[28px] font-normal">
+          <div className="font-ui-sans text-[18px]/[28px] font-normal text-grey-900">
             {formDescription}
           </div>
         </div>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="flex flex-col gap-4"
+        >
           {fields.map((field) => (
-            <FormControl key={`${field.field.name}-${field.component}`} field={field} />
+            <FormControl
+              key={`${field.field.name}-${field.component}`}
+              field={field}
+            />
           ))}
 
           <div className="flex items-center justify-between">
@@ -120,17 +128,22 @@ function FormControl({ field }: { field: FormField }) {
   return (
     <div className="flex flex-col justify-center gap-2">
       <div className="flex items-center justify-between">
-        <label htmlFor={fieldProps.name} className="block text-[14px]/[20px] font-medium">
+        <label
+          htmlFor={fieldProps.name}
+          className="block text-[14px]/[20px] font-medium"
+        >
           {fieldProps.label}
         </label>
         {fieldProps.validation?.required && (
-          <div className="text-moss-700 text-[14px]/[16px] ">*Required</div>
+          <div className="text-[14px]/[16px] text-moss-700 ">*Required</div>
         )}
       </div>
 
       <Component {...(componentProps as any)} {...register(fieldProps.name)} />
       {errors[fieldProps.name] && (
-        <p className="text-sm text-red-300">{String(errors[fieldProps.name]?.message)}</p>
+        <p className="text-sm text-red-300">
+          {String(errors[fieldProps.name]?.message)}
+        </p>
       )}
     </div>
   );

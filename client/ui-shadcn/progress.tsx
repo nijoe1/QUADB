@@ -2,6 +2,7 @@ import * as React from "react";
 
 import * as ProgressPrimitive from "@radix-ui/react-progress";
 import { tv } from "tailwind-variants";
+import { cn } from "@/lib/utils";
 
 export type ProgressVariants = "default" | "green" | "green-md";
 
@@ -40,9 +41,13 @@ const Progress = React.forwardRef<
   const { root, indicator } = progressVariants({ variant });
 
   return (
-    <ProgressPrimitive.Root ref={ref} className={`${root()} ${className}`} {...props}>
+    <ProgressPrimitive.Root
+      ref={ref}
+      className={`${root()} ${className}`}
+      {...props}
+    >
       <ProgressPrimitive.Indicator
-        className={indicator()}
+        className={cn(indicator(), className)}
         style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
       />
     </ProgressPrimitive.Root>

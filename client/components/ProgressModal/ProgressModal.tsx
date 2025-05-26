@@ -107,7 +107,7 @@ function getStepAttributes(
       return {
         icon: (
           <span
-            className="relative z-10 flex size-8 items-center justify-center rounded-full bg-moss-700"
+            className="relative z-10 flex size-8 items-center justify-center rounded-full bg-green-700"
             data-testid="complete-icon"
           >
             <Check className="size-5 text-white" aria-hidden="true" />
@@ -115,7 +115,7 @@ function getStepAttributes(
         ),
         line: !isLastStep ? (
           <div
-            className="absolute inset-y-4 left-4 z-10 -ml-px  h-full w-0.5 bg-moss-700"
+            className="absolute inset-y-4 left-4 z-10 -ml-px  h-full w-0.5 bg-green-700"
             aria-hidden="true"
           />
         ) : null,

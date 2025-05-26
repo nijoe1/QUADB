@@ -119,10 +119,8 @@ export type AnyJson =
 export interface JsonMap {
   [key: string]: AnyJson;
 }
-export type JsonArray = Array<AnyJson>;
-export interface IpfsUploader {
-  (file: Blob | AnyJson): Promise<Result<string>>;
-}
+export type JsonArray = AnyJson[];
+export type IpfsUploader = (file: Blob | AnyJson) => Promise<Result<string>>;
 
 export interface updateIPNSBody {
   signatures: string[];

@@ -14,9 +14,9 @@ import {
 import { Button } from "@/primitives/Button/Button";
 import { Form } from "@/components/Form/Form";
 import { FormField } from "@/components/Form/types/fieldTypes";
-import { toast } from "@/hooks/useToast";
 import { deleteFormValues } from "@/components/Form/utils/deleteFormValues";
 import { ArrowLeft } from "lucide-react";
+import { ProgressModal } from "@/components/ProgressModal";
 
 const fields: FormField[] = [
   {
@@ -98,11 +98,6 @@ export default function CreateNewInstancePage({
   const create = useCreateInstance({
     spaceID,
     onClose: () => {
-      toast({
-        title: "Your dataset has been created successfully!",
-        description: "Your dataset has been created successfully!",
-        variant: "default",
-      });
       router.push(`/spaces/${spaceId}`);
     },
   });
@@ -114,7 +109,7 @@ export default function CreateNewInstancePage({
   if (create.mutation.isSuccess) {
     return (
       <Container className="py-8">
-        <div className="max-w-2xl mx-auto">
+        <div className="mx-auto max-w-2xl">
           <Alert variant="success" title="Dataset Created!">
             Your dataset has been successfully created.
           </Alert>
@@ -131,19 +126,18 @@ export default function CreateNewInstancePage({
   }
 
   return (
-    <Container className="py-8">
+    <Container className="py-3">
       <div className="mx-auto">
         {/* Header with back button */}
         <div className="mb-6">
           <Button
-            variant="outlined-secondary"
             onClick={handleBack}
-            icon={<ArrowLeft className="w-4 h-4" />}
+            icon={<ArrowLeft className="h-4 w-4" />}
             value="Back to Space"
             className="mb-4"
           />
           <div>
-            <h1 className="text-3xl font-bold text-grey-900 mb-2">
+            <h1 className="mb-2 text-3xl font-bold text-grey-900">
               Create New Dataset
             </h1>
             <p className="text-grey-600">
@@ -165,13 +159,6 @@ export default function CreateNewInstancePage({
             <Form
               {...args}
               onSubmit={async (formData: FormData) => {
-                console.log("Form Data", formData);
-                toast({
-                  title: "Creating dataset...",
-                  description: "Creating dataset...",
-                  variant: "default",
-                });
-
                 await create.mutation.mutateAsync({
                   name: formData.name,
                   about: formData.about,
@@ -187,6 +174,10 @@ export default function CreateNewInstancePage({
             />
           </CardContent>
         </Card>
+        <ProgressModal
+          {...create.progressModalProps}
+          isOpen={create.mutation.isPending}
+        />
       </div>
     </Container>
   );

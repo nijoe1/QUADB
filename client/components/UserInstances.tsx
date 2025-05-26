@@ -1,21 +1,15 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import {
-  Flex,
-  Box,
-  Badge,
-  Image,
-  Text,
-  Grid,
-  GridItem,
-  IconButton,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-} from "@chakra-ui/react";
-import { FaEllipsisV } from "react-icons/fa";
+import { MoreVertical } from "lucide-react";
 import { Container } from "@/ui-shadcn/container";
+import { Badge } from "@/ui-shadcn/badge";
+import { Button } from "@/primitives/Button/Button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/ui-shadcn/dropdown-menu";
 import { useRouter } from "next/navigation";
 import { getIpfsGatewayUri } from "@/lib/ipfs";
 import { getUserInstances } from "@/lib/tableland";
@@ -71,6 +65,7 @@ export const UserInstances = () => {
       setFetched(!fetched);
     });
   }, [userAddress]);
+
   return (
     <div className="flex flex-col items-center">
       {!fetched ? (
@@ -79,68 +74,35 @@ export const UserInstances = () => {
         </div>
       ) : (
         <Container>
-          <Flex justify="center">
-            <Grid
-              templateColumns={[
-                "1fr",
-                "repeat(2, 1fr)",
-                "repeat(3, 1fr)",
-                "repeat(4, 1fr)",
-              ]}
-              gap={6}
-              width="100%"
-              className="relative flex md:justify-between lg:grid lg:px-3"
-            >
+          <div className="flex justify-center">
+            <div className="relative grid w-full grid-cols-1 gap-6 md:grid-cols-2 md:justify-between lg:grid lg:grid-cols-3 lg:px-3 xl:grid-cols-4">
               {Object.entries(instances).map(([type, instanceArray]) => {
                 const array = instanceArray as any[];
                 return array.map((instance: any) => (
-                  <GridItem key={instance.InstanceID}>
-                    <Box
-                      pb="4"
-                      px="2"
-                      pt="2"
-                      bg="#333333"
-                      borderRadius="md"
-                      boxShadow="md"
-                      position="relative"
-                      cursor="pointer"
-                    >
-                      <Box
-                        position="relative"
-                        borderRadius="md"
-                        overflow="hidden"
-                        mb="10%"
-                        height="120px"
-                      >
-                        <Image
+                  <div key={instance.InstanceID} className="w-full">
+                    <div className="relative cursor-pointer rounded-md bg-[#333333] px-2 pb-4 pt-2 shadow-md">
+                      <div className="relative mb-[10%] h-[120px] overflow-hidden rounded-md">
+                        <img
                           src={
                             instance.metadata.imageUrl
                               ? instance.metadata.imageUrl
                               : "https://via.placeholder.com/150"
                           }
                           alt="Profile Image"
-                          width="100%"
-                          aspectRatio={2 / 1}
-                          objectFit="cover"
+                          className="aspect-[2/1] h-full w-full object-cover"
                           onClick={() =>
                             router.push(
                               "/instance/" + instance.InstanceID.toLowerCase()
                             )
                           }
                         />
-                        <Box
-                          display="flex"
-                          justifyContent="flex-start"
-                          alignItems="flex-start"
-                          position="absolute"
-                          top="0"
-                          right="0"
-                          zIndex="1"
-                        >
+                        <div className="absolute right-0 top-0 z-[1] flex items-start justify-start">
                           <Badge
-                            mt="1.5"
-                            colorScheme={
-                              type === "createdInstances" ? "green" : "red"
+                            className="mt-1.5"
+                            variant={
+                              type === "createdInstances"
+                                ? "default"
+                                : "destructive"
                             }
                           >
                             {type === "createdInstances"
@@ -149,53 +111,45 @@ export const UserInstances = () => {
                                 ? "Contributor"
                                 : "Subscriber"}
                           </Badge>
-                          <Menu>
-                            <MenuButton
-                              as={IconButton}
-                              icon={<FaEllipsisV />}
-                              aria-label="Options"
-                              variant="ghost"
-                              color="black"
-                              size="sm"
-                              mb="3"
-                            />
-                            <MenuList zIndex="3">
-                              <MenuItem
-                                className="bg-black/80 text-white"
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                size="sm"
+                                icon={<MoreVertical className="h-4 w-4" />}
+                                className="mb-3 border-none bg-transparent text-black hover:bg-black/10"
+                              />
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="z-[3]">
+                              <DropdownMenuItem
+                                className="cursor-pointer bg-black/80 text-white"
                                 onClick={() => console.log("Download dataset")}
                               >
                                 Download Dataset
-                              </MenuItem>
-                              <MenuItem
-                                className="bg-black/80 text-white"
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="cursor-pointer bg-black/80 text-white"
                                 onClick={() => console.log("Fork instance")}
                               >
                                 Fork Instance
-                              </MenuItem>
-                            </MenuList>
-                          </Menu>
-                        </Box>
-                      </Box>
-                      <Box height="50px">
-                        <Text
-                          fontWeight="semibold"
-                          fontSize="sm"
-                          noOfLines={1}
-                          color="white"
-                          mb="1"
-                        >
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </div>
+                      <div className="h-[50px]">
+                        <h3 className="mb-1 truncate text-sm font-semibold text-white">
                           {instance.metadata.name.slice(0, 30)}
-                        </Text>
-                        <Text fontSize="xs" noOfLines={2} color="white" mb="1">
+                        </h3>
+                        <p className="mb-1 line-clamp-2 text-xs text-white">
                           {instance.metadata.about.slice(0, 50)}
-                        </Text>
-                      </Box>
-                    </Box>
-                  </GridItem>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 ));
               })}
-            </Grid>
-          </Flex>
+            </div>
+          </div>
         </Container>
       )}
     </div>

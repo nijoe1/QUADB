@@ -51,7 +51,7 @@ export function ImageUpload({ name, className }: Props) {
       {/* Background Div */}
       <div
         className={clsx(
-          "h-full rounded-xl  bg-gray-800 bg-cover bg-center bg-no-repeat",
+          "h-full rounded-xl  bg-grey-800 bg-cover bg-center bg-no-repeat",
           {
             ["opacity-50"]: !previewUrl,
           }
@@ -63,7 +63,7 @@ export function ImageUpload({ name, className }: Props) {
       >
         {!previewUrl && (
           <div className="flex h-full items-center justify-center">
-            <ImageIcon className="text-gray-400" size={50} />
+            <ImageIcon className="text-grey-400" size={50} />
           </div>
         )}
       </div>
@@ -72,7 +72,7 @@ export function ImageUpload({ name, className }: Props) {
       <Button
         onClick={handleClick}
         className="absolute bottom-1 right-1 z-10"
-        icon={<ImageIcon className="text-gray-400" size={50} />}
+        icon={<ImageIcon className="text-grey-400" size={50} />}
       />
 
       {/* Hidden File Input */}

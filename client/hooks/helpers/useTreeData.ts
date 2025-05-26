@@ -27,9 +27,9 @@ import { constructObject } from "@/lib/tableland";
 export const useFetchTreeData = (
   setCategoryOptions: any,
   setTreeData: any,
-  setTempTreeData: any
+  setTempTreeData?: any
 ) => {
-  const { mutate, error } = useMutation({
+  const { mutate, error, isPending } = useMutation({
     mutationFn: constructObject, // Ensure this is a function that returns a promise
     onSuccess: (data: any) => {
       const categories = data.children.map(
@@ -46,5 +46,5 @@ export const useFetchTreeData = (
     },
   });
 
-  return { fetchTreeData: mutate, error };
+  return { fetchTreeData: mutate, error, isPending };
 };

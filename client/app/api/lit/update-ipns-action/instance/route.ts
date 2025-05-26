@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
-import { code } from "../../../litActionCode.js";
+import { code } from "@/app/api/lit/actions/instance.js";
 // @ts-ignore
 import { LitNodeClient } from "@lit-protocol/lit-node-client";
 import { LIT_NETWORK, LIT_RPC, LIT_ABILITY } from "@lit-protocol/constants";
@@ -14,9 +14,6 @@ import process from "process";
 process.config;
 
 const ETHEREUM_PRIVATE_KEY = process.env["LIT_PRIVATE_KEY"]!;
-
-// @ts-ignore
-import Hash from "ipfs-only-hash";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -41,11 +38,6 @@ export async function POST(req: NextRequest) {
   try {
     console.log("🚀 Starting Update IPNS process...");
 
-    console.log("ipns", ipns);
-
-    console.log("Instance ID:", instanceID);
-
-    // Replace placeholders with provided values
     const litActionCode = code
       .replace("$ipns", `"${ipns.toString()}"`)
       .replace("$instanceID", `"${instanceID.toLowerCase()}"`);
@@ -61,10 +53,6 @@ export async function POST(req: NextRequest) {
     });
     await litNodeClient.connect();
     console.log("✅ Connected to the Lit network");
-
-    const hash = await Hash.of(litActionCode);
-
-    console.log("🔄 Hash of the code:", hash);
 
     const accessControlConditions = [
       {
@@ -116,8 +104,6 @@ export async function POST(req: NextRequest) {
 
     console.log("🔄 Executing the Lit Action...");
 
-    console.log(accessControlConditions);
-
     const litActionSignatures = await litNodeClient.executeJs({
       sessionSigs,
       code: litActionCode,
@@ -129,10 +115,12 @@ export async function POST(req: NextRequest) {
         signatures,
       },
     });
-    console.log("✅ Executed the Lit Action", litActionSignatures);
+    const response = JSON.parse(litActionSignatures.response as string);
+    console.log("✅ Executed the Lit Action with message", response.message);
 
     return NextResponse.json({
-      litActionSignatures,
+      success: response.success,
+      message: response.message,
     });
   } catch (error) {
     console.error("update-ipns", error);

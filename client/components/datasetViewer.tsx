@@ -1,61 +1,50 @@
 import { useState, useEffect } from "react";
 import {
-  Box,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  Button,
-  Center,
-  useToast,
-  SimpleGrid,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  IconButton,
-  Icon,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/ui-shadcn/dropdown-menu";
+import {
   Select,
-  useDisclosure,
-} from "@chakra-ui/react";
-import { FiDownload } from "react-icons/fi";
-import { MdMoreVert } from "react-icons/md";
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/ui-shadcn/select";
+import { Button } from "@/primitives/Button";
+import { Card, CardContent } from "@/ui-shadcn/card";
+import { Download, MoreVertical } from "lucide-react";
 import Loading from "@/components/animation/loading";
 import { Container } from "@/ui-shadcn/container";
-import UpdateIPNS from "@/components/UpdateIPNS";
-import { useAccount } from "wagmi";
+import { UpdateIPNS } from "@/components/UpdateIPNS";
+import { useToast } from "@/hooks/useToast";
+import { cn } from "@/lib/utils";
+import { fetchIPFSFile } from "@/lib/ipfs";
 
-type CsvData = { [key: string]: string | number | undefined }[];
+type CsvData = Record<string, string | number | undefined>[];
 
-const DatasetViewer = ({
+export const DatasetViewer = ({
   cid,
   IPNS,
   EncryptedKeyCID,
-  isEncrypted,
   spaceID,
   threshold,
 }: {
   cid: string;
   IPNS: string;
   EncryptedKeyCID: string;
-  isEncrypted: boolean;
   spaceID: string;
   threshold?: number;
 }) => {
-  const toast = useToast();
+  const { toast } = useToast();
   const [csvData, setCsvData] = useState<CsvData>([]);
   const [csvText, setCsvText] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [fetched, setFetched] = useState<boolean>(false);
-  const { address } = useAccount();
-  const {
-    isOpen: isUpdateOpen,
-    onOpen: onUpdateOpen,
-    onClose: onUpdateClose,
-  } = useDisclosure();
+  const [isUpdateOpen, setIsUpdateOpen] = useState(false);
+
 
   useEffect(() => {
     if (cid) {
@@ -65,13 +54,8 @@ const DatasetViewer = ({
 
   const fetchCsvData = async () => {
     try {
-      const response = await fetch(
-        "https://gateway.lighthouse.storage/ipfs/" + cid
-      );
-      if (!response.ok) {
-        throw new Error("Failed to fetch CSV file");
-      }
-      const text = await response.text();
+      const text = await fetchIPFSFile(cid, false);
+
       setCsvText(text);
       const parsedData = customCsvParser(text);
       if (parsedData) {
@@ -84,9 +68,7 @@ const DatasetViewer = ({
       toast({
         title: "Error",
         description: error.message,
-        status: "error",
-        duration: 3000,
-        isClosable: true,
+        variant: "destructive",
       });
     }
   };
@@ -95,7 +77,7 @@ const DatasetViewer = ({
     const rows = csvString.split("\n").map((row) => row.split(","));
     const headers = rows[0];
     return rows.slice(1).map((row) => {
-      const rowData: { [key: string]: string | number | undefined } = {};
+      const rowData: Record<string, string | number | undefined> = {};
       headers.forEach((header, index) => {
         rowData[header] = row[index];
       });
@@ -131,8 +113,8 @@ const DatasetViewer = ({
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
-  const handleRowsPerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setRowsPerPage(parseInt(e.target.value));
+  const handleRowsPerPageChange = (value: string) => {
+    setRowsPerPage(parseInt(value));
     setCurrentPage(1);
   };
 
@@ -144,58 +126,57 @@ const DatasetViewer = ({
         </div>
       ) : (
         <>
-          <Center>
+          <div className="flex justify-center">
             <Container>
-              <div className="flex flex-wrap items-center">
-                <Menu colorScheme="black">
-                  <MenuButton
-                    as={IconButton}
-                    aria-label="Options"
-                    icon={<Icon as={MdMoreVert} />}
-                    colorScheme="black"
-                    className="bg-black/80 text-black"
-                    my={4}
-                    mr={5}
-                  />
-                  <MenuList className="bg-black text-black">
-                    <MenuItem
-                      className="text-black"
+              <div className="mb-4 flex flex-wrap items-center gap-4">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      className="bg-black/80 text-white"
+                      icon={<MoreVertical className="h-4 w-4" />}
+                    ></Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="border-none bg-black text-white shadow-md">
+                    <DropdownMenuItem
                       onClick={handleDownload}
-                      icon={<Icon color={"black"} as={FiDownload} />}
+                      className="justify-center gap-1 p-1  text-xs text-white hover:bg-grey-300 hover:text-black"
                     >
-                      <p className="text-black">Download</p>
-                    </MenuItem>
-                    <MenuItem className="bg-black text-black">
+                      <Download className="mr-2 h-4 w-4" />
+                      <span className="text-xs ">Download</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="text-white hover:bg-grey-700">
                       <Select
-                        value={rowsPerPage}
-                        onChange={handleRowsPerPageChange}
-                        fontSize="sm"
-                        className="bg-black/80 text-black"
+                        value={rowsPerPage.toString()}
+                        onValueChange={handleRowsPerPageChange}
                       >
-                        {[10, 20, 50, 100].map((value) => (
-                          <option
-                            className="text-black"
-                            key={value}
-                            value={value}
-                          >
-                            {value} Rows
-                          </option>
-                        ))}
+                        <SelectTrigger className="w-full border-grey-600 bg-black/80 text-white">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="border-grey-600 bg-black text-white">
+                          {[10, 20, 50, 100].map((value) => (
+                            <SelectItem
+                              key={value}
+                              value={value.toString()}
+                              className="text-white hover:bg-grey-100"
+                            >
+                              {value} Rows
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
                       </Select>
-                    </MenuItem>
-                  </MenuList>
-                </Menu>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
                 <Button
-                  colorScheme="black"
-                  ml="3"
                   className="bg-black/80 text-white"
-                  onClick={onUpdateOpen}
-                >
-                  Update Dataset
-                </Button>
+                  onClick={() => setIsUpdateOpen(true)}
+                  value="Update Dataset"
+                />
+
                 <UpdateIPNS
                   isOpen={isUpdateOpen}
-                  onClose={onUpdateClose}
+                  onClose={() => setIsUpdateOpen(false)}
                   isDataset={true}
                   IPNS={IPNS}
                   currentIPNSValue={cid}
@@ -206,72 +187,66 @@ const DatasetViewer = ({
                 />
               </div>
             </Container>
-          </Center>
+          </div>
 
-          <Box p={4} overflowX="auto" maxWidth="100%" maxHeight={700}>
-            {sortedData.length > 0 && (
-              <Table variant="unstyled">
-                <Thead>
-                  <Tr>
-                    {Object.keys(sortedData[0]).map((header, index) => (
-                      <Th
-                        key={index}
-                        bg="#424242"
-                        color="white"
-                        borderRadius="lg"
-                      >
-                        {header}
-                      </Th>
-                    ))}
-                  </Tr>
-                </Thead>
-                <Tbody>
-                  {currentRows.map((row, rowIndex) => (
-                    <Tr key={rowIndex} bg="#edf2f7" border="#424242" p={2}>
-                      {Object.values(row).map((cell, cellIndex) => (
-                        <Td
-                          key={cellIndex}
-                          borderWidth="1px"
-                          borderRadius="lg"
-                          borderColor="#424242"
-                          color="#424242"
+          <Card className="max-h-[700px] max-w-full overflow-x-auto rounded-2xl border-none p-0">
+            <CardContent className="p-0">
+              {sortedData.length > 0 && (
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr>
+                      {Object.keys(sortedData[0]).map((header, index) => (
+                        <th
+                          key={index}
+                          className={cn(
+                            "bg-[#424242] text-white p-3 rounded-lg border border-[#424242]"
+                          )}
                         >
-                          {cell as any}
-                        </Td>
+                          {header}
+                        </th>
                       ))}
-                    </Tr>
-                  ))}
-                </Tbody>
-              </Table>
-            )}
-          </Box>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {currentRows.map((row, rowIndex) => (
+                      <tr
+                        key={rowIndex}
+                        className={cn("bg-[#edf2f7] border border-[#424242]")}
+                      >
+                        {Object.values(row).map((cell, cellIndex) => (
+                          <td
+                            key={cellIndex}
+                            className={cn(
+                              "border border-[#424242] p-3 rounded-lg text-[#424242]"
+                            )}
+                          >
+                            {cell as any}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </CardContent>
+          </Card>
 
-          <div>
-            <SimpleGrid mt={4} columns={2} spacing={4}>
-              <Button
-                colorScheme="black"
-                ml="3"
-                className="bg-black/80 text-white"
-                disabled={currentPage === 1}
-                onClick={() => paginate(currentPage - 1)}
-              >
-                Previous
-              </Button>
-              <Button
-                colorScheme="black"
-                ml="3"
-                className="bg-black/80 text-white"
-                disabled={indexOfLastRow >= csvData.length}
-                onClick={() => paginate(currentPage + 1)}
-              >
-                Next
-              </Button>
-            </SimpleGrid>
+          <div className="mt-4 grid grid-cols-2 gap-4">
+            <Button
+              className="bg-black/80 text-white disabled:cursor-not-allowed disabled:bg-black/30 disabled:text-grey-500"
+              disabled={currentPage === 1}
+              onClick={() => paginate(currentPage - 1)}
+              value="Previous"
+            />
+            <Button
+              className="bg-black/80 text-white disabled:cursor-not-allowed disabled:bg-black/30 disabled:text-grey-500"
+              disabled={indexOfLastRow >= csvData.length}
+              onClick={() => paginate(currentPage + 1)}
+              value="Next"
+            />
           </div>
         </>
       )}
     </div>
   );
 };
-
-export default DatasetViewer;

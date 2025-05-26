@@ -4,8 +4,9 @@ import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { CONTRACT_ABI, CONTRACT_ADDRESSES } from "@/app/constants/contracts";
 import { Abi, Address, TransactionReceipt } from "viem";
 import { useToast } from "@/hooks/useToast";
-import { useFileUpload } from "@/hooks/storacha";
+import { useUploadFile } from "@/hooks/storacha";
 import { useGasEstimation } from "@/hooks/contracts";
+import { useCreateCodeIPNS } from "@/hooks/ipns/create/useCreateCode";
 
 export interface CodeFormData {
   name: string;
@@ -27,38 +28,13 @@ export const useCreateInstanceCode = ({
   const { data: walletClient } = useWalletClient();
   const { toast } = useToast();
   const { estimateGas } = useGasEstimation();
-
-  const uploadFile = useFileUpload();
+  const { mutateAsync: createCodeIPNS } = useCreateCodeIPNS();
+  const uploadFile = useUploadFile();
 
   const [isLoading, setIsLoading] = useState(false);
 
   const uploadCodeToIPFS = async (file: File) => {
-    return (await uploadFile(file)) as unknown as string;
-  };
-
-  // Function to create IPNS using the createCode API route
-  const createCodeIPNS = async (ipfsCID: string) => {
-    try {
-      const response = await fetch("/api/lit/create-ipns-action/code", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ipfsCID,
-          instanceID,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error: ${response.statusText}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error("Error creating code IPNS:", error);
-      throw error;
-    }
+    return (await uploadFile.mutateAsync(file)) as unknown as string;
   };
 
   const mutation = useMutation<TransactionReceipt, Error, CodeFormData>({
@@ -73,8 +49,10 @@ export const useCreateInstanceCode = ({
         // Upload file to IPFS
         const fileCID = await uploadCodeToIPFS(formData.file);
 
-        // Create IPNS using the new API route
-        const ipnsResult = await createCodeIPNS(fileCID ?? "");
+        const ipnsResult = await createCodeIPNS({
+          ipfsCID: fileCID,
+          instanceID,
+        });
 
         //  Create a json file with the ipnsResult
         const ipnsMetadataFile = new File(
@@ -86,7 +64,7 @@ export const useCreateInstanceCode = ({
         );
 
         // Upload the ipnsMetadataFile to IPFS
-        const ipnsMetadataCID = (await uploadFile(
+        const ipnsMetadataCID = (await uploadFile.mutateAsync(
           ipnsMetadataFile
         )) as unknown as string;
 
@@ -114,7 +92,7 @@ export const useCreateInstanceCode = ({
         );
 
         // Simulate contract call
-        const simulation = await publicClient.simulateContract({
+        await publicClient.simulateContract({
           ...contractCallArgs,
           gas: estimatedGas.gasLimit,
           maxFeePerGas: estimatedGas.maxFeePerGas,

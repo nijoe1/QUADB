@@ -16,8 +16,7 @@ export const NotebookPreviewer = ({ code }: { code: any }) => {
   useEffect(() => {
     async function fetchNotebook() {
       try {
-        const response = await fetch(code);
-        const data = await response.json();
+        const data = await fetch(code).then((res) => res.json());
         console.log(data);
         setNotebookData(data);
       } catch (error) {
