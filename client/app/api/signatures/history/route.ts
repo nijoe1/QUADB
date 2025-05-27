@@ -1,10 +1,10 @@
-import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { NextResponse } from "next/server";
 
 // Initialize Supabase client
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
 
 export async function GET(request: Request) {
@@ -15,7 +15,7 @@ export async function GET(request: Request) {
     if (!instanceId) {
       return NextResponse.json(
         { error: "Missing required query parameter: instanceId" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -31,7 +31,7 @@ export async function GET(request: Request) {
           signature,
           created_at
         )
-      `
+      `,
       )
       .eq("instance_id", instanceId)
       .order("sequence", { ascending: false });
@@ -40,11 +40,11 @@ export async function GET(request: Request) {
       console.error("Error fetching proposal history:", error);
       return NextResponse.json(
         { error: "Failed to fetch proposal history", details: error.message },
-        { status: 500 }
+        { status: 500 },
       );
     }
-
-    return NextResponse.json({ success: true, data });
+    console.log(data);
+    return NextResponse.json({ success: true, data: data });
   } catch (error) {
     console.error("Error in signatures history API:", error);
     return NextResponse.json(
@@ -52,7 +52,7 @@ export async function GET(request: Request) {
         error: "Internal server error",
         details: error instanceof Error ? error.message : String(error),
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

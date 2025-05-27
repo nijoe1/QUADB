@@ -31,6 +31,7 @@ abstract contract FNS is IERC721Receiver, Ownable {
     error InvalidTokenAmount();
     error InvalidTokenSender();
     error SubNodeAlreadyExists();
+
     constructor(
         address _registry,
         address _registrar,
@@ -102,7 +103,7 @@ abstract contract FNS is IERC721Receiver, Ownable {
     function safeTransferDomainOwnership(
         address contractAddress,
         address newOwner
-    ) external onlyOwner{
+    ) external onlyOwner {
         REGISTRAR.safeTransferFrom(contractAddress, newOwner, DOMAIN_ID);
         QUADB_NODE = bytes32(0);
     }

@@ -1,9 +1,11 @@
 import axios from "axios";
-import { tables } from "@/constants/TablelandTables";
+
+import { tables } from "@/app/constants/TablelandTables";
+
 const TablelandGateway = "https://tableland.network/api/v1/query?statement=";
 
-const TestnetTablelandGateway =
-  "https://testnets.tableland.network/api/v1/query?statement=";
+// const TestnetTablelandGateway =
+//   "https://testnets.tableland.network/api/v1/query?statement=";
 
 export const getSpaces = async () => {
   const getAllSchemasQuery =
@@ -63,7 +65,6 @@ export const getSpaceInstances = async (spaceID) => {
     const fullUrl = `${TablelandGateway}${encodeURIComponent(query)}`;
 
     const result = await axios.get(fullUrl);
-    console.log(result.data);
     return result.data;
   } catch (err) {
     console.error(err);
@@ -165,9 +166,7 @@ FROM
 export const getInstance = async (instanceID) => {
   const query = `SELECT * FROM ${tables.spaceInstances} WHERE InstanceID = '${instanceID}'`;
   try {
-    const result = await axios.get(
-      TablelandGateway + encodeURIComponent(query)
-    );
+    const result = await axios.get(TablelandGateway + encodeURIComponent(query));
     return result.data;
   } catch (err) {
     console.error(err);
@@ -188,9 +187,7 @@ export const getHasAccess = async (instanceID, address) => {
       WHERE InstanceID = '${instanceID.toLowerCase()}' AND member = '${address.toLowerCase()}'
   ) AS combinedAccess;`;
   try {
-    const result = await axios.get(
-      TablelandGateway + encodeURIComponent(query)
-    );
+    const result = await axios.get(TablelandGateway + encodeURIComponent(query));
     return result.data[0].hasAccess === 1;
   } catch (err) {
     console.error(err);
@@ -205,9 +202,7 @@ export const getInstanceMembers = async (instanceID) => {
     SELECT creator as address FROM ${tables.spaceInstances} WHERE InstanceID = '${instanceID}'
   )`;
   try {
-    const result = await axios.get(
-      TablelandGateway + encodeURIComponent(query)
-    );
+    const result = await axios.get(TablelandGateway + encodeURIComponent(query));
     return result.data.map((member) => member.address) || [];
   } catch (err) {
     console.error(err);
@@ -218,9 +213,7 @@ export const getInstanceMembers = async (instanceID) => {
 export const getInstanceCodes = async (instanceID) => {
   const query = `SELECT * FROM ${tables.codes} WHERE InstanceID = '${instanceID}'`;
   try {
-    const result = await axios.get(
-      TablelandGateway + encodeURIComponent(query)
-    );
+    const result = await axios.get(TablelandGateway + encodeURIComponent(query));
     return result.data;
   } catch (err) {
     console.error(err);
@@ -231,9 +224,7 @@ export const getInstanceCodes = async (instanceID) => {
 export const getUserCodes = async (address) => {
   const query = `SELECT * FROM ${tables.codes} WHERE creator = '${address?.toLowerCase()}'`;
   try {
-    const result = await axios.get(
-      TablelandGateway + encodeURIComponent(query)
-    );
+    const result = await axios.get(TablelandGateway + encodeURIComponent(query));
     return result.data;
   } catch (err) {
     console.error(err);
@@ -250,11 +241,7 @@ async function buildChildren(parentID, parentHierarchy, sampleSpacesData) {
       const childHierarchy = parentHierarchy
         ? `${node.DBSubSpaceName}.${parentHierarchy}`
         : node.DBSubSpaceName;
-      const childChildren = await buildChildren(
-        node.DBSpaceID,
-        childHierarchy,
-        sampleSpacesData
-      );
+      const childChildren = await buildChildren(node.DBSpaceID, childHierarchy, sampleSpacesData);
       const nodeType = childChildren.length ? "branch" : "leaf"; // Determine node type
       const childObject = {
         name: childHierarchy + ".quadb.fil",
@@ -278,7 +265,7 @@ export const constructObject = async () => {
     children: await buildChildren(
       "0x458944be4bb2e02ee48674d6dc056b51a852cdf857c2e5c624fb8d135879e28e",
       "",
-      sampleSpacesData
+      sampleSpacesData,
     ), // Start with null as the parentID and empty string as the parentHierarchy
   };
   return rootObject;
@@ -300,16 +287,14 @@ export const getAllInstances = async () => {
 const buildHierarchy = (spaces, spaceID) => {
   let hierarchy = [];
   let currentSpace = spaces.find(
-    (space) => space.DBSpaceID.toLowerCase() === spaceID.toLowerCase()
+    (space) => space.DBSpaceID.toLowerCase() === spaceID.toLowerCase(),
   );
 
   while (currentSpace) {
     hierarchy.unshift(currentSpace.DBSubSpaceName);
     if (!currentSpace.DBSubSpaceOfID) break;
     currentSpace = spaces.find(
-      (space) =>
-        space.DBSpaceID.toLowerCase() ===
-        currentSpace.DBSubSpaceOfID.toLowerCase()
+      (space) => space.DBSpaceID.toLowerCase() === currentSpace.DBSubSpaceOfID.toLowerCase(),
     );
   }
 
@@ -328,9 +313,7 @@ export const getCategorizedInstances = async () => {
   if (!spaces || !instances) return null;
 
   const categorizedInstances = instances.map((instance) => {
-    const category = transformCategory(
-      buildHierarchy(spaces, instance.instanceOfSpace)
-    );
+    const category = transformCategory(buildHierarchy(spaces, instance.instanceOfSpace));
     return { ...instance, category };
   });
 

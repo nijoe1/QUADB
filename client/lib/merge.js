@@ -114,6 +114,7 @@ export class ObjectMatcher {
     try {
       return JSON.parse(value);
     } catch (error) {
+      console.error(error);
       return value;
     }
   }

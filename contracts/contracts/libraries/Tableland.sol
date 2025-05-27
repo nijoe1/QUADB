@@ -28,7 +28,7 @@ abstract contract Tableland {
 
     string internal constant DBSPACES_INSTANCES_SCHEMA =
         "InstanceID text, instanceOfSpace text, instanceType text, metadataCID text, IPNS text, IPNSEncryptedKey text, gatedContract text, price text, creator text, threshold text";
-    
+
     string internal constant DB_INSTANCES_CODES_TABLE_PREFIX =
         "instances_codes";
 
@@ -44,6 +44,11 @@ abstract contract Tableland {
 
     string internal constant DB_INSTANCES_MEMBERS_SCHEMA =
         "InstanceID text, member text";
+
+    string internal constant DB_INSTANCES_STAKES_TABLE_PREFIX = "stakes";
+
+    string internal constant DB_INSTANCES_STAKES_SCHEMA =
+        "InstanceID text, staker text, amount text, note text";
 
     constructor() {
         TABLELAND = TablelandDeployments.get();
@@ -82,6 +87,13 @@ abstract contract Tableland {
             )
         );
 
+        createTableStatements.push(
+            SQLHelpers.toCreateFromSchema(
+                DB_INSTANCES_STAKES_SCHEMA,
+                DB_INSTANCES_STAKES_TABLE_PREFIX
+            )
+        );
+
         tableIDs = TABLELAND.create(address(this), createTableStatements);
 
         tables.push(
@@ -108,6 +120,13 @@ abstract contract Tableland {
             SQLHelpers.toNameFromId(
                 DB_INSTANCES_MEMBERS_TABLE_PREFIX,
                 tableIDs[4]
+            )
+        );
+
+        tables.push(
+            SQLHelpers.toNameFromId(
+                DB_INSTANCES_STAKES_TABLE_PREFIX,
+                tableIDs[5]
             )
         );
     }
@@ -195,6 +214,74 @@ abstract contract Tableland {
         );
     }
 
+    /**
+     * @dev Insert a new stake
+     * @param _instanceID The instance to stake on
+     * @param _staker The staker address
+     * @param _amount The amount to stake
+     * @param note The note of the stake
+     * @notice The stake is stored in the instanceStakes mapping and the tableland table
+     */
+    function stakeInsertion(
+        bytes32 _instanceID,
+        address _staker,
+        uint256 _amount,
+        string memory note
+    ) internal {
+        mutate(
+            tableIDs[5],
+            SQLHelpers.toInsert(
+                DB_INSTANCES_STAKES_TABLE_PREFIX,
+                tableIDs[5],
+                "InstanceID, staker, amount, note",
+                string.concat(
+                    SQLHelpers.quote(bytes32ToString(_instanceID)),
+                    ",",
+                    SQLHelpers.quote(Strings.toHexString(_staker)),
+                    ",",
+                    SQLHelpers.quote(Strings.toString(_amount)),
+                    ",",
+                    SQLHelpers.quote(note)
+                )
+            )
+        );
+    }
+
+    /**
+     * @dev Update a stake
+     * @param _instanceID The instance to stake on
+     * @param _staker The staker address
+     * @param _amount The amount to stake
+     * @param note The note of the stake
+     * @notice The stake is stored in the instanceStakes mapping and the tableland table
+     */
+    function stakeUpdate(
+        bytes32 _instanceID,
+        address _staker,
+        uint256 _amount,
+        string memory note
+    ) internal {
+        mutate(
+            tableIDs[5],
+            SQLHelpers.toUpdate(
+                DB_INSTANCES_STAKES_TABLE_PREFIX,
+                tableIDs[5],
+                string.concat(
+                    "amount = ",
+                    SQLHelpers.quote(Strings.toString(_amount)),
+                    ", note = ",
+                    SQLHelpers.quote(note)
+                ),
+                string.concat(
+                    "InstanceID = ",
+                    SQLHelpers.quote(bytes32ToString(_instanceID)),
+                    " AND staker = ",
+                    SQLHelpers.quote(Strings.toHexString(_staker))
+                )
+            )
+        );
+    }
+
     /*
      * @dev Internal function to insert a new instance code.
      * @param {bytes32} InstanceID - Instance ID.
@@ -237,6 +324,11 @@ abstract contract Tableland {
         );
     }
 
+    /**
+     * @dev Update an instance metadata
+     * @param InstanceID The instance to update
+     * @param metadataCID The metadataCID of the instance
+     */
     function updateInstanceMetadata(
         bytes32 InstanceID,
         string memory metadataCID
@@ -255,6 +347,12 @@ abstract contract Tableland {
         );
     }
 
+    /**
+     * @dev Update an instance code
+     * @param codeID The code to update
+     * @param name The name of the code
+     * @param about The about of the code
+     */
     function updateInstanceCode(
         bytes32 codeID,
         string memory name,
@@ -308,6 +406,12 @@ abstract contract Tableland {
         );
     }
 
+    /**
+     * @dev Update a subscription
+     * @param InstanceID The instance to update
+     * @param subscriber The subscriber address
+     * @param endsAt The end date of the subscription
+     */
     function updateSubscription(
         bytes32 InstanceID,
         address subscriber,
@@ -359,6 +463,11 @@ abstract contract Tableland {
         }
     }
 
+    /**
+     * @dev Remove members from an instance
+     * @param InstanceID The instance to remove members from
+     * @param members The members to remove
+     */
     function _removeMembers(
         bytes32 InstanceID,
         address[] memory members
@@ -381,11 +490,30 @@ abstract contract Tableland {
         }
     }
 
+    /**
+     * @dev Update an instance threshold
+     * @param InstanceID The instance to update
+     * @param threshold The threshold of the instance
+     */
     function _updateInstanceThreshold(
         bytes32 InstanceID,
         uint256 threshold
     ) internal {
-        mutate(tableIDs[1], SQLHelpers.toUpdate(DBSPACES_INSTANCES_TABLE_PREFIX, tableIDs[1], string.concat("threshold = ", SQLHelpers.quote(Strings.toString(threshold))), string.concat("InstanceID = ", SQLHelpers.quote(bytes32ToString(InstanceID)))));
+        mutate(
+            tableIDs[1],
+            SQLHelpers.toUpdate(
+                DBSPACES_INSTANCES_TABLE_PREFIX,
+                tableIDs[1],
+                string.concat(
+                    "threshold = ",
+                    SQLHelpers.quote(Strings.toString(threshold))
+                ),
+                string.concat(
+                    "InstanceID = ",
+                    SQLHelpers.quote(bytes32ToString(InstanceID))
+                )
+            )
+        );
     }
 
     /*

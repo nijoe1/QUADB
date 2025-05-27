@@ -10,6 +10,7 @@ contract SubscriptionNFTs is ERC721, Initializable {
     mapping(address => uint256) public instanceSubscriptions;
 
     uint256 public constant MONTH = 30 days;
+
     // Constructor
     constructor() ERC721("SubscriptionTokens", "ST") {}
 

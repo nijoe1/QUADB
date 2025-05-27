@@ -3,7 +3,6 @@ import { twMerge } from "tailwind-merge";
 import { match, P } from "ts-pattern";
 import { Hex } from "viem";
 
-
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }

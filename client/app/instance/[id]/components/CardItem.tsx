@@ -1,17 +1,12 @@
 "use client";
+
 import React, { useState, useEffect } from "react";
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-} from "@chakra-ui/react";
-import { useAccount } from "wagmi";
+
 import makeBlockie from "ethereum-blockies-base64";
-import { useRouter } from "next/navigation";
+import { useAccount } from "wagmi";
+
+import { Button } from "@/primitives/Button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/ui-shadcn/dialog";
 
 interface ProfileInfo {
   picture?: string;
@@ -32,7 +27,6 @@ interface CardItemProps {
 }
 
 export const CardItem: React.FC<CardItemProps> = ({ profileInfo, creator }) => {
-  const router = useRouter();
   const { address } = useAccount();
   const [showModal, setShowModal] = useState<boolean>(false);
   const [conributors, setContributors] = useState<Contributor[]>([]);
@@ -46,14 +40,7 @@ export const CardItem: React.FC<CardItemProps> = ({ profileInfo, creator }) => {
     setShowModal(false);
   };
 
-  const fetchProfileInfo = async () => {
-    return;
-  };
-
   useEffect(() => {
-    if (profileInfo) {
-      fetchProfileInfo();
-    }
     if (profileInfo?.members) {
       setContributors(
         profileInfo?.members
@@ -62,49 +49,47 @@ export const CardItem: React.FC<CardItemProps> = ({ profileInfo, creator }) => {
             address: member,
             name: member,
             image: makeBlockie(member),
-          }))
+          })),
       );
     }
   }, [profileInfo]);
 
   return (
-    <div className="mx-auto mt-20 max-w-5xl">
-      <div className="mx-5 rounded-xl bg-[#424242] p-4 shadow-md">
-        <div className="mb-4 flex flex-col items-center p-4">
+    <div className="flex w-full flex-col items-center">
+      <div className="flex w-full flex-col items-center rounded-xl bg-[#424242] p-1 shadow-md">
+        <div className="flex w-full flex-col items-center">
           <img
             src={profileInfo?.picture || "/path/to/image.jpg"}
             alt="Profile Image"
-            className="mb-4 aspect-[2/1] w-3/4 rounded-lg object-cover"
+            className="mb-5 h-[200px] rounded-lg"
           />
-          <p className="text-lg font-bold text-white">
-            {profileInfo?.name || "User Name"}
-          </p>
+          <p className="text-lg font-bold text-white">{profileInfo?.name || "User Name"}</p>
           <span className="mt-2 rounded-full bg-black px-2 py-1 text-sm text-white">
             {getCreator?.slice(0, 6)}...{getCreator?.slice(-6)}
           </span>
-          <p className="mt-2 text-sm text-white">
+          <Button
+            onClick={handleShowModal}
+            className="mt-4 rounded bg-black/80 px-4 py-2 text-white"
+            value="Contributors"
+          />
+          <p className="mt-2 line-clamp-5 p-5 text-sm text-white">
             {profileInfo?.desc || "User Description"}
           </p>
-          <button
-            onClick={handleShowModal}
-            className="mt-4 rounded bg-blue-500 px-4 py-2 text-white"
-          >
-            Contributors
-          </button>
         </div>
       </div>
 
       {/* Contributors Modal */}
-      <Modal isOpen={showModal} onClose={handleCloseModal} size="lg" isCentered>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Contributors</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
+      <Dialog open={showModal} onOpenChange={setShowModal}>
+        <DialogContent className="border-grey-300 bg-white text-black sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-black">Contributors</DialogTitle>
+          </DialogHeader>
+
+          <div className="py-4">
             <table className="min-w-full bg-white">
               <thead>
                 <tr>
-                  <th className="py-2">Address</th>
+                  <th className="py-2 text-black">Address</th>
                 </tr>
               </thead>
               <tbody>
@@ -115,32 +100,27 @@ export const CardItem: React.FC<CardItemProps> = ({ profileInfo, creator }) => {
                         <div className="flex items-center">
                           <img
                             className="mt-2 w-9 rounded-sm"
-                            src={
-                              contributor?.image ||
-                              makeBlockie(contributor?.address)
-                            }
+                            src={contributor?.image || makeBlockie(contributor?.address)}
                             alt="Sender Avatar"
                           />
-                          <p className="text-md mx-2 mt-2 text-black">
-                            {contributor?.name}
-                          </p>
+                          <p className="mx-2 mt-2 text-black">{contributor?.name}</p>
                         </div>
                       </td>
                     </tr>
                   ))}
               </tbody>
             </table>
-          </ModalBody>
-          <ModalFooter>
-            <button
+          </div>
+
+          <DialogFooter>
+            <Button
               className="mr-3 rounded-lg bg-black px-4 py-2 text-white"
               onClick={handleCloseModal}
-            >
-              Close
-            </button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+              value="Close"
+            />
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

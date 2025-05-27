@@ -5,7 +5,8 @@
   "description": "Bundling service for Lit Actions written in TypeScript",
   "main": "server.js",
   "scripts": {
-    "build": "node esbuild.config.js --outfile=dist/thresholdRecovery.js --ts-path=src/lit-actions/thresholdRecovery.ts",
+    "build:dbUpdate": "node esbuild.config.js --outfile=dist/thresholdRecovery.js --ts-path=src/lit-actions/thresholdRecovery.ts",
+    "build:codeUpdate": "node esbuild.config.js --outfile=dist/codeUpdate.js --ts-path=src/lit-actions/codeUpdate.ts",
     "test": "npx @dotenvx/dotenvx run -- mocha test/**/*.spec.ts"
   },
   "author": "",
