@@ -31,7 +31,7 @@ export const useProposalsQuery = (instanceId: string, sequence: string) => {
             headers: {
               "Content-Type": "application/json",
             },
-          }
+          },
         );
 
         if (!response.ok) {

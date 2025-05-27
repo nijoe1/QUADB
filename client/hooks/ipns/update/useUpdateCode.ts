@@ -1,9 +1,10 @@
-import { fetchIPFS } from "@/lib/ipfs";
-import { toast } from "@/hooks/useToast";
-import { Address, WalletClient } from "viem";
-import { storachaUploadFile } from "@/hooks/storacha";
-import * as W3Name from "w3name";
 import { useMutation } from "@tanstack/react-query";
+import { Address, WalletClient } from "viem";
+import * as W3Name from "w3name";
+
+import { storachaUploadFile } from "@/hooks/storacha";
+import { toast } from "@/hooks/useToast";
+import { fetchIPFS } from "@/lib/ipfs";
 
 interface updateCodeBody {
   signature: string;

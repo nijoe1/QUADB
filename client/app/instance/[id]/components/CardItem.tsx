@@ -1,15 +1,12 @@
 "use client";
+
 import React, { useState, useEffect } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/ui-shadcn/dialog";
-import { Button } from "@/primitives/Button";
-import { useAccount } from "wagmi";
+
 import makeBlockie from "ethereum-blockies-base64";
+import { useAccount } from "wagmi";
+
+import { Button } from "@/primitives/Button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/ui-shadcn/dialog";
 
 interface ProfileInfo {
   picture?: string;
@@ -52,7 +49,7 @@ export const CardItem: React.FC<CardItemProps> = ({ profileInfo, creator }) => {
             address: member,
             name: member,
             image: makeBlockie(member),
-          }))
+          })),
       );
     }
   }, [profileInfo]);
@@ -66,9 +63,7 @@ export const CardItem: React.FC<CardItemProps> = ({ profileInfo, creator }) => {
             alt="Profile Image"
             className="mb-5 h-[200px] rounded-lg"
           />
-          <p className="text-lg font-bold text-white">
-            {profileInfo?.name || "User Name"}
-          </p>
+          <p className="text-lg font-bold text-white">{profileInfo?.name || "User Name"}</p>
           <span className="mt-2 rounded-full bg-black px-2 py-1 text-sm text-white">
             {getCreator?.slice(0, 6)}...{getCreator?.slice(-6)}
           </span>
@@ -105,15 +100,10 @@ export const CardItem: React.FC<CardItemProps> = ({ profileInfo, creator }) => {
                         <div className="flex items-center">
                           <img
                             className="mt-2 w-9 rounded-sm"
-                            src={
-                              contributor?.image ||
-                              makeBlockie(contributor?.address)
-                            }
+                            src={contributor?.image || makeBlockie(contributor?.address)}
                             alt="Sender Avatar"
                           />
-                          <p className="mx-2 mt-2 text-black">
-                            {contributor?.name}
-                          </p>
+                          <p className="mx-2 mt-2 text-black">{contributor?.name}</p>
                         </div>
                       </td>
                     </tr>

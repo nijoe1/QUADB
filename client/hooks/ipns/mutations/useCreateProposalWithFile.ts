@@ -1,7 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
-import { useToast } from "@/hooks/useToast";
 import { useWalletClient } from "wagmi";
+
 import { useUploadFile } from "@/hooks/storacha";
+import { useToast } from "@/hooks/useToast";
 
 interface CreateProposalWithFileParams {
   file: File;

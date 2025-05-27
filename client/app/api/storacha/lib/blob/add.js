@@ -1,16 +1,17 @@
-import { ed25519 } from "@ucanto/principal";
-import { conclude } from "@web3-storage/capabilities/ucan";
-import * as UCAN from "@web3-storage/capabilities/ucan";
 import { Delegation, Receipt } from "@ucanto/core";
-import * as W3sBlobCapabilities from "@web3-storage/capabilities/web3.storage/blob";
+import { ed25519 } from "@ucanto/principal";
 import * as BlobCapabilities from "@web3-storage/capabilities/blob";
 import * as HTTPCapabilities from "@web3-storage/capabilities/http";
+import { conclude } from "@web3-storage/capabilities/ucan";
+import * as UCAN from "@web3-storage/capabilities/ucan";
 import { SpaceDID } from "@web3-storage/capabilities/utils";
+import * as W3sBlobCapabilities from "@web3-storage/capabilities/web3.storage/blob";
 import retry, { AbortError } from "p-retry";
-import { servicePrincipal, connection } from "./service";
+
 import { REQUEST_RETRIES } from "./constants";
 import { poll } from "./receipts";
 import { isCloudflareWorkers } from "./runtime";
+import { servicePrincipal, connection } from "./service";
 
 /**
  * @param {string} url
@@ -52,16 +53,16 @@ function parseBlobAddReceiptNext(receipt) {
   // @ts-expect-error read only effect
   const forkInvocations = receipt.fx.fork;
   const allocateTask = forkInvocations.find(
-    (fork) => fork.capabilities[0].can === W3sBlobCapabilities.allocate.can
+    (fork) => fork.capabilities[0].can === W3sBlobCapabilities.allocate.can,
   );
   const concludefxs = forkInvocations.filter(
-    (fork) => fork.capabilities[0].can === UCAN.conclude.can
+    (fork) => fork.capabilities[0].can === UCAN.conclude.can,
   );
   const putTask = forkInvocations.find(
-    (fork) => fork.capabilities[0].can === HTTPCapabilities.put.can
+    (fork) => fork.capabilities[0].can === HTTPCapabilities.put.can,
   );
   const acceptTask = forkInvocations.find(
-    (fork) => fork.capabilities[0].can === W3sBlobCapabilities.accept.can
+    (fork) => fork.capabilities[0].can === W3sBlobCapabilities.accept.can,
   );
 
   /* c8 ignore next 3 */
@@ -74,19 +75,15 @@ function parseBlobAddReceiptNext(receipt) {
   /** @type {import('@ucanto/interface').Receipt<import('../types.js').BlobAllocateSuccess, import('../types.js').BlobAllocateFailure> | undefined} */
   // @ts-expect-error types unknown for next
   const allocateReceipt = nextReceipts.find((receipt) =>
-    receipt.ran.link().equals(allocateTask.cid)
+    receipt.ran.link().equals(allocateTask.cid),
   );
   /** @type {import('@ucanto/interface').Receipt<{}, import('@ucanto/interface').Failure> | undefined} */
   // @ts-expect-error types unknown for next
-  const putReceipt = nextReceipts.find((receipt) =>
-    receipt.ran.link().equals(putTask.cid)
-  );
+  const putReceipt = nextReceipts.find((receipt) => receipt.ran.link().equals(putTask.cid));
 
   /** @type {import('@ucanto/interface').Receipt<import('../types.js').BlobAcceptSuccess, import('../types.js').BlobAcceptFailure> | undefined} */
   // @ts-expect-error types unknown for next
-  const acceptReceipt = nextReceipts.find((receipt) =>
-    receipt.ran.link().equals(acceptTask.cid)
-  );
+  const acceptReceipt = nextReceipts.find((receipt) => receipt.ran.link().equals(acceptTask.cid));
 
   /* c8 ignore next 3 */
   if (!allocateReceipt) {
@@ -171,13 +168,10 @@ export async function add(
   { issuer, with: resource, proofs, audience },
   digest,
   data,
-  options = {}
+  options = {},
 ) {
   /* c8 ignore next 2 */
-  const bytes =
-    data instanceof Uint8Array
-      ? data
-      : new Uint8Array(await data.arrayBuffer());
+  const bytes = data instanceof Uint8Array ? data : new Uint8Array(await data.arrayBuffer());
   const size = bytes.length;
   /* c8 ignore next */
   const conn = options.connection ?? connection;
@@ -199,7 +193,7 @@ export async function add(
     {
       onFailedAttempt: console.warn,
       retries: options.retries ?? REQUEST_RETRIES,
-    }
+    },
   );
 
   if (!result.out.ok) {
@@ -221,9 +215,7 @@ export async function add(
   const { address } = allocateReceipt.out.ok;
   if (address) {
     const fetchWithUploadProgress =
-      options.fetchWithUploadProgress ||
-      options.fetch ||
-      globalThis.fetch.bind(globalThis);
+      options.fetchWithUploadProgress || options.fetch || globalThis.fetch.bind(globalThis);
 
     let fetchDidCallUploadProgressCb = false;
     await retry(
@@ -238,10 +230,7 @@ export async function add(
             onUploadProgress: (status) => {
               fetchDidCallUploadProgressCb = true;
               if (options.onUploadProgress)
-                createUploadProgressHandler(
-                  address.url,
-                  options.onUploadProgress
-                )(status);
+                createUploadProgressHandler(address.url, options.onUploadProgress)(status);
             },
             // @ts-expect-error - this is needed by recent versions of node - see https://github.com/bluesky-social/atproto/pull/470 for more info
             duplex: "half",
@@ -262,7 +251,7 @@ export async function add(
       },
       {
         retries: options.retries ?? REQUEST_RETRIES,
-      }
+      },
     );
 
     if (!fetchDidCallUploadProgressCb && options.onUploadProgress) {
@@ -281,7 +270,7 @@ export async function add(
   if (!httpPutReceipt?.out.ok) {
     const derivedSigner = ed25519.from(
       /** @type {import('@ucanto/interface').SignerArchive<import('@ucanto/interface').DID, typeof ed25519.signatureCode>} */
-      (nextTasks.put.task.facts[0]["keys"])
+      (nextTasks.put.task.facts[0]["keys"]),
     );
     httpPutReceipt = await Receipt.issue({
       issuer: derivedSigner,
@@ -292,7 +281,7 @@ export async function add(
       issuer,
       /* c8 ignore next */
       audience ?? servicePrincipal,
-      httpPutReceipt
+      httpPutReceipt,
     );
     const ucanConclude = await httpPutConcludeInvocation.execute(conn);
     if (!ucanConclude.out.ok) {
@@ -309,15 +298,10 @@ export async function add(
   }
 
   const blocks = new Map(
-    [...acceptReceipt.iterateIPLDBlocks()].map((block) => [
-      `${block.cid}`,
-      block,
-    ])
+    [...acceptReceipt.iterateIPLDBlocks()].map((block) => [`${block.cid}`, block]),
   );
   const site = Delegation.view({
-    root: /** @type {import('@ucanto/interface').UCANLink} */ (
-      acceptReceipt.out.ok?.site
-    ),
+    root: /** @type {import('@ucanto/interface').UCANLink} */ (acceptReceipt.out.ok?.site),
     blocks,
   });
 

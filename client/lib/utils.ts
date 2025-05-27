@@ -11,7 +11,7 @@ export const modularRedirect = (
   redirectLink?: string,
   redirect?: boolean,
   chainId?: string,
-  roundId?: string
+  roundId?: string,
 ) => {
   let link = redirectLink;
   if (!link) {
@@ -47,10 +47,7 @@ export function formatLocalDate(isoDate: string) {
 export const getAddressLabel = (ens?: string, address?: string) => {
   return match({ ens, address })
     .with({ ens: P.string }, ({ ens }) => ens)
-    .with(
-      { address: P.string },
-      ({ address }) => address.slice(0, 4) + "..." + address.slice(-4)
-    )
+    .with({ address: P.string }, ({ address }) => address.slice(0, 4) + "..." + address.slice(-4))
     .otherwise(() => "");
 };
 

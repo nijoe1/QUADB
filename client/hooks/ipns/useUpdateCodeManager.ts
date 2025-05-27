@@ -1,6 +1,7 @@
 import { useAccount, useWalletClient } from "wagmi";
-import { useUpdateCode } from "./update/useUpdateCode";
+
 import { useToast } from "../useToast";
+import { useUpdateCode } from "./update/useUpdateCode";
 
 interface UseUpdateCodeManagerProps {
   IPNS: string;

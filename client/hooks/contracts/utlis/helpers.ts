@@ -1,13 +1,8 @@
-import {
-  Address,
-  Hex,
-  PublicClient,
-  WalletClient,
-  encodeFunctionData,
-  type BaseError,
-} from "viem";
-import { handleTransactionError } from "@/lib/transactionErrorHandler";
+import { Address, Hex, PublicClient, WalletClient, encodeFunctionData, type BaseError } from "viem";
+
 import { ProgressStatus } from "@/components/ProgressModal/types";
+import { handleTransactionError } from "@/lib/transactionErrorHandler";
+
 import {
   ContractTransaction,
   SafeTransaction,
@@ -16,6 +11,7 @@ import {
   TransactionState,
   TransactionStatus,
 } from "./types";
+
 // ============================================================================
 // UTILITY FUNCTIONS
 // ============================================================================
@@ -25,9 +21,7 @@ import {
  * @param tx - The contract transaction to convert
  * @returns SafeTransaction object
  */
-export const createSafeTransaction = (
-  tx: ContractTransaction
-): SafeTransaction => {
+export const createSafeTransaction = (tx: ContractTransaction): SafeTransaction => {
   const transactionData = encodeFunctionData({
     abi: tx.abi,
     functionName: tx.functionName,
@@ -47,7 +41,7 @@ export const createSafeTransaction = (
  * @returns TransactionState object
  */
 export const createTransactionState = (
-  status: TransactionStatus = ProgressStatus.NOT_STARTED
+  status: TransactionStatus = ProgressStatus.NOT_STARTED,
 ): TransactionState => ({
   status,
   timestamp: Date.now(),
@@ -61,7 +55,7 @@ export const createTransactionState = (
  */
 export const updateTransactionState = (
   currentState: TransactionState,
-  updates: Partial<TransactionState>
+  updates: Partial<TransactionState>,
 ): TransactionState => ({
   ...currentState,
   ...updates,
@@ -73,9 +67,7 @@ export const updateTransactionState = (
  * @param error - The error to convert
  * @returns TransactionState with error status
  */
-export const createErrorState = (
-  error: Error | BaseError
-): TransactionState => {
+export const createErrorState = (error: Error | BaseError): TransactionState => {
   const { title, description } = handleTransactionError(error as BaseError);
   return updateTransactionState(createTransactionState(), {
     status: ProgressStatus.IS_ERROR,
@@ -96,12 +88,10 @@ export const createErrorState = (
 export const validateTransactionDependencies = (
   publicClient: any,
   walletClient: any,
-  address: any
+  address: any,
 ): void => {
   if (!publicClient || !walletClient || !address) {
-    throw new Error(
-      "Public client, wallet client, or address is not available"
-    );
+    throw new Error("Public client, wallet client, or address is not available");
   }
 };
 
@@ -117,7 +107,7 @@ export const validateTransactionDependencies = (
  */
 export const executeSafeTransaction = async (
   sdk: any,
-  transaction: ContractTransaction
+  transaction: ContractTransaction,
 ): Promise<Hex> => {
   const safeTransaction = createSafeTransaction(transaction);
   const { safeTxHash } = await sdk.txs.send({ txs: [safeTransaction] });
@@ -132,7 +122,7 @@ export const executeSafeTransaction = async (
  */
 export const executeSafeBatchTransaction = async (
   sdk: any,
-  transactions: ContractTransaction[]
+  transactions: ContractTransaction[],
 ): Promise<Hex> => {
   const safeTransactions = transactions.map(createSafeTransaction);
   const { safeTxHash } = await sdk.txs.send({ txs: safeTransactions });
@@ -153,7 +143,7 @@ export const executeRegularTransaction = async (
   walletClient: WalletClient,
   account: Address,
   transaction: ContractTransaction,
-  config: Required<TransactionConfig> = DEFAULT_CONFIG
+  config: Required<TransactionConfig> = DEFAULT_CONFIG,
 ): Promise<Hex> => {
   // Simulate the transaction first
   const { request } = await publicClient.simulateContract({
@@ -202,7 +192,7 @@ export const executeRegularBatchTransaction = async (
   account: Address,
   transactions: ContractTransaction[],
   config: Required<TransactionConfig> = DEFAULT_CONFIG,
-  onTransactionUpdate?: (index: number, state: TransactionState) => void
+  onTransactionUpdate?: (index: number, state: TransactionState) => void,
 ): Promise<Hex[]> => {
   const results: Hex[] = [];
 
@@ -211,10 +201,7 @@ export const executeRegularBatchTransaction = async (
 
     try {
       // Update state to in progress
-      onTransactionUpdate?.(
-        i,
-        createTransactionState(ProgressStatus.IN_PROGRESS)
-      );
+      onTransactionUpdate?.(i, createTransactionState(ProgressStatus.IN_PROGRESS));
 
       // Execute the transaction
       const hash = await executeRegularTransaction(
@@ -222,7 +209,7 @@ export const executeRegularBatchTransaction = async (
         walletClient,
         account,
         transaction,
-        config
+        config,
       );
 
       // Update state to success
@@ -231,7 +218,7 @@ export const executeRegularBatchTransaction = async (
         updateTransactionState(createTransactionState(), {
           status: ProgressStatus.IS_SUCCESS,
           hash,
-        })
+        }),
       );
 
       results.push(hash);
@@ -248,7 +235,7 @@ export const executeRegularBatchTransaction = async (
 export const estimateGas = async (
   publicClient: any,
   transaction: ContractTransaction,
-  address: string
+  address: string,
 ) => {
   try {
     if (!publicClient) {
@@ -260,8 +247,7 @@ export const estimateGas = async (
     const baseFee = block.baseFeePerGas || BigInt(0);
 
     // Get max priority fee (tip)
-    const maxPriorityFeePerGas =
-      await publicClient.estimateMaxPriorityFeePerGas();
+    const maxPriorityFeePerGas = await publicClient.estimateMaxPriorityFeePerGas();
 
     // Estimate gas limit for the transaction
     const gasLimit = await publicClient.estimateContractGas({
@@ -307,14 +293,14 @@ export const estimateGas = async (
  */
 export const createInitialTransactionStates = (
   count: number,
-  initialStatus: TransactionStatus = ProgressStatus.NOT_STARTED
+  initialStatus: TransactionStatus = ProgressStatus.NOT_STARTED,
 ): Record<string, TransactionState> => {
   return Array.from({ length: count }, (_, index) => index).reduce(
     (acc, index) => {
       acc[index] = createTransactionState(initialStatus);
       return acc;
     },
-    {} as Record<string, TransactionState>
+    {} as Record<string, TransactionState>,
   );
 };
 
@@ -328,7 +314,7 @@ export const createInitialTransactionStates = (
 export const updateAllTransactionStates = (
   states: Record<string, TransactionState>,
   status: TransactionStatus,
-  additionalData?: Partial<TransactionState>
+  additionalData?: Partial<TransactionState>,
 ): Record<string, TransactionState> => {
   return Object.keys(states).reduce(
     (acc, key) => {
@@ -338,7 +324,7 @@ export const updateAllTransactionStates = (
       });
       return acc;
     },
-    {} as Record<string, TransactionState>
+    {} as Record<string, TransactionState>,
   );
 };
 
@@ -350,7 +336,7 @@ export const updateAllTransactionStates = (
  */
 export const updateFailedTransactionStates = (
   states: Record<string, TransactionState>,
-  error: Error | BaseError
+  error: Error | BaseError,
 ): Record<string, TransactionState> => {
   const { title, description } = handleTransactionError(error as BaseError);
 
@@ -370,6 +356,6 @@ export const updateFailedTransactionStates = (
       }
       return acc;
     },
-    {} as Record<string, TransactionState>
+    {} as Record<string, TransactionState>,
   );
 };

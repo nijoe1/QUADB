@@ -1,7 +1,7 @@
 import * as UnixFS from "@ipld/unixfs";
-import * as raw from "multiformats/codecs/raw";
 import { withMaxChunkSize } from "@ipld/unixfs/file/chunker/fixed";
 import { withWidth } from "@ipld/unixfs/file/layout/balanced";
+import * as raw from "multiformats/codecs/raw";
 
 const SHARD_THRESHOLD = 1000; // shard directory after > 1,000 items
 const queuingStrategy = UnixFS.withCapacity();
@@ -63,7 +63,7 @@ class UnixFSFileBuilder {
         async write(chunk) {
           await unixfsFileWriter.write(chunk);
         },
-      })
+      }),
     );
     return await unixfsFileWriter.close();
   }
@@ -174,7 +174,7 @@ async function collect(collectable) {
       write(chunk) {
         chunks.push(chunk);
       },
-    })
+    }),
   );
   return chunks;
 }

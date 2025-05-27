@@ -37,11 +37,8 @@ export const useCSVHandler = () => {
     const rows = data.map((obj: any) => {
       return keys
         .map((key) => {
-          const cell =
-            obj[key] === null || obj[key] === undefined ? "" : obj[key];
-          return typeof cell === "string" && cell.includes(",")
-            ? `"${cell}"`
-            : cell;
+          const cell = obj[key] === null || obj[key] === undefined ? "" : obj[key];
+          return typeof cell === "string" && cell.includes(",") ? `"${cell}"` : cell;
         })
         .join(",");
     });

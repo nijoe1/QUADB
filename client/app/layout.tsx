@@ -1,11 +1,13 @@
 "use client";
-import "@/styles/globals.css";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import { Inter } from "next/font/google";
-import { Toaster } from "@/ui-shadcn/toaster";
-import { Web3Providers } from "@/app/providers";
+
 import { motion } from "framer-motion";
+import { Inter } from "next/font/google";
+
+import { Web3Providers } from "@/app/providers";
+import Footer from "@/components/layout/Footer";
+import Navbar from "@/components/layout/Navbar";
+import "@/styles/globals.css";
+import { Toaster } from "@/ui-shadcn/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -48,10 +50,7 @@ export default function RootLayout({
             className="flex min-h-screen flex-col"
           >
             <Navbar />
-            <motion.main
-              variants={mainVariants}
-              className="h-full min-h-svh grow"
-            >
+            <motion.main variants={mainVariants} className="h-full min-h-svh grow">
               {children}
             </motion.main>
             <motion.div variants={mainVariants}>

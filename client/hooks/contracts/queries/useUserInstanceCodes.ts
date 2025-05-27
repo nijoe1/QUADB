@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { getUserCodes } from "@/lib/tableland";
-import { getIpfsGatewayUri, resolveIPNS } from "@/lib/ipfs";
 import makeBlockie from "ethereum-blockies-base64";
 import { isAddress } from "viem";
 import { useAccount } from "wagmi";
+
+import { getIpfsGatewayUri, resolveIPNS } from "@/lib/ipfs";
+import { getUserCodes } from "@/lib/tableland";
 
 const fetchInstanceCodes = async (userAddress: any, address: any) => {
   const addr = isAddress(userAddress) ? userAddress : address;

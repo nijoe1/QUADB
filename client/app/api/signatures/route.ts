@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import axios from "axios";
+import { NextResponse } from "next/server";
 
 const tables = {
   spaces: "db_spaces_314_70",
@@ -12,7 +12,7 @@ const tables = {
 // Initialize Supabase client
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
 
 const TablelandGateway = "https://tableland.network/api/v1/query?statement=";
@@ -24,12 +24,8 @@ const getInstanceMembers = async (instanceID: string) => {
     SELECT creator as address FROM ${tables.spaceInstances} WHERE InstanceID = '${instanceID}'
   )`;
   try {
-    const result = await axios.get(
-      TablelandGateway + encodeURIComponent(query)
-    );
-    return (
-      result.data.map((member: { address: string }) => member.address) || []
-    );
+    const result = await axios.get(TablelandGateway + encodeURIComponent(query));
+    return result.data.map((member: { address: string }) => member.address) || [];
   } catch (err) {
     console.error(err);
     return null;
@@ -38,39 +34,29 @@ const getInstanceMembers = async (instanceID: string) => {
 
 export async function POST(request: Request) {
   try {
-    const {
-      instanceId,
-      sequence,
-      signature,
-      cid,
-      proposalDescription,
-      address,
-    } = await request.json();
+    const { instanceId, sequence, signature, cid, proposalDescription, address } =
+      await request.json();
 
     // Validate required fields
     if (!instanceId || !sequence || !signature || !cid || !address) {
       return NextResponse.json(
         {
-          error:
-            "Missing required fields: instanceId, sequence, signature, cid, and address",
+          error: "Missing required fields: instanceId, sequence, signature, cid, and address",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const instanceMembers = await getInstanceMembers(instanceId);
 
     if (!instanceMembers) {
-      return NextResponse.json(
-        { error: "Failed to fetch instance members" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to fetch instance members" }, { status: 500 });
     }
 
     if (!instanceMembers.includes(address.toLowerCase())) {
       return NextResponse.json(
         { error: "Address is not a member of the instance" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -161,7 +147,7 @@ export async function POST(request: Request) {
         error: "Internal server error",
         details: error instanceof Error ? error.message : String(error),
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -176,7 +162,7 @@ export async function GET(request: Request) {
     if (!instanceId || !sequence) {
       return NextResponse.json(
         { error: "Missing required query parameters: instanceId and sequence" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -191,7 +177,7 @@ export async function GET(request: Request) {
           signature,
           created_at
         )
-      `
+      `,
       )
       .eq("instance_id", instanceId)
       .eq("sequence", sequence);
@@ -207,7 +193,7 @@ export async function GET(request: Request) {
       console.error("Error fetching proposals:", error);
       return NextResponse.json(
         { error: "Failed to fetch proposals", details: error.message },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -219,24 +205,22 @@ export async function GET(request: Request) {
         error: "Internal server error",
         details: error instanceof Error ? error.message : String(error),
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function PATCH(request: Request) {
   try {
-    const { instanceId, sequence, signature, cid, address } =
-      await request.json();
+    const { instanceId, sequence, signature, cid, address } = await request.json();
 
     // Validate required fields
     if (!instanceId || !sequence || !signature || !cid || !address) {
       return NextResponse.json(
         {
-          error:
-            "Missing required fields: instanceId, sequence, signature, cid, and address",
+          error: "Missing required fields: instanceId, sequence, signature, cid, and address",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -252,10 +236,9 @@ export async function PATCH(request: Request) {
     if (proposalError || !proposal) {
       return NextResponse.json(
         {
-          error:
-            "No proposal found for the given instanceId, sequence, and cid",
+          error: "No proposal found for the given instanceId, sequence, and cid",
         },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -272,7 +255,7 @@ export async function PATCH(request: Request) {
         {
           error: "Signature already exists for this address",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -292,7 +275,7 @@ export async function PATCH(request: Request) {
       console.error("Error adding signature:", signatureError);
       return NextResponse.json(
         { error: "Failed to add signature", details: signatureError.message },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -310,7 +293,7 @@ export async function PATCH(request: Request) {
         error: "Internal server error",
         details: error instanceof Error ? error.message : String(error),
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

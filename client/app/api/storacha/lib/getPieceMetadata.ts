@@ -1,26 +1,21 @@
-import { Principal, Proof } from "@web3-storage/w3up-client/principal/ed25519";
-
-import {
-  CARHeaderInfo,
-  CARMetadata,
-  InvocationConfig,
-} from "@web3-storage/upload-client/types";
-import { sha256 } from "multiformats/hashes/sha2";
 import * as PieceHasher from "@web3-storage/data-segment/multihash";
-import * as Blob from "@/app/api/storacha/lib/blob/index.js";
-import * as Link from "multiformats/link";
-import * as CAR from "@/app/api/storacha/lib/car";
+import { CARHeaderInfo, CARMetadata, InvocationConfig } from "@web3-storage/upload-client/types";
+import { Principal, Proof } from "@web3-storage/w3up-client/principal/ed25519";
+import { SharedSpace } from "@web3-storage/w3up-client/space";
 import * as raw from "multiformats/codecs/raw";
+import { sha256 } from "multiformats/hashes/sha2";
+import * as Link from "multiformats/link";
 
+import * as Blob from "@/app/api/storacha/lib/blob/index.js";
+import * as CAR from "@/app/api/storacha/lib/car";
+import { ShardingStream } from "@/app/api/storacha/lib/sharding";
 import { createFileEncoderStream } from "@/app/api/storacha/lib/unixfs";
 
-import { ShardingStream } from "@/app/api/storacha/lib/sharding";
-import { SharedSpace } from "@web3-storage/w3up-client/space";
 export const getPieceMetadata = async (
   file: File,
   principal: Principal,
   space: SharedSpace,
-  proof: Proof
+  proof: Proof,
 ) => {
   const pieceHasher = PieceHasher;
   const configure = () => {
@@ -61,7 +56,7 @@ export const getPieceMetadata = async (
 
           controller.enqueue(metadata);
         },
-      })
+      }),
     )
     .pipeTo(
       new WritableStream({
@@ -73,7 +68,7 @@ export const getPieceMetadata = async (
           meta.slices.set(meta.cid.multihash, [0, meta.size]);
           shardIndexes.push(meta.slices);
         },
-      })
+      }),
     );
 
   /* c8 ignore next */

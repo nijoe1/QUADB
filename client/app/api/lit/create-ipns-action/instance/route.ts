@@ -1,17 +1,19 @@
-import { NextResponse, NextRequest } from "next/server";
-import { code } from "@/app/api/lit/actions/instance.js";
+import { LIT_NETWORK } from "@lit-protocol/constants";
+import { encryptString } from "@lit-protocol/encryption";
 // @ts-ignore
 import { LitNodeClient } from "@lit-protocol/lit-node-client";
-import { encryptString } from "@lit-protocol/encryption";
-import { LIT_NETWORK } from "@lit-protocol/constants";
 import { AccessControlConditions } from "@lit-protocol/types";
 import * as ethers from "ethers";
-import * as Name from "w3name";
-import process from "process";
-process.config;
 // @ts-ignore
 import Hash from "ipfs-only-hash";
+import { NextResponse, NextRequest } from "next/server";
+import process from "process";
 import { encodePacked, Hex } from "viem";
+import * as Name from "w3name";
+
+import { code } from "@/app/api/lit/actions/instance.js";
+
+process.config;
 
 /**
  * Converts a Uint8Array or Buffer to a deterministic string representation
@@ -21,7 +23,7 @@ import { encodePacked, Hex } from "viem";
 
 const getInstanceID = (instanceID: Hex, IPNS: string) => {
   const _newInstanceID = ethers.utils.keccak256(
-    encodePacked(["bytes32", "string"], [instanceID, IPNS])
+    encodePacked(["bytes32", "string"], [instanceID, IPNS]),
   );
   return _newInstanceID.toLowerCase();
 };
@@ -89,7 +91,7 @@ export async function POST(req: NextRequest) {
         accessControlConditions,
         dataToEncrypt: namePrivateKey,
       },
-      litNodeClient
+      litNodeClient,
     );
 
     console.log("✅ Encrypted the IPNS Private Key");

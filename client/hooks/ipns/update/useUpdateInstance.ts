@@ -1,6 +1,7 @@
-import { fetchIPFS } from "@/lib/ipfs";
-import { toast } from "@/hooks/useToast";
 import { useMutation } from "@tanstack/react-query";
+
+import { toast } from "@/hooks/useToast";
+import { fetchIPFS } from "@/lib/ipfs";
 
 interface UpdateInstanceBody {
   signatures: string[];
@@ -28,10 +29,7 @@ interface UpdateInstanceParams {
   ipns_metadata: string;
 }
 
-const handleUpdateInstance = async ({
-  proposal,
-  ipns_metadata,
-}: UpdateInstanceParams) => {
+const handleUpdateInstance = async ({ proposal, ipns_metadata }: UpdateInstanceParams) => {
   try {
     const signatures = proposal.signatures.map((sig: any) => sig.signature);
 

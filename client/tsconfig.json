@@ -15,14 +15,10 @@
     "incremental": true,
     "paths": {
       "@/*": ["./*"],
-      "@components/*": ["./components/*"],
-      "@app/*": ["./app/*"],
-      "@api/*": ["./app/api/*"],
-      "@hooks/*": ["./hooks/*"],
-      "@lib/*": ["./lib/*"],
-      "@types/*": ["./types/*"],
-      "@utils/*": ["./utils/*"],
-      "@styles/*": ["./styles/*"]
+      "@/styles/*": ["./app/ui/styles/*"],
+      "@/components/*": ["./app/ui/components/*"],
+      "@/primitives/*": ["./app/ui/primitives/*"],
+      "@/ui-shadcn/*": ["./app/ui/ui-shadcn/*"]
     },
     "forceConsistentCasingInFileNames": true,
     "plugins": [

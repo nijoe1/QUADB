@@ -1,11 +1,10 @@
-import { toast } from "@/hooks/useToast";
-
 import { useMutation } from "@tanstack/react-query";
-import { CONTRACT_ABI, CONTRACT_ADDRESSES } from "@/app/constants/contracts";
-
 import { Address, Hex, PublicClient, WalletClient } from "viem";
 import { useAccount, useWalletClient } from "wagmi";
 import { usePublicClient } from "wagmi";
+
+import { CONTRACT_ABI, CONTRACT_ADDRESSES } from "@/app/constants/contracts";
+import { toast } from "@/hooks/useToast";
 
 export interface CreateSpaceArgs {
   isRoot: boolean;

@@ -1,24 +1,24 @@
 "use client";
+
 import React from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui-shadcn/tabs";
-import { Card, CardContent } from "@/ui-shadcn/card";
-import { Button } from "@/primitives/Button";
-import { DatasetViewer } from "@/components/datasetViewer";
-import InstanceCodes from "@/components/InstanceCodes";
-import { useAccount } from "wagmi";
-import { Container } from "@/ui-shadcn/container";
-import { CardItem } from "./components/CardItem";
-import Loading from "@/components/animation/loading";
-import { useInstanceData } from "@/hooks/contracts/queries";
-import { Subscribe } from "@/components/contracts/subscribe";
-import { useInstanceMembers } from "@/hooks/contracts/queries";
 import { useState } from "react";
 
-const InstanceDetailsPage = ({
-  params: { id },
-}: {
-  params: { id: string };
-}) => {
+import { useAccount } from "wagmi";
+
+import InstanceCodes from "@/components/InstanceCodes";
+import Loading from "@/components/animation/loading";
+import { Subscribe } from "@/components/contracts/subscribe";
+import { DatasetViewer } from "@/components/datasetViewer";
+import { useInstanceData } from "@/hooks/contracts/queries";
+import { useInstanceMembers } from "@/hooks/contracts/queries";
+import { Button } from "@/primitives/Button";
+import { Card, CardContent } from "@/ui-shadcn/card";
+import { Container } from "@/ui-shadcn/container";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui-shadcn/tabs";
+
+import { CardItem } from "./components/CardItem";
+
+const InstanceDetailsPage = ({ params: { id } }: { params: { id: string } }) => {
   const instanceID = id;
   const { address } = useAccount();
   const [isSubscribeOpen, setIsSubscribeOpen] = useState(false);
@@ -39,8 +39,7 @@ const InstanceDetailsPage = ({
     return <div>Error loading instance data</div>;
   }
 
-  const hasAccess =
-    data?.instance?.creator?.toLowerCase() === address?.toLowerCase();
+  const hasAccess = data?.instance?.creator?.toLowerCase() === address?.toLowerCase();
 
   const { instance } = data || {};
 
@@ -55,16 +54,14 @@ const InstanceDetailsPage = ({
                   profileInfo={{
                     name: instance?.metadata?.name || "Instance Name",
                     desc: instance?.metadata?.about || "Instance Description",
-                    picture:
-                      instance?.metadata?.imageUrl || "/path/to/image.jpg",
+                    picture: instance?.metadata?.imageUrl || "/path/to/image.jpg",
                     members: instanceMembers || [instance?.creator],
                   }}
                   creator={instance?.creator}
                 />
                 {!((hasAccess ||
                   instanceMembers?.find(
-                    (member: any) =>
-                      member?.toLowerCase() === address?.toLowerCase()
+                    (member: any) => member?.toLowerCase() === address?.toLowerCase(),
                   )) as boolean) && (
                   <div>
                     <Button
@@ -114,11 +111,9 @@ const InstanceDetailsPage = ({
                   <TabsContent value="codes">
                     <InstanceCodes
                       hasAccess={
-                        (instance?.creator?.toLowerCase() ==
-                          address?.toLowerCase() ||
+                        (instance?.creator?.toLowerCase() == address?.toLowerCase() ||
                           instanceMembers?.find(
-                            (member: any) =>
-                              member?.toLowerCase() === address?.toLowerCase()
+                            (member: any) => member?.toLowerCase() === address?.toLowerCase(),
                           )) as boolean
                       }
                       InstanceID={instance?.InstanceID}

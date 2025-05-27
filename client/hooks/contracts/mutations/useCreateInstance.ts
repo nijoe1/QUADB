@@ -1,17 +1,20 @@
+import { useMemo } from "react";
+
 import { useMutation } from "@tanstack/react-query";
-import { CONTRACT_ABI, CONTRACT_ADDRESSES } from "@/app/constants/contracts";
 import { Abi, Address, Hex, isAddress } from "viem";
-import { useToast } from "@/hooks/useToast";
-import { storachaUploadFile } from "@/hooks/storacha";
-import { useCreateInstanceIPNS } from "@/hooks/ipns/create/useCreateInstance";
-import { useContractTransaction } from "../utlis";
+
+import { CONTRACT_ABI, CONTRACT_ADDRESSES } from "@/app/constants/contracts";
 import {
   ProgressModalProps,
   ProgressStatus,
   useSteps,
   UseStepsProps,
 } from "@/components/ProgressModal";
-import { useMemo } from "react";
+import { useCreateInstanceIPNS } from "@/hooks/ipns/create/useCreateInstance";
+import { storachaUploadFile } from "@/hooks/storacha";
+import { useToast } from "@/hooks/useToast";
+
+import { useContractTransaction } from "../utlis";
 
 const InitialProgressModalProps: ProgressModalProps = {
   isOpen: false,
@@ -55,15 +58,11 @@ interface UseCreateInstanceProps {
   spaceID: `0x${string}`;
 }
 
-export const useCreateInstance = ({
-  onClose,
-  spaceID,
-}: UseCreateInstanceProps) => {
+export const useCreateInstance = ({ onClose, spaceID }: UseCreateInstanceProps) => {
   const { toast } = useToast();
   const createIPNS = useCreateInstanceIPNS();
 
-  const { executeContractTransaction: createInstance } =
-    useContractTransaction();
+  const { executeContractTransaction: createInstance } = useContractTransaction();
 
   const uploadInstanceMetadata = useMutation({
     mutationFn: async (formData: FormData) => {
@@ -78,13 +77,9 @@ export const useCreateInstance = ({
         about: formData.about,
         imageUrl: imageBase64,
       };
-      const metadataFile = new File(
-        [JSON.stringify(metadata)],
-        "metadata.json",
-        {
-          type: "application/json",
-        }
-      );
+      const metadataFile = new File([JSON.stringify(metadata)], "metadata.json", {
+        type: "application/json",
+      });
       return (await storachaUploadFile(metadataFile)) as unknown as string;
     },
   });
@@ -93,23 +88,20 @@ export const useCreateInstance = ({
     mutationFn: storachaUploadFile,
   });
 
-  const stepsConfig = InitialProgressModalProps.steps.reduce(
-    (acc, step, index) => {
-      acc[index] = {
-        mutation:
-          index === 0
-            ? uploadInstanceMetadata
-            : index === 1
-              ? uploadInstanceFile
-              : index === 2
-                ? createIPNS
-                : createInstance,
-        step,
-      };
-      return acc;
-    },
-    {} as UseStepsProps
-  );
+  const stepsConfig = InitialProgressModalProps.steps.reduce((acc, step, index) => {
+    acc[index] = {
+      mutation:
+        index === 0
+          ? uploadInstanceMetadata
+          : index === 1
+            ? uploadInstanceFile
+            : index === 2
+              ? createIPNS
+              : createInstance,
+      step,
+    };
+    return acc;
+  }, {} as UseStepsProps);
 
   const { steps } = useSteps(stepsConfig);
 
@@ -120,16 +112,14 @@ export const useCreateInstance = ({
       ...InitialProgressModalProps,
       steps,
     }),
-    [steps]
+    [steps],
   );
 
   const mutation = useMutation<Hex, Error, FormData>({
     mutationFn: async (formData) => {
       try {
         const metadataCID = await uploadInstanceMetadata.mutateAsync(formData);
-        const fileCID = (await uploadInstanceFile.mutateAsync(
-          formData.file
-        )) as unknown as string;
+        const fileCID = (await uploadInstanceFile.mutateAsync(formData.file)) as unknown as string;
 
         const ipnsResult = await createIPNS.mutateAsync({
           cid: fileCID ?? "",

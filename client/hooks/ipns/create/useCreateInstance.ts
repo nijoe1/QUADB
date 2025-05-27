@@ -1,8 +1,7 @@
-import { storachaUploadFile } from "@/hooks/storacha/useStorachaUpload";
-
 import { useMutation } from "@tanstack/react-query";
-
 import { Hex } from "viem";
+
+import { storachaUploadFile } from "@/hooks/storacha/useStorachaUpload";
 
 export interface CreateInstanceProps {
   cid: string;

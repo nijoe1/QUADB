@@ -1,10 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
 import * as Client from "@web3-storage/w3up-client";
 import { Signer } from "@web3-storage/w3up-client/principal/ed25519";
 import * as Proof from "@web3-storage/w3up-client/proof";
 import { StoreMemory } from "@web3-storage/w3up-client/stores/memory";
+import { NextRequest, NextResponse } from "next/server";
 
 import { encodeFile } from "@/app/api/storacha/lib/unixfs";
+
+import { getPieceMetadata, getParsedMetadata } from "../lib/getPieceMetadata";
 import {
   createServerFile,
   modifyFile,
@@ -12,10 +14,7 @@ import {
   validateEnvironment,
   validateFile,
 } from "./utils";
-import {
-  getPieceMetadata,
-  getParsedMetadata,
-} from "../lib/getPieceMetadata";
+
 export async function POST(request: NextRequest) {
   try {
     // Validate environment variables
@@ -38,9 +37,7 @@ export async function POST(request: NextRequest) {
     const space = await client.addSpace(proof);
     await client.setCurrentSpace(space.did());
 
-    const pieceMetadata = getParsedMetadata(
-      await getPieceMetadata(file, principal, space, proof)
-    );
+    const pieceMetadata = getParsedMetadata(await getPieceMetadata(file, principal, space, proof));
 
     const dataFileCID = (await encodeFile(file)).cid;
 
@@ -61,7 +58,7 @@ export async function POST(request: NextRequest) {
         dataCID: dataFileCID.toString(),
       },
       null,
-      2
+      2,
     );
 
     // Create a server-compatible file object for the metadata
@@ -72,9 +69,7 @@ export async function POST(request: NextRequest) {
     const dataFile = await modifyFile(file, dataFileName, file.type);
 
     // Upload the file on Storacha
-    const cid = (
-      await client.uploadDirectory([metadataFile, dataFile])
-    ).toString();
+    const cid = (await client.uploadDirectory([metadataFile, dataFile])).toString();
 
     // Return the CID and additional metadata
     return NextResponse.json(
@@ -82,18 +77,17 @@ export async function POST(request: NextRequest) {
         success: true,
         cid,
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error occurred";
+    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
 
     return NextResponse.json(
       {
         success: false,
         error: errorMessage,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

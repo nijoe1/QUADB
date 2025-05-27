@@ -1,6 +1,3 @@
-import { createClient, fallback, http } from "viem";
-import { createConfig } from "wagmi";
-import * as chains from "viem/chains";
 import { connectorsForWallets } from "@rainbow-me/rainbowkit";
 import {
   coinbaseWallet,
@@ -10,6 +7,9 @@ import {
   safeWallet,
   walletConnectWallet,
 } from "@rainbow-me/rainbowkit/wallets";
+import { createClient, fallback, http } from "viem";
+import * as chains from "viem/chains";
+import { createConfig } from "wagmi";
 
 const wallets = [
   metaMaskWallet,
@@ -34,21 +34,19 @@ export const wagmiConnectors = connectorsForWallets(
   {
     appName: "Safe App Example",
     projectId: "42a4d689485d5a324116e53ed077d907",
-  }
+  },
 );
 
 const _filecoin = {
   ...chains.filecoin,
 
-  iconUrl:
-    "https://gateway.lighthouse.storage/ipfs/QmXQMtADMsCqsYEvyuEA3PkFq2xtWAQetQFtkybjEXvk3Z",
+  iconUrl: "https://gateway.lighthouse.storage/ipfs/QmXQMtADMsCqsYEvyuEA3PkFq2xtWAQetQFtkybjEXvk3Z",
 };
 
 const _filecoinCalibration = {
   ...chains.filecoinCalibration,
 
-  iconUrl:
-    "https://gateway.lighthouse.storage/ipfs/QmXQMtADMsCqsYEvyuEA3PkFq2xtWAQetQFtkybjEXvk3Z",
+  iconUrl: "https://gateway.lighthouse.storage/ipfs/QmXQMtADMsCqsYEvyuEA3PkFq2xtWAQetQFtkybjEXvk3Z",
 };
 
 export const config = createConfig({

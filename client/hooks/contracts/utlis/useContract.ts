@@ -1,16 +1,12 @@
-import { useMutation } from "@tanstack/react-query";
-import { usePublicClient, useWalletClient, useAccount } from "wagmi";
-import { useSafeAppsSDK } from "@safe-global/safe-apps-react-sdk";
-import { Address, Hex } from "viem";
-import { useCheckIsSafeWallet } from "./useCheckIsSafeWallet";
 import { useState, useCallback } from "react";
+
+import { useSafeAppsSDK } from "@safe-global/safe-apps-react-sdk";
+import { useMutation } from "@tanstack/react-query";
+import { Address, Hex } from "viem";
+import { usePublicClient, useWalletClient, useAccount } from "wagmi";
+
 import { ProgressStatus } from "@/components/ProgressModal/types";
-import {
-  ContractTransaction,
-  TransactionConfig,
-  DEFAULT_CONFIG,
-  TransactionState,
-} from "./types";
+
 import {
   createTransactionState,
   updateTransactionState,
@@ -24,6 +20,8 @@ import {
   updateAllTransactionStates,
   updateFailedTransactionStates,
 } from "./helpers";
+import { ContractTransaction, TransactionConfig, DEFAULT_CONFIG, TransactionState } from "./types";
+import { useCheckIsSafeWallet } from "./useCheckIsSafeWallet";
 
 export const useContractTransaction = (config?: TransactionConfig) => {
   const publicClient = usePublicClient();
@@ -31,9 +29,8 @@ export const useContractTransaction = (config?: TransactionConfig) => {
   const { address } = useAccount();
   const { sdk } = useSafeAppsSDK();
   const isSafeWallet = useCheckIsSafeWallet();
-  const [transactionState, setTransactionState] = useState<TransactionState>(
-    createTransactionState()
-  );
+  const [transactionState, setTransactionState] =
+    useState<TransactionState>(createTransactionState());
   const transactionConfig = { ...DEFAULT_CONFIG, ...config };
 
   const resetTransactionState = useCallback(() => {
@@ -50,11 +47,7 @@ export const useContractTransaction = (config?: TransactionConfig) => {
       setTransactionState(createTransactionState(ProgressStatus.IN_PROGRESS));
 
       try {
-        validateTransactionDependencies(
-          publicClient,
-          walletClient,
-          address as Address
-        );
+        validateTransactionDependencies(publicClient, walletClient, address as Address);
 
         let hash: Hex;
 
@@ -66,7 +59,7 @@ export const useContractTransaction = (config?: TransactionConfig) => {
             walletClient!,
             address as Address,
             contractTransaction,
-            transactionConfig
+            transactionConfig,
           );
         }
 
@@ -74,7 +67,7 @@ export const useContractTransaction = (config?: TransactionConfig) => {
           updateTransactionState(createTransactionState(), {
             status: ProgressStatus.IS_SUCCESS,
             hash,
-          })
+          }),
         );
 
         return hash;
@@ -99,9 +92,7 @@ export const useMultiContractTransaction = (config?: TransactionConfig) => {
   const { address } = useAccount();
   const { sdk } = useSafeAppsSDK();
   const isSafeWallet = useCheckIsSafeWallet();
-  const [transactionStates, setTransactionStates] = useState<
-    Record<string, TransactionState>
-  >({});
+  const [transactionStates, setTransactionStates] = useState<Record<string, TransactionState>>({});
 
   const transactionConfig = { ...DEFAULT_CONFIG, ...config };
 
@@ -122,26 +113,23 @@ export const useMultiContractTransaction = (config?: TransactionConfig) => {
         // Initialize states for all transactions
         const initialStates = createInitialTransactionStates(
           contractTransactions.length,
-          ProgressStatus.IN_PROGRESS
+          ProgressStatus.IN_PROGRESS,
         );
         setTransactionStates(initialStates);
 
         if (isSafeWallet) {
           // For Safe wallets, batch all transactions
           setTransactionStates((prev) =>
-            updateAllTransactionStates(prev, ProgressStatus.IN_PROGRESS)
+            updateAllTransactionStates(prev, ProgressStatus.IN_PROGRESS),
           );
 
-          const safeTxHash = await executeSafeBatchTransaction(
-            sdk,
-            contractTransactions
-          );
+          const safeTxHash = await executeSafeBatchTransaction(sdk, contractTransactions);
 
           // Update all states to success
           setTransactionStates((prev) =>
             updateAllTransactionStates(prev, ProgressStatus.IS_SUCCESS, {
               hash: safeTxHash,
-            })
+            }),
           );
 
           return safeTxHash;
@@ -158,16 +146,14 @@ export const useMultiContractTransaction = (config?: TransactionConfig) => {
                 ...prev,
                 [index]: state,
               }));
-            }
+            },
           );
 
           return results;
         }
       } catch (error) {
         // Update all failed states to error
-        setTransactionStates((prev) =>
-          updateFailedTransactionStates(prev, error as Error)
-        );
+        setTransactionStates((prev) => updateFailedTransactionStates(prev, error as Error));
         throw error;
       }
     },

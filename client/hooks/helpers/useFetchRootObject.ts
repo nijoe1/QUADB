@@ -1,11 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
+
 import { getSpaces } from "@/lib/tableland";
 
-const buildChildren = async (
-  parentID: any,
-  parentHierarchy: any,
-  sampleSpacesData: any
-) => {
+const buildChildren = async (parentID: any, parentHierarchy: any, sampleSpacesData: any) => {
   const children = [];
   const addedChildrenIDs = new Set(); // Track added children IDs
 
@@ -20,7 +17,7 @@ const buildChildren = async (
       const childChildren = await buildChildren(
         node.DBSpaceID,
         childHierarchy,
-        sampleSpacesData ?? []
+        sampleSpacesData ?? [],
       );
       const nodeType = (childChildren.length ? "branch" : "leaf") as any;
       const childObject = {
@@ -49,7 +46,7 @@ export const useFetchRootObject = () => {
         children: await buildChildren(
           "0x458944be4bb2e02ee48674d6dc056b51a852cdf857c2e5c624fb8d135879e28e",
           "",
-          sampleSpacesData
+          sampleSpacesData,
         ),
       };
       return rootObject;

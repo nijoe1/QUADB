@@ -16,14 +16,12 @@ export function handleTransactionError(error: BaseError): {
         err instanceof ContractFunctionRevertedError ||
         err instanceof UserRejectedRequestError ||
         err instanceof ContractFunctionExecutionError ||
-        err instanceof InsufficientFundsError
+        err instanceof InsufficientFundsError,
     );
     if (revertError instanceof ContractFunctionRevertedError) {
       const errorName = revertError.data?.errorName ?? "";
       const revertReason =
-        revertError.message
-          .split("reverted with the following reason:")[1]
-          ?.trim() ?? errorName;
+        revertError.message.split("reverted with the following reason:")[1]?.trim() ?? errorName;
       return {
         title: "Transaction Failed",
         description: revertReason,

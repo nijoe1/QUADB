@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+
 import { useConnect } from "wagmi";
 import { useAccount } from "wagmi";
 
@@ -19,11 +20,7 @@ function useAutoConnect() {
   }, [connect, connectors, address]);
 }
 
-export const SafeAutoConnect = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
+export const SafeAutoConnect = ({ children }: { children: React.ReactNode }) => {
   useAutoConnect();
   return <>{children}</>;
 };

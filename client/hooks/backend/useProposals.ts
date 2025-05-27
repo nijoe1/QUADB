@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useToast } from "@/hooks/useToast";
 import { useWalletClient } from "wagmi";
+
+import { useToast } from "@/hooks/useToast";
 
 interface Proposal {
   id: string;
@@ -38,7 +39,7 @@ export const useProposals = (instanceId: string, sequence: string) => {
             headers: {
               "Content-Type": "application/json",
             },
-          }
+          },
         );
 
         if (!response.ok) {
@@ -124,13 +125,7 @@ export const useProposals = (instanceId: string, sequence: string) => {
 
   // Add signature to proposal
   const addSignature = useMutation({
-    mutationFn: async ({
-      cid,
-      signature,
-    }: {
-      cid: string;
-      signature: string;
-    }) => {
+    mutationFn: async ({ cid, signature }: { cid: string; signature: string }) => {
       if (!walletClient?.account.address) {
         throw new Error("Wallet not connected");
       }

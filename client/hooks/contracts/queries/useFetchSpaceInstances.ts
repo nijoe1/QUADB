@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { getSpaceInstances } from "@/lib/tableland";
+
 import { fetchIPFSFile } from "@/lib/ipfs";
+import { getSpaceInstances } from "@/lib/tableland";
 
 export const useFetchSpaceInstances = (spaceID: string) => {
   const [instances, setInstances] = useState({
@@ -16,11 +17,7 @@ export const useFetchSpaceInstances = (spaceID: string) => {
     for (const item of data) {
       if (!item.metadataCID) continue;
       try {
-        const metadata = await fetchIPFSFile(
-          item.metadataCID,
-          true,
-          "data.json"
-        );
+        const metadata = await fetchIPFSFile(item.metadataCID, true, "data.json");
 
         item.metadata = metadata; // obj that contains => name about imageUrl
       } catch (error) {
@@ -34,9 +31,7 @@ export const useFetchSpaceInstances = (spaceID: string) => {
 
   const fetchInstances = async () => {
     let data = await getSpaceInstances(spaceID);
-    if (
-      !(data && data[0] && data[0].instances && data[0].instances.length !== 0)
-    ) {
+    if (!(data && data[0] && data[0].instances && data[0].instances.length !== 0)) {
       return [];
     }
 

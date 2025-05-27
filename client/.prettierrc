@@ -11,8 +11,8 @@
   "importOrder": [
     "^react(.*)?$",
     "^@react(.*)?$",
-    "^next(.*)?$",
-    "^@next(.*)?$",
+    "^vite(.*)?$",
+    "^@vite(.*)?$",
     "<THIRD_PARTY_MODULES>",
     "^@/(.*)$",
     "^~(.*)$",

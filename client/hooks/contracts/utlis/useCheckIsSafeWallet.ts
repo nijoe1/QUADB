@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import { useAccount } from "wagmi";
 
 export const useCheckIsSafeWallet = () => {

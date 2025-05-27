@@ -1,7 +1,9 @@
-import * as Name from "w3name";
 import { config } from "dotenv";
 import { Address, Hex, WalletClient } from "viem";
+import * as Name from "w3name";
+
 import { storachaUploadFile } from "@/hooks/storacha";
+
 config();
 
 export const resolveIPNSName = async (IPNS: string) => {
@@ -83,11 +85,7 @@ export const getFileMetadata = async (cid: string) => {
   return metadata;
 };
 
-export const fetchIPFSFile = async (
-  cid: string,
-  asJson = true,
-  path?: string
-) => {
+export const fetchIPFSFile = async (cid: string, asJson = true, path?: string) => {
   if (path) {
     const res = await fetch(getIpfsGatewayUri(cid, path));
     const data = asJson ? await res.json() : await res.text();
@@ -121,10 +119,7 @@ export const fetchAndParseCSV = async (cid: string) => {
 export const getIpfsGatewayUri = (cid: string, path?: string) => {
   const WEB3_STORAGE_IPFS_GATEWAY = "https://w3s.link/ipfs/{cid}/{path}";
 
-  return WEB3_STORAGE_IPFS_GATEWAY.replace("{cid}", cid).replace(
-    "{path}",
-    path ?? ""
-  );
+  return WEB3_STORAGE_IPFS_GATEWAY.replace("{cid}", cid).replace("{path}", path ?? "");
 };
 
 export const getIpfsCID = (ipfsCIDLink: string) => {

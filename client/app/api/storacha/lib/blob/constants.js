@@ -1,1 +1,1 @@
-export const REQUEST_RETRIES = 3
+export const REQUEST_RETRIES = 3;

@@ -1,24 +1,23 @@
 "use client";
+
 import React from "react";
+
 import { MoreVertical } from "lucide-react";
-import { Container } from "@/ui-shadcn/container";
-import { Badge } from "@/ui-shadcn/badge";
+import { useRouter } from "next/navigation";
+
+import Loading from "@/components/animation/loading";
+import { useFetchSpaceInstances } from "@/hooks/contracts/queries";
 import { Button } from "@/primitives/Button/Button";
+import { Badge } from "@/ui-shadcn/badge";
+import { Container } from "@/ui-shadcn/container";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/ui-shadcn/dropdown-menu";
-import { useRouter } from "next/navigation";
-import Loading from "@/components/animation/loading";
-import { useFetchSpaceInstances } from "@/hooks/contracts/queries";
 
-const SingleSpacePage = ({
-  params: { spaceId },
-}: {
-  params: { spaceId: string };
-}) => {
+const SingleSpacePage = ({ params: { spaceId } }: { params: { spaceId: string } }) => {
   const router = useRouter();
   const spaceID = spaceId;
 
@@ -61,23 +60,19 @@ const SingleSpacePage = ({
                             alt="Profile Image"
                             className="aspect-[2/1] h-full w-full object-cover"
                             onClick={() =>
-                              router.push(
-                                `/instance/${instance.InstanceID.toLowerCase()}`
-                              )
+                              router.push(`/instance/${instance.InstanceID.toLowerCase()}`)
                             }
                           />
                           <div className="absolute right-0 top-0 z-[1] flex items-start justify-start">
                             <Badge
                               className="mt-1.5"
                               variant={
-                                type === "openInstances" ||
-                                type === "openPrivateInstances"
+                                type === "openInstances" || type === "openPrivateInstances"
                                   ? "default"
                                   : "destructive"
                               }
                             >
-                              {type === "openInstances" ||
-                              type === "openPrivateInstances"
+                              {type === "openInstances" || type === "openPrivateInstances"
                                 ? "Open"
                                 : "Paid"}
                             </Badge>
@@ -92,9 +87,7 @@ const SingleSpacePage = ({
                               <DropdownMenuContent className="z-[3]">
                                 <DropdownMenuItem
                                   className="cursor-pointer bg-black/80 text-white"
-                                  onClick={() =>
-                                    console.log("Download dataset")
-                                  }
+                                  onClick={() => console.log("Download dataset")}
                                 >
                                   Download Dataset
                                 </DropdownMenuItem>
@@ -115,7 +108,7 @@ const SingleSpacePage = ({
                         </div>
                       </div>
                     </div>
-                  ))
+                  )),
               )}
             </div>
           </div>

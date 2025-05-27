@@ -77,9 +77,7 @@ export class BlockStream extends ReadableStream {
     super({
       async start() {
         const blocks = await getBlocksIterable();
-        iterator = /** @type {AsyncIterator<Block>} */ (
-          blocks[Symbol.asyncIterator]()
-        );
+        iterator = /** @type {AsyncIterator<Block>} */ (blocks[Symbol.asyncIterator]());
       },
       async pull(controller) {
         /* c8 ignore next */

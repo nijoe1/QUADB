@@ -1,8 +1,10 @@
 "use client";
+
+import { motion } from "framer-motion";
+import Head from "next/head";
+
 import { Benefits, HowItWorks, Hero } from "@/components/landing";
 import { Container } from "@/ui-shadcn/container";
-import Head from "next/head";
-import { motion } from "framer-motion";
 
 export default function LandingPage() {
   const containerVariants = {

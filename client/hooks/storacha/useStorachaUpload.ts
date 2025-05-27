@@ -36,9 +36,7 @@ export const useUploadFile = () => {
   });
 };
 
-export const storachaUploadFolder = async (
-  files: string[] | File[] | Blob[]
-) => {
+export const storachaUploadFolder = async (files: string[] | File[] | Blob[]) => {
   const res = await fetch(`/api/storacha/directoryUpload`, {
     method: "POST",
     body: folderToFormData(files),

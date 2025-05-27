@@ -1,17 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
-import { useToast } from "@/hooks/useToast";
 import * as W3Name from "w3name";
+
+import { useToast } from "@/hooks/useToast";
 
 interface SequenceData {
   currentSequence: string;
   historicalSequences: string[];
 }
 
-export const useIPNSSequences = (
-  IPNS: string,
-  spaceID: string,
-  threshold: number
-) => {
+export const useIPNSSequences = (IPNS: string, spaceID: string, threshold: number) => {
   const { toast } = useToast();
 
   return useQuery({
@@ -22,9 +19,7 @@ export const useIPNSSequences = (
         const revision = await W3Name.resolve(name);
         const currentSequence = revision.sequence.toString();
 
-        const response = await fetch(
-          `/api/signatures/history?instanceId=${spaceID}`
-        );
+        const response = await fetch(`/api/signatures/history?instanceId=${spaceID}`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

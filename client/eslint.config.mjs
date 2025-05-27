@@ -10,12 +10,7 @@ export default tseslint.config(
   // ...tseslint.configs.strict,
   ...tseslint.configs.stylistic,
   {
-    ignores: [
-      "dist",
-      "node_modules",
-      "ui-shadcn",
-      ".next/**/*",
-    ],
+    ignores: ["dist", "node_modules", "ui-shadcn", ".next/**/*"],
   },
   {
     extends: [
@@ -34,14 +29,16 @@ export default tseslint.config(
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/consistent-type-definitions": "off",
       "tailwindcss/enforces-shorthand": "off",
-      // never used var disable
       "no-unused-vars": "off",
       "no-prototype-builtins": "off",
       "@typescript-eslint/ban-ts-comment": "off",
       "@typescript-eslint/class-literal-property-style": "off",
       "@typescript-eslint/no-unused-expressions": "off",
       "no-undef": "off",
+      "tailwindcss/no-custom-classname": "warn",
+      "tailwindcss/classnames-order": "warn",
+      "valid-typeof": "off",
     },
   },
-  eslintConfigPrettier
+  eslintConfigPrettier,
 );

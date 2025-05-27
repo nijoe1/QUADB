@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useToast } from "@/hooks/useToast";
 import { useWalletClient } from "wagmi";
+
+import { useToast } from "@/hooks/useToast";
 
 interface AddSignatureParams {
   cid: string;

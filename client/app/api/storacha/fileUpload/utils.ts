@@ -8,7 +8,7 @@
 export function createServerFile(
   content: string | Buffer | Uint8Array,
   name: string,
-  options: { type?: string; lastModified?: number } = {}
+  options: { type?: string; lastModified?: number } = {},
 ): File {
   const buffer =
     typeof content === "string"
@@ -35,10 +35,7 @@ export function createServerFile(
     },
 
     async arrayBuffer(): Promise<ArrayBuffer> {
-      return buffer.buffer.slice(
-        buffer.byteOffset,
-        buffer.byteOffset + buffer.byteLength
-      );
+      return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
     },
 
     async text(): Promise<string> {
@@ -110,13 +107,11 @@ export function getExtensionFromMimeType(mimeType: string): string {
 
     // Office documents
     "application/msword": "doc",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-      "docx",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
     "application/vnd.ms-excel": "xls",
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
     "application/vnd.ms-powerpoint": "ppt",
-    "application/vnd.openxmlformats-officedocument.presentationml.presentation":
-      "pptx",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation": "pptx",
   };
 
   return mimeToExtension[mimeType] || "bin";
@@ -159,7 +154,7 @@ export function validateFile(file: File | null): asserts file is File {
   const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1MB
   if (file.size > MAX_FILE_SIZE) {
     throw new Error(
-      `File size (${file.size} bytes) exceeds maximum allowed size (${MAX_FILE_SIZE} bytes)`
+      `File size (${file.size} bytes) exceeds maximum allowed size (${MAX_FILE_SIZE} bytes)`,
     );
   }
 

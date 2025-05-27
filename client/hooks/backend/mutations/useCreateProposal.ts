@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useToast } from "@/hooks/useToast";
 import { useWalletClient } from "wagmi";
+
+import { useToast } from "@/hooks/useToast";
 
 interface CreateProposalParams {
   cid: string;
@@ -14,11 +15,7 @@ export const useCreateProposal = (instanceId: string, sequence: string) => {
   const { data: walletClient } = useWalletClient();
 
   return useMutation({
-    mutationFn: async ({
-      cid,
-      proposalDescription,
-      signature,
-    }: CreateProposalParams) => {
+    mutationFn: async ({ cid, proposalDescription, signature }: CreateProposalParams) => {
       if (!walletClient?.account.address) {
         throw new Error("Wallet not connected");
       }

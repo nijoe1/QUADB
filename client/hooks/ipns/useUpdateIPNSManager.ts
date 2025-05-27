@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
-import { useAccount } from "wagmi";
+
 import * as W3Name from "w3name";
-import { useIPNSSequences } from "./query";
+import { useAccount } from "wagmi";
+
 import { useProposalsQuery, Proposal } from "../backend/queries";
-import { useCreateProposalWithFile, useSignProposal } from "./mutations";
-import { useUpdateInstance } from "./update/useUpdateInstance";
 import { useToast } from "../useToast";
+import { useCreateProposalWithFile, useSignProposal } from "./mutations";
+import { useIPNSSequences } from "./query";
+import { useUpdateInstance } from "./update/useUpdateInstance";
 
 interface UseUpdateIPNSManagerProps {
   IPNS: string;
@@ -67,10 +69,7 @@ export const useUpdateIPNSManager = ({
     return proposal.signatures.length >= threshold;
   };
 
-  const handleCreateProposal = async (
-    file: File,
-    proposalDescription: string
-  ) => {
+  const handleCreateProposal = async (file: File, proposalDescription: string) => {
     if (!sequenceData?.currentSequence) {
       throw new Error("Sequence not available");
     }

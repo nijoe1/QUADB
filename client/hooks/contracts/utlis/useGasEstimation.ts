@@ -1,5 +1,5 @@
-import { useAccount, usePublicClient } from "wagmi";
 import { parseEther } from "viem";
+import { useAccount, usePublicClient } from "wagmi";
 
 interface GasEstimate {
   gasLimit: bigint;
@@ -18,7 +18,7 @@ export const useGasEstimation = () => {
     abi: any,
     functionName: string,
     args: any[],
-    value?: string
+    value?: string,
   ): Promise<GasEstimate> => {
     try {
       if (!publicClient) {
@@ -30,8 +30,7 @@ export const useGasEstimation = () => {
       const baseFee = block.baseFeePerGas || BigInt(0);
 
       // Get max priority fee (tip)
-      const maxPriorityFeePerGas =
-        await publicClient.estimateMaxPriorityFeePerGas();
+      const maxPriorityFeePerGas = await publicClient.estimateMaxPriorityFeePerGas();
 
       // Estimate gas limit for the transaction
       const gasLimit = await publicClient.estimateContractGas({

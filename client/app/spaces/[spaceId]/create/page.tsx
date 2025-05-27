@@ -1,22 +1,19 @@
 "use client";
+
 import React from "react";
+
+import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { FormData, useCreateInstance } from "@/hooks/contracts";
-import { Alert } from "@/primitives/Alert/Alert";
-import { Container } from "@/ui-shadcn/container";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/ui-shadcn/card";
-import { Button } from "@/primitives/Button/Button";
+
 import { Form } from "@/components/Form/Form";
 import { FormField } from "@/components/Form/types/fieldTypes";
 import { deleteFormValues } from "@/components/Form/utils/deleteFormValues";
-import { ArrowLeft } from "lucide-react";
 import { ProgressModal } from "@/components/ProgressModal";
+import { FormData, useCreateInstance } from "@/hooks/contracts";
+import { Alert } from "@/primitives/Alert/Alert";
+import { Button } from "@/primitives/Button/Button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/ui-shadcn/card";
+import { Container } from "@/ui-shadcn/container";
 
 const fields: FormField[] = [
   {
@@ -89,9 +86,7 @@ interface CreateNewInstancePageProps {
   };
 }
 
-export default function CreateNewInstancePage({
-  params: { spaceId },
-}: CreateNewInstancePageProps) {
+export default function CreateNewInstancePage({ params: { spaceId } }: CreateNewInstancePageProps) {
   const router = useRouter();
   const spaceID = spaceId as `0x${string}`;
 
@@ -137,9 +132,7 @@ export default function CreateNewInstancePage({
             className="mb-4"
           />
           <div>
-            <h1 className="mb-2 text-3xl font-bold text-grey-900">
-              Create New Dataset
-            </h1>
+            <h1 className="mb-2 text-3xl font-bold text-grey-900">Create New Dataset</h1>
             <p className="text-grey-600">
               Add a new dataset to your space with all the necessary details.
             </p>
@@ -151,8 +144,7 @@ export default function CreateNewInstancePage({
           <CardHeader>
             <CardTitle>Dataset Information</CardTitle>
             <CardDescription>
-              Provide the details for your new dataset. All required fields must
-              be completed.
+              Provide the details for your new dataset. All required fields must be completed.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -174,10 +166,7 @@ export default function CreateNewInstancePage({
             />
           </CardContent>
         </Card>
-        <ProgressModal
-          {...create.progressModalProps}
-          isOpen={create.mutation.isPending}
-        />
+        <ProgressModal {...create.progressModalProps} isOpen={create.mutation.isPending} />
       </div>
     </Container>
   );

@@ -1,31 +1,32 @@
 import type { Config } from "tailwindcss";
 import tailwindcssAnimate from "tailwindcss-animate";
-import { colors } from "./colors";
+
+import { colors } from "./app/ui/styles/colors";
 
 const config: Config = {
   content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
-    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./primitives/**/*.{js,ts,jsx,tsx,mdx}",
     "./ui-shadcn/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {      fontFamily: {
-      "ui-mono": ["DM Mono", "serif"],
-      "ui-sans": ["DM Sans", "sans-serif"],
-    },
-    fontSize: {
-      p: [
-        "1rem",
-        {
-          lineHeight: "1.75rem",
-          fontWeight: "400",
-          letterSpacing: undefined,
-        },
-      ],
-      body: ["0.875rem", { lineHeight: "1.5rem", fontWeight: "400", letterSpacing: undefined }],
-    },
+    extend: {
+      fontFamily: {
+        "ui-mono": ["DM Mono", "serif"],
+        "ui-sans": ["DM Sans", "sans-serif"],
+      },
+      fontSize: {
+        p: [
+          "1rem",
+          {
+            lineHeight: "1.75rem",
+            fontWeight: "400",
+            letterSpacing: undefined,
+          },
+        ],
+        body: ["0.875rem", { lineHeight: "1.5rem", fontWeight: "400", letterSpacing: undefined }],
+      },
 
       borderRadius: {
         lg: "var(--radius)",
@@ -90,7 +91,7 @@ const config: Config = {
           from: {
             height: "0",
           },
-          to: {  
+          to: {
             height: "var(--radix-accordion-content-height)",
           },
         },

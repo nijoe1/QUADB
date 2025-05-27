@@ -1,22 +1,19 @@
 "use client";
+
 import React, { useState } from "react";
-import { Container } from "@/ui-shadcn/container";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/ui-shadcn/select";
 import Tree from "react-d3-tree";
+
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import CreateSubSpaceModal from "@/components/contracts/createSubSpace";
+import { Hex } from "viem";
+
 import Loading from "@/components/animation/loading";
+import CreateSubSpaceModal from "@/components/contracts/createSubSpace";
 import { useFetchTreeData } from "@/hooks/helpers";
 import { useWindowDimensions } from "@/hooks/helpers";
 import { useFetchRootObject } from "@/hooks/helpers";
-import Link from "next/link";
-import { Hex } from "viem";
+import { Container } from "@/ui-shadcn/container";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui-shadcn/select";
 
 const SpacesGraph = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -29,7 +26,7 @@ const SpacesGraph = () => {
     width: undefined,
     height: undefined,
   });
-  const [/* tempTreeData */, setTempTreeData] = useState<any>(null);
+  const [, /* tempTreeData */ setTempTreeData] = useState<any>(null);
 
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [isRoot, setIsRoot] = useState(false);
@@ -38,7 +35,7 @@ const SpacesGraph = () => {
   const { fetchTreeData, isPending: isTreeLoading } = useFetchTreeData(
     setCategoryOptions,
     selectedCategory,
-    setTempTreeData
+    setTempTreeData,
   );
 
   const { data: rootObject, isLoading: isRootLoading } = useFetchRootObject();
@@ -74,13 +71,7 @@ const SpacesGraph = () => {
         onClick={toggleNode}
       />
       <Link href={`/spaces/${nodeDatum.id}`}>
-        <text
-          fill="black"
-          strokeWidth="1"
-          x="20"
-          y="-2"
-          style={{ cursor: "pointer" }}
-        >
+        <text fill="black" strokeWidth="1" x="20" y="-2" style={{ cursor: "pointer" }}>
           {nodeDatum.name}
         </text>
       </Link>
@@ -144,10 +135,7 @@ const SpacesGraph = () => {
             <div className="flex h-full w-full flex-col items-center justify-center">
               {/* Category dropdown */}
               <div className="mb-4 mt-[6%] w-[90%] md:w-[70%] lg:w-1/2">
-                <Select
-                  value={selectedCategory || ""}
-                  onValueChange={setSelectedCategory}
-                >
+                <Select value={selectedCategory || ""} onValueChange={setSelectedCategory}>
                   <SelectTrigger className="w-full focus:border-white">
                     <SelectValue placeholder="All categories..." />
                   </SelectTrigger>
@@ -174,12 +162,8 @@ const SpacesGraph = () => {
                     leafNodeClassName="node__leaf"
                     renderCustomNodeElement={renderCustomNodeElement}
                     translate={{
-                      x: windowDimensions.width
-                        ? windowDimensions.width / 2.8
-                        : 0,
-                      y: windowDimensions.height
-                        ? windowDimensions.height / 7
-                        : 0,
+                      x: windowDimensions.width ? windowDimensions.width / 2.8 : 0,
+                      y: windowDimensions.height ? windowDimensions.height / 7 : 0,
                     }}
                     zoom={1}
                     separation={{ siblings: 2, nonSiblings: 2 }}

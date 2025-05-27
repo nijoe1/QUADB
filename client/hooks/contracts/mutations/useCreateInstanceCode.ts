@@ -1,12 +1,14 @@
 import { useState } from "react";
+
 import { useMutation } from "@tanstack/react-query";
-import { useAccount, usePublicClient, useWalletClient } from "wagmi";
-import { CONTRACT_ABI, CONTRACT_ADDRESSES } from "@/app/constants/contracts";
 import { Abi, Address, TransactionReceipt } from "viem";
-import { useToast } from "@/hooks/useToast";
-import { useUploadFile } from "@/hooks/storacha";
+import { useAccount, usePublicClient, useWalletClient } from "wagmi";
+
+import { CONTRACT_ABI, CONTRACT_ADDRESSES } from "@/app/constants/contracts";
 import { useGasEstimation } from "@/hooks/contracts";
 import { useCreateCodeIPNS } from "@/hooks/ipns/create/useCreateCode";
+import { useUploadFile } from "@/hooks/storacha";
+import { useToast } from "@/hooks/useToast";
 
 export interface CodeFormData {
   name: string;
@@ -19,10 +21,7 @@ interface UseCreateInstanceCodeProps {
   instanceID: `0x${string}`;
 }
 
-export const useCreateInstanceCode = ({
-  onClose,
-  instanceID,
-}: UseCreateInstanceCodeProps) => {
+export const useCreateInstanceCode = ({ onClose, instanceID }: UseCreateInstanceCodeProps) => {
   const { address: account } = useAccount();
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
@@ -55,17 +54,13 @@ export const useCreateInstanceCode = ({
         });
 
         //  Create a json file with the ipnsResult
-        const ipnsMetadataFile = new File(
-          [JSON.stringify(ipnsResult)],
-          "ipnsMetadata.json",
-          {
-            type: "application/json",
-          }
-        );
+        const ipnsMetadataFile = new File([JSON.stringify(ipnsResult)], "ipnsMetadata.json", {
+          type: "application/json",
+        });
 
         // Upload the ipnsMetadataFile to IPFS
         const ipnsMetadataCID = (await uploadFile.mutateAsync(
-          ipnsMetadataFile
+          ipnsMetadataFile,
         )) as unknown as string;
 
         // Prepare contract call arguments
@@ -74,13 +69,7 @@ export const useCreateInstanceCode = ({
           address: CONTRACT_ADDRESSES as Address,
           abi: CONTRACT_ABI as Abi,
           functionName: "createInstanceCode",
-          args: [
-            instanceID,
-            formData.name,
-            formData.about,
-            ipnsResult.ipns,
-            ipnsMetadataCID,
-          ],
+          args: [instanceID, formData.name, formData.about, ipnsResult.ipns, ipnsMetadataCID],
         };
 
         // Estimate gas
@@ -88,7 +77,7 @@ export const useCreateInstanceCode = ({
           contractCallArgs.address,
           contractCallArgs.abi,
           contractCallArgs.functionName,
-          contractCallArgs.args
+          contractCallArgs.args,
         );
 
         // Simulate contract call

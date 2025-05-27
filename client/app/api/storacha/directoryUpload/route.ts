@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
 import * as Client from "@web3-storage/w3up-client";
 import { Signer } from "@web3-storage/w3up-client/principal/ed25519";
 import * as Proof from "@web3-storage/w3up-client/proof";
 import { StoreMemory } from "@web3-storage/w3up-client/stores/memory";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,10 +22,7 @@ export async function POST(request: NextRequest) {
 
     //  if total size is greater than 1MB, return error
     if (totalSize > 1 * 1024 * 1024) {
-      return NextResponse.json(
-        { error: "Total size is greater than 1MB" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Total size is greater than 1MB" }, { status: 400 });
     }
 
     // Setup the client

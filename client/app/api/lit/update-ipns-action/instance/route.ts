@@ -1,16 +1,14 @@
-import { NextResponse, NextRequest } from "next/server";
-import { code } from "@/app/api/lit/actions/instance.js";
+import { createSiweMessage, LitActionResource, generateAuthSig } from "@lit-protocol/auth-helpers";
+import { LIT_NETWORK, LIT_RPC, LIT_ABILITY } from "@lit-protocol/constants";
 // @ts-ignore
 import { LitNodeClient } from "@lit-protocol/lit-node-client";
-import { LIT_NETWORK, LIT_RPC, LIT_ABILITY } from "@lit-protocol/constants";
-import {
-  createSiweMessage,
-  LitActionResource,
-  generateAuthSig,
-} from "@lit-protocol/auth-helpers";
 import { AccessControlConditions } from "@lit-protocol/types";
 import * as ethers from "ethers";
+import { NextResponse, NextRequest } from "next/server";
 import process from "process";
+
+import { code } from "@/app/api/lit/actions/instance.js";
+
 process.config;
 
 const ETHEREUM_PRIVATE_KEY = process.env["LIT_PRIVATE_KEY"]!;
@@ -18,23 +16,16 @@ const ETHEREUM_PRIVATE_KEY = process.env["LIT_PRIVATE_KEY"]!;
 export async function POST(req: NextRequest) {
   const body = await req.json();
 
-  const {
-    signatures,
-    newCid,
-    ipns,
-    ciphertext,
-    dataToEncryptHash,
-    instanceID,
-    codeHash,
-  } = body as {
-    signatures: string[];
-    newCid: string;
-    ipns: string;
-    ciphertext: string;
-    dataToEncryptHash: string;
-    instanceID: string;
-    codeHash: string;
-  };
+  const { signatures, newCid, ipns, ciphertext, dataToEncryptHash, instanceID, codeHash } =
+    body as {
+      signatures: string[];
+      newCid: string;
+      ipns: string;
+      ciphertext: string;
+      dataToEncryptHash: string;
+      instanceID: string;
+      codeHash: string;
+    };
   try {
     console.log("🚀 Starting Update IPNS process...");
 
@@ -43,7 +34,7 @@ export async function POST(req: NextRequest) {
       .replace("$instanceID", `"${instanceID.toLowerCase()}"`);
     const ethersWallet = new ethers.Wallet(
       ETHEREUM_PRIVATE_KEY,
-      new ethers.providers.JsonRpcProvider(LIT_RPC.CHRONICLE_YELLOWSTONE)
+      new ethers.providers.JsonRpcProvider(LIT_RPC.CHRONICLE_YELLOWSTONE),
     );
 
     console.log("🔄 Connecting to the Lit network...");
@@ -80,11 +71,7 @@ export async function POST(req: NextRequest) {
           ability: LIT_ABILITY.LitActionExecution,
         },
       ],
-      authNeededCallback: async ({
-        uri,
-        expiration,
-        resourceAbilityRequests,
-      }) => {
+      authNeededCallback: async ({ uri, expiration, resourceAbilityRequests }) => {
         const toSign = await createSiweMessage({
           uri,
           expiration,
