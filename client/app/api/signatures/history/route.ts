@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { Hex } from "viem";
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -7,9 +8,12 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
 
-export async function GET(request: NextRequest) {
+export async function POST(request: Request) {
   try {
-    const instanceId = request.nextUrl.searchParams.get("instanceId");
+    const body = await request.json();
+    const { instanceId } = body as {
+      instanceId: Hex;
+    };
 
     if (!instanceId) {
       return NextResponse.json(

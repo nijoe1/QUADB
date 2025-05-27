@@ -19,7 +19,10 @@ export const useIPNSSequences = (IPNS: string, spaceID: string, threshold: numbe
         const revision = await W3Name.resolve(name);
         const currentSequence = revision.sequence.toString();
 
-        const response = await fetch(`/api/signatures/history?instanceId=${spaceID}`);
+        const response = await fetch(`/api/signatures/history`, {
+          method: "POST",
+          body: JSON.stringify({ instanceId: spaceID }),
+        });
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
