@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -7,10 +7,9 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const instanceId = searchParams.get("instanceId");
+    const instanceId = request.nextUrl.searchParams.get("instanceId");
 
     if (!instanceId) {
       return NextResponse.json(
