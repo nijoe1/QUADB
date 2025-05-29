@@ -131,7 +131,6 @@ export const getIpfsCID = (ipfsCIDLink: string) => {
 
 const getCorrectIpfsGatewayUri = (cid: string) => {
   if (cid.includes("/ipfs/")) {
-    console.log("🚀 cid", cid);
     return cid.replace("/ipfs/", "");
   }
   return cid;
