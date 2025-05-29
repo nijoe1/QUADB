@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
     const dataFile = await modifyFile(file, dataFileName, file.type);
 
     // Upload the file on Storacha
-    const cid = (await client.uploadDirectory([metadataFile, dataFile])).toString();
+    const cid = "/ipfs/" + (await client.uploadDirectory([metadataFile, dataFile])).toString();
 
     // Return the CID and additional metadata
     return NextResponse.json(

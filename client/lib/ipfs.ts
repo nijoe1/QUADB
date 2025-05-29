@@ -117,12 +117,22 @@ export const fetchAndParseCSV = async (cid: string) => {
 };
 
 export const getIpfsGatewayUri = (cid: string, path?: string) => {
+  const _cid = getCorrectIpfsGatewayUri(cid);
+
   const WEB3_STORAGE_IPFS_GATEWAY = "https://w3s.link/ipfs/{cid}/{path}";
 
-  return WEB3_STORAGE_IPFS_GATEWAY.replace("{cid}", cid).replace("{path}", path ?? "");
+  return WEB3_STORAGE_IPFS_GATEWAY.replace("{cid}", _cid).replace("{path}", path ?? "");
 };
 
 export const getIpfsCID = (ipfsCIDLink: string) => {
   const WEB3_STORAGE_IPFS_GATEWAY = "https://w3s.link/ipfs/";
   return ipfsCIDLink.replace(WEB3_STORAGE_IPFS_GATEWAY, "");
+};
+
+const getCorrectIpfsGatewayUri = (cid: string) => {
+  if (cid.includes("/ipfs/")) {
+    console.log("🚀 cid", cid);
+    return cid.replace("/ipfs/", "");
+  }
+  return cid;
 };
