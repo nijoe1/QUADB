@@ -11,6 +11,7 @@ interface BaseField {
       pattern?: string | { value: RegExp; message?: string };
       isFile?: boolean;
       isArray?: boolean;
+      isObject?: boolean;
       // Add more validation rules as needed
     };
     className?: string;

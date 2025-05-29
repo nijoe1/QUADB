@@ -1,5 +1,7 @@
 "use client";
 
+import React, { JSX } from "react";
+
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
@@ -189,11 +191,7 @@ export function Hero(): JSX.Element {
                   whileHover={{ scale: 1.1, rotate: 5 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <img
-                    src="/images/lit-logo.jpeg"
-                    alt="lit"
-                    className="h-[40px] rounded-full"
-                  />
+                  <img src="/images/lit-logo.jpeg" alt="lit" className="h-[40px] rounded-full" />
                 </motion.li>
               </motion.ul>
             </div>

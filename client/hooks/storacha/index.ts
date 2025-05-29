@@ -1,1 +1,2 @@
-export * from "./useStorachaUpload";
+export * from "./useStoracha";
+export * from "./storacha";

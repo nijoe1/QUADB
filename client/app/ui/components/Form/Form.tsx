@@ -3,6 +3,7 @@ import { useForm, FormProvider, useFormContext } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
+import { cn } from "@/lib/utils";
 import { Button } from "@/primitives/Button";
 
 import { componentRegistry } from "./componentRegistry";
@@ -23,6 +24,7 @@ export interface FormProps {
   finalButtonText?: string;
   backButtonText?: string;
   nextButtonText?: string;
+  className?: string;
 }
 
 export function Form({
@@ -38,6 +40,7 @@ export function Form({
   finalButtonText,
   backButtonText,
   nextButtonText,
+  className,
 }: FormProps) {
   // If no schema is provided, build one from the fields:
   const finalSchema = schema ?? buildSchemaFromFields(fields);
@@ -60,7 +63,7 @@ export function Form({
 
   return (
     <FormProvider {...form}>
-      <div className="flex flex-col gap-6 rounded-2xl bg-grey-50 p-6">
+      <div className={cn("flex flex-col gap-6 rounded-2xl bg-grey-50 p-6", className)}>
         <div className="flex flex-col gap-3">
           {/* Form Title */}
           <div className="font-ui-sans text-[24px]/[32px] font-medium">{formTitle}</div>

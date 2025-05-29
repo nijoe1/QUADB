@@ -3,8 +3,8 @@ import { Address, WalletClient } from "viem";
 import * as W3Name from "w3name";
 
 import { storachaUploadFile } from "@/hooks/storacha";
-import { toast } from "@/hooks/useToast";
 import { fetchIPFS } from "@/lib/ipfs";
+import { showToast } from "@/lib/toast";
 
 interface updateCodeBody {
   signature: string;
@@ -35,11 +35,7 @@ const handleSignUpdateCode = async ({
   IPNS: string;
 }) => {
   if (!walletClient || !address || !file) {
-    toast({
-      title: "Error",
-      description: "Please connect your wallet and select a file",
-      variant: "destructive",
-    });
+    showToast.error("Error", "Please connect your wallet and select a file");
     return;
   }
 
@@ -55,18 +51,14 @@ const handleSignUpdateCode = async ({
       message: `I acknowledge updating the current ipns record : ${IPNS} contents to point to this new ipfs cid : ${cid} and the previous sequence number is ${sequence}`,
     });
 
-    toast({
-      title: "Proposal created successfully",
-      variant: "default",
-    });
+    showToast.success("Proposal created successfully");
     return { signature, cid, IPNS, sequence };
   } catch (error) {
     console.error("Error creating proposal:", error);
-    toast({
-      title: "Error creating proposal",
-      description: error instanceof Error ? error.message : "Unknown error",
-      variant: "destructive",
-    });
+    showToast.error(
+      "Error creating proposal",
+      error instanceof Error ? error.message : "Unknown error",
+    );
   }
 };
 const handleUpdateCode = async ({
@@ -123,17 +115,13 @@ const handleUpdateCode = async ({
       throw new Error("Failed to update IPNS");
     }
 
-    toast({
-      title: "IPNS updated successfully",
-      variant: "default",
-    });
+    showToast.success("IPNS updated successfully");
   } catch (error) {
     console.error("Error updating IPNS:", error);
-    toast({
-      title: "Error updating IPNS",
-      description: error instanceof Error ? error.message : "Unknown error",
-      variant: "destructive",
-    });
+    showToast.error(
+      "Error updating IPNS",
+      error instanceof Error ? error.message : "Unknown error",
+    );
   }
 };
 

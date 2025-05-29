@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 
 import { Download, MoreVertical } from "lucide-react";
 
-import { UpdateIPNS } from "@/components/UpdateIPNS";
+import { useStorachaProvider } from "@/app/providers/StorachaProvider";
 import Loading from "@/components/animation/loading";
-import { useToast } from "@/hooks/useToast";
 import { fetchIPFSFile } from "@/lib/ipfs";
+import { showToast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import { Button } from "@/primitives/Button";
 import { Card, CardContent } from "@/ui-shadcn/card";
@@ -20,26 +20,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 type CsvData = Record<string, string | number | undefined>[];
 
-export const DatasetViewer = ({
-  cid,
-  IPNS,
-  EncryptedKeyCID,
-  spaceID,
-  threshold,
-}: {
-  cid: string;
-  IPNS: string;
-  EncryptedKeyCID: string;
-  spaceID: string;
-  threshold?: number;
-}) => {
-  const { toast } = useToast();
+export const DatasetViewer = ({ cid }: { cid: string }) => {
   const [csvData, setCsvData] = useState<CsvData>([]);
-  const [csvText, setCsvText] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [fetched, setFetched] = useState<boolean>(false);
-  const [isUpdateOpen, setIsUpdateOpen] = useState(false);
+  const { client } = useStorachaProvider();
 
   useEffect(() => {
     if (cid) {
@@ -49,9 +35,7 @@ export const DatasetViewer = ({
 
   const fetchCsvData = async () => {
     try {
-      const text = await fetchIPFSFile(cid, false);
-
-      setCsvText(text);
+      const text = await fetchIPFSFile(cid, false, undefined);
       const parsedData = customCsvParser(text);
       if (parsedData) {
         setCsvData(parsedData);
@@ -60,11 +44,7 @@ export const DatasetViewer = ({
         throw new Error("Failed to parse CSV file");
       }
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      showToast.error("Error", error.message);
     }
   };
 
@@ -126,7 +106,7 @@ export const DatasetViewer = ({
                   <DropdownMenuTrigger asChild>
                     <Button
                       className="bg-black/80 text-white"
-                      icon={<MoreVertical className="h-4 w-4" />}
+                      icon={<MoreVertical className="size-4" />}
                     ></Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="border-none bg-black text-white shadow-md">
@@ -134,7 +114,7 @@ export const DatasetViewer = ({
                       onClick={handleDownload}
                       className="justify-center gap-1 p-1 text-xs text-white hover:bg-grey-300 hover:text-black"
                     >
-                      <Download className="mr-2 h-4 w-4" />
+                      <Download className="mr-2 size-4" />
                       <span className="text-xs">Download</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem className="text-white hover:bg-grey-700">
@@ -160,24 +140,6 @@ export const DatasetViewer = ({
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-
-                <Button
-                  className="bg-black/80 text-white"
-                  onClick={() => setIsUpdateOpen(true)}
-                  value="Update Dataset"
-                />
-
-                <UpdateIPNS
-                  isOpen={isUpdateOpen}
-                  onClose={() => setIsUpdateOpen(false)}
-                  isDataset={true}
-                  IPNS={IPNS}
-                  currentIPNSValue={cid}
-                  EncryptedKeyCID={EncryptedKeyCID}
-                  currentCSV={csvText}
-                  spaceID={spaceID}
-                  threshold={threshold || 0}
-                />
               </div>
             </Container>
           </div>

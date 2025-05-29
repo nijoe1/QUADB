@@ -3,6 +3,7 @@ import { Signer } from "@web3-storage/w3up-client/principal/ed25519";
 import * as Proof from "@web3-storage/w3up-client/proof";
 import { StoreMemory } from "@web3-storage/w3up-client/stores/memory";
 import { NextRequest, NextResponse } from "next/server";
+import process from "process";
 
 import { encodeFile } from "@/app/api/storacha/lib/unixfs";
 
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest) {
     const space = await client.addSpace(proof);
     await client.setCurrentSpace(space.did());
 
-    const pieceMetadata = getParsedMetadata(await getPieceMetadata(file, principal, space, proof));
+    const pieceMetadata = getParsedMetadata(await getPieceMetadata(file));
 
     const dataFileCID = (await encodeFile(file)).cid;
 

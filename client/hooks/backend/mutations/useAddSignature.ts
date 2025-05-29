@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useWalletClient } from "wagmi";
 
-import { useToast } from "@/hooks/useToast";
+import { showToast } from "@/lib/toast";
 
 interface AddSignatureParams {
   cid: string;
@@ -9,7 +9,6 @@ interface AddSignatureParams {
 }
 
 export const useAddSignature = (instanceId: string, sequence: string) => {
-  const { toast } = useToast();
   const queryClient = useQueryClient();
   const { data: walletClient } = useWalletClient();
 
@@ -51,21 +50,16 @@ export const useAddSignature = (instanceId: string, sequence: string) => {
       }
     },
     onSuccess: () => {
-      toast({
-        title: "Signature added",
-        description: "Your signature has been added successfully.",
-        variant: "default",
-      });
+      showToast.success("Signature added", "Your signature has been added successfully.");
       queryClient.invalidateQueries({
         queryKey: ["proposals", instanceId, sequence],
       });
     },
     onError: (error) => {
-      toast({
-        title: "Error adding signature",
-        description: error instanceof Error ? error.message : "Unknown error",
-        variant: "destructive",
-      });
+      showToast.error(
+        "Error adding signature",
+        error instanceof Error ? error.message : "Unknown error",
+      );
     },
   });
 };

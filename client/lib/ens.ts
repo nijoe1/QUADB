@@ -15,6 +15,7 @@ export const getTokenNode = (_parentNode: string, subNode: string) => {
 
 // Function to convert string to bytes
 export const stringToBytes = (str: string) => {
+  // eslint-disable-next-line no-undef
   const bytes = Buffer.from(str);
   return "0x" + bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, "0"), "");
 };

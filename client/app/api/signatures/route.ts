@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import axios from "axios";
 import { NextResponse } from "next/server";
+import process from "process";
 
 const tables = {
   spaces: "db_spaces_314_70",

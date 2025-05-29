@@ -9,7 +9,7 @@ import NavLinks, { NavLinksResponsive } from "@/components/layout/NavLinks";
 import Logo from "@/components/layout/NavbarLogo";
 import { Container } from "@/ui-shadcn/container";
 
-export default function Navbar(): JSX.Element {
+export default function Navbar(): React.JSX.Element {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
   const toggleSidebar = () => {

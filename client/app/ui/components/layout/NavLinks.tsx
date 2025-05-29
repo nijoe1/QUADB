@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, JSX } from "react";
 import { RxCrossCircled } from "react-icons/rx";
 
 import { ConnectButton } from "@rainbow-me/rainbowkit";

@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 
-import { toast } from "@/hooks/useToast";
-import { fetchIPFS } from "@/lib/ipfs";
+import { fetchIPFSFile } from "@/lib/ipfs";
+import { showToast } from "@/lib/toast";
 
 interface UpdateInstanceBody {
   signatures: string[];
@@ -33,7 +33,7 @@ const handleUpdateInstance = async ({ proposal, ipns_metadata }: UpdateInstanceP
   try {
     const signatures = proposal.signatures.map((sig: any) => sig.signature);
 
-    const ipnsConfig = (await fetchIPFS(ipns_metadata)) as IPNSConfig;
+    const ipnsConfig = (await fetchIPFSFile(ipns_metadata, true, "data.json")) as IPNSConfig;
 
     const body: UpdateInstanceBody = {
       signatures,
@@ -67,19 +67,15 @@ const handleUpdateInstance = async ({ proposal, ipns_metadata }: UpdateInstanceP
       throw new Error("Failed to update IPNS");
     }
 
-    toast({
-      title: "IPNS updated successfully",
-      variant: "default",
-    });
+    showToast.success("IPNS updated successfully");
 
     return data;
   } catch (error) {
     console.error("Error updating IPNS:", error);
-    toast({
-      title: "Error updating IPNS",
-      description: error instanceof Error ? error.message : "Unknown error",
-      variant: "destructive",
-    });
+    showToast.error(
+      "Error updating IPNS",
+      error instanceof Error ? error.message : "Unknown error",
+    );
     throw error;
   }
 };

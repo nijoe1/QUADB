@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useWalletClient } from "wagmi";
 
-import { useToast } from "@/hooks/useToast";
+import { showToast } from "@/lib/toast";
 
 interface SignProposalParams {
   cid: string;
@@ -11,7 +11,6 @@ interface SignProposalParams {
 }
 
 export const useSignProposal = () => {
-  const { toast } = useToast();
   const { data: walletClient } = useWalletClient();
 
   return useMutation({
@@ -54,18 +53,13 @@ export const useSignProposal = () => {
       }
     },
     onSuccess: () => {
-      toast({
-        title: "Signature added",
-        description: "Your signature has been added successfully.",
-        variant: "default",
-      });
+      showToast.success("Signature added", "Your signature has been added successfully.");
     },
     onError: (error) => {
-      toast({
-        title: "Error signing proposal",
-        description: error instanceof Error ? error.message : "Unknown error",
-        variant: "destructive",
-      });
+      showToast.error(
+        "Error signing proposal",
+        error instanceof Error ? error.message : "Unknown error",
+      );
     },
   });
 };

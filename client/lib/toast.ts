@@ -5,7 +5,7 @@ export const showToast = {
     toast({
       title,
       description,
-      variant: "default",
+      variant: "success",
     });
   },
   error: (title: string, description?: string) => {
@@ -19,14 +19,14 @@ export const showToast = {
     toast({
       title,
       description,
-      variant: "default",
+      variant: "warning",
     });
   },
   info: (title: string, description?: string) => {
     toast({
       title,
       description,
-      variant: "default",
+      variant: "info",
     });
   },
 };

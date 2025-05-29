@@ -47,7 +47,7 @@ export default function DataQuests() {
             <div className="grid gap-12 md:grid-cols-2">
               <motion.div variants={itemVariants} className="rounded-xl bg-white p-8 shadow-lg">
                 <motion.div animate={floatAnimation as any} className="mb-6 flex justify-center">
-                  <Database className="h-16 w-16 text-grey-700" />
+                  <Database className="size-16 text-grey-700" />
                 </motion.div>
                 <h2 className="mb-4 text-2xl font-bold text-grey-800">Dataset Curation</h2>
                 <p className="text-grey-600">
@@ -58,7 +58,7 @@ export default function DataQuests() {
 
               <motion.div variants={itemVariants} className="rounded-xl bg-white p-8 shadow-lg">
                 <motion.div animate={floatAnimation as any} className="mb-6 flex justify-center">
-                  <Shield className="h-16 w-16 text-grey-700" />
+                  <Shield className="size-16 text-grey-700" />
                 </motion.div>
                 <h2 className="mb-4 text-2xl font-bold text-grey-800">Verification Process</h2>
                 <p className="text-grey-600">
@@ -75,7 +75,7 @@ export default function DataQuests() {
                   whileHover={{ scale: 1.05 }}
                   className="flex flex-col items-center text-center"
                 >
-                  <AlertTriangle className="mb-4 h-12 w-12 text-grey-700" />
+                  <AlertTriangle className="mb-4 size-12 text-grey-700" />
                   <p className="text-sm font-medium text-grey-600">Issue Detected</p>
                 </motion.div>
                 <motion.div
@@ -89,7 +89,7 @@ export default function DataQuests() {
                   whileHover={{ scale: 1.05 }}
                   className="flex flex-col items-center text-center"
                 >
-                  <Scale className="mb-4 h-12 w-12 text-grey-700" />
+                  <Scale className="mb-4 size-12 text-grey-700" />
                   <p className="text-sm font-medium text-grey-600">Quest Initiated</p>
                 </motion.div>
                 <motion.div
@@ -103,7 +103,7 @@ export default function DataQuests() {
                   whileHover={{ scale: 1.05 }}
                   className="flex flex-col items-center text-center"
                 >
-                  <CoinsIcon className="mb-4 h-12 w-12 text-grey-700" />
+                  <CoinsIcon className="mb-4 size-12 text-grey-700" />
                   <p className="text-sm font-medium text-grey-600">Stake Distribution</p>
                 </motion.div>
                 <motion.div
@@ -117,7 +117,7 @@ export default function DataQuests() {
                   whileHover={{ scale: 1.05 }}
                   className="flex flex-col items-center text-center"
                 >
-                  <CheckCircle2 className="mb-4 h-12 w-12 text-grey-700" />
+                  <CheckCircle2 className="mb-4 size-12 text-grey-700" />
                   <p className="text-sm font-medium text-grey-600">Resolution</p>
                 </motion.div>
               </div>

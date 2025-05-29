@@ -58,7 +58,7 @@ const SingleSpacePage = ({ params: { spaceId } }: { params: { spaceId: string } 
                                 : "https://via.placeholder.com/150"
                             }
                             alt="Profile Image"
-                            className="aspect-[2/1] h-full w-full object-cover"
+                            className="aspect-[2/1] size-full object-cover"
                             onClick={() =>
                               router.push(`/instance/${instance.InstanceID.toLowerCase()}`)
                             }
@@ -80,7 +80,7 @@ const SingleSpacePage = ({ params: { spaceId } }: { params: { spaceId: string } 
                               <DropdownMenuTrigger asChild>
                                 <Button
                                   size="sm"
-                                  icon={<MoreVertical className="h-4 w-4" />}
+                                  icon={<MoreVertical className="size-4" />}
                                   className="mb-3 border-none bg-transparent text-black hover:bg-black/10"
                                 />
                               </DropdownMenuTrigger>

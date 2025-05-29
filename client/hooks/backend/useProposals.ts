@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useWalletClient } from "wagmi";
 
-import { useToast } from "@/hooks/useToast";
+import { showToast } from "@/lib/toast";
 
 interface Proposal {
   id: string;
@@ -19,7 +19,6 @@ interface Proposal {
 }
 
 export const useProposals = (instanceId: string, sequence: string) => {
-  const { toast } = useToast();
   const queryClient = useQueryClient();
   const { data: walletClient } = useWalletClient();
 
@@ -105,21 +104,16 @@ export const useProposals = (instanceId: string, sequence: string) => {
       }
     },
     onSuccess: () => {
-      toast({
-        title: "Proposal created",
-        description: "Your proposal has been created successfully.",
-        variant: "default",
-      });
+      showToast.success("Proposal created", "Your proposal has been created successfully.");
       queryClient.invalidateQueries({
         queryKey: ["proposals", instanceId, sequence],
       });
     },
     onError: (error) => {
-      toast({
-        title: "Error creating proposal",
-        description: error instanceof Error ? error.message : "Unknown error",
-        variant: "destructive",
-      });
+      showToast.error(
+        "Error creating proposal",
+        error instanceof Error ? error.message : "Unknown error",
+      );
     },
   });
 
@@ -162,21 +156,16 @@ export const useProposals = (instanceId: string, sequence: string) => {
       }
     },
     onSuccess: () => {
-      toast({
-        title: "Signature added",
-        description: "Your signature has been added successfully.",
-        variant: "default",
-      });
+      showToast.success("Signature added", "Your signature has been added successfully.");
       queryClient.invalidateQueries({
         queryKey: ["proposals", instanceId, sequence],
       });
     },
     onError: (error) => {
-      toast({
-        title: "Error adding signature",
-        description: error instanceof Error ? error.message : "Unknown error",
-        variant: "destructive",
-      });
+      showToast.error(
+        "Error adding signature",
+        error instanceof Error ? error.message : "Unknown error",
+      );
     },
   });
 

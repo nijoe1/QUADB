@@ -4,7 +4,7 @@ import { useAccount, useWalletClient } from "wagmi";
 import { usePublicClient } from "wagmi";
 
 import { CONTRACT_ABI, CONTRACT_ADDRESSES } from "@/app/constants/contracts";
-import { toast } from "@/hooks/useToast";
+import { showToast } from "@/lib/toast";
 
 export interface CreateSpaceArgs {
   isRoot: boolean;
@@ -31,18 +31,10 @@ export const useCreateSpace = () => {
       });
     },
     onSuccess: () => {
-      toast({
-        title: "Subspace Created",
-        description: "Subspace created successfully",
-        variant: "default",
-      });
+      showToast.success("Subspace Created", "Subspace created successfully");
     },
     onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to create subspace",
-        variant: "destructive",
-      });
+      showToast.error("Error", "Failed to create subspace");
     },
   });
 };
@@ -80,19 +72,11 @@ const createNewSubSpace = async ({
       const transaction = await publicClient.waitForTransactionReceipt({
         hash: hash,
       });
-      toast({
-        title: "Subspace Created",
-        description: "Subspace created successfully",
-        variant: "default",
-      });
+      showToast.success("Subspace Created", "Subspace created successfully");
       console.log(transaction);
     } catch (error) {
       console.log(error);
-      toast({
-        title: "Error",
-        description: "Failed to create subspace",
-        variant: "destructive",
-      });
+      showToast.error("Error", "Failed to create subspace");
     }
   } else {
     try {
@@ -108,19 +92,11 @@ const createNewSubSpace = async ({
       const transaction = await publicClient.waitForTransactionReceipt({
         hash: hash,
       });
-      toast({
-        title: "Subspace Created",
-        description: "Subspace created successfully",
-        variant: "default",
-      });
+      showToast.success("Subspace Created", "Subspace created successfully");
       console.log(transaction);
     } catch (error) {
       console.log(error);
-      toast({
-        title: "Error",
-        description: "Failed to create subspace",
-        variant: "destructive",
-      });
+      showToast.error("Error", "Failed to create subspace");
     }
   }
 };

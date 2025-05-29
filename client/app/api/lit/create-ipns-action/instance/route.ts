@@ -3,6 +3,7 @@ import { encryptString } from "@lit-protocol/encryption";
 // @ts-ignore
 import { LitNodeClient } from "@lit-protocol/lit-node-client";
 import { AccessControlConditions } from "@lit-protocol/types";
+import { Buffer } from "buffer";
 import * as ethers from "ethers";
 // @ts-ignore
 import Hash from "ipfs-only-hash";

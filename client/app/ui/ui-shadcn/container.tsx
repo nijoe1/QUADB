@@ -1,4 +1,4 @@
-import { DetailedHTMLProps } from "react";
+import React, { DetailedHTMLProps } from "react";
 
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -10,7 +10,7 @@ export function cn(...inputs: ClassValue[]) {
 type TContainer = DetailedHTMLProps<React.InputHTMLAttributes<HTMLDivElement>, HTMLDivElement> &
   object;
 
-export function Container(props: TContainer): JSX.Element {
+export function Container(props: TContainer): React.JSX.Element {
   const { className, children, ...rest } = props;
 
   return (

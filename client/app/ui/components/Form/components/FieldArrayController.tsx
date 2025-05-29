@@ -1,8 +1,9 @@
 import React from "react";
 import { Controller, useFormContext } from "react-hook-form";
 
-import { FieldArray } from "@/components/Form";
 import { Input } from "@/ui-shadcn/input";
+
+import { FieldArray } from "./FormComponents";
 
 export interface FieldArrayControllerProps {
   name: string;

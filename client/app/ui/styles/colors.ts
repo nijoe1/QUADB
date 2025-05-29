@@ -91,8 +91,9 @@ export const _colors: Colors = {
     tertiary: grey["200"],
   },
   border: {
-    primary: grey["700"],
-    secondary: grey["500"],
+    primary: moss["300"],
+    secondary: moss["500"],
+    tertiary: moss["700"],
   },
   white,
   black,

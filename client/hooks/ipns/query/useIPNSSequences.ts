@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import * as W3Name from "w3name";
 
-import { useToast } from "@/hooks/useToast";
+import { showToast } from "@/lib/toast";
 
 interface SequenceData {
   currentSequence: string;
@@ -9,8 +9,6 @@ interface SequenceData {
 }
 
 export const useIPNSSequences = (IPNS: string, spaceID: string, threshold: number) => {
-  const { toast } = useToast();
-
   return useQuery({
     queryKey: ["ipns-sequences", IPNS, spaceID, threshold],
     queryFn: async (): Promise<SequenceData> => {
@@ -36,12 +34,10 @@ export const useIPNSSequences = (IPNS: string, spaceID: string, threshold: numbe
           historicalSequences: [...sequences],
         };
       } catch (error) {
-        console.error("Error fetching sequences:", error);
-        toast({
-          title: "Error fetching sequences",
-          description: error instanceof Error ? error.message : "Unknown error",
-          variant: "destructive",
-        });
+        showToast.error(
+          "Error fetching sequences",
+          error instanceof Error ? error.message : "Unknown error",
+        );
         throw error;
       }
     },

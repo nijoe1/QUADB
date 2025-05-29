@@ -1,5 +1,7 @@
 "use client";
 
+import React, { JSX } from "react";
+
 import { Check, X } from "lucide-react";
 
 import { Dialog, DialogHeader, DialogTitle, DialogDescription } from "@/primitives/Dialog";

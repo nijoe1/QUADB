@@ -32,8 +32,9 @@ export const wagmiConnectors = connectorsForWallets(
   ],
 
   {
-    appName: "Safe App Example",
-    projectId: "42a4d689485d5a324116e53ed077d907",
+    appName: "QUADB",
+    // eslint-disable-next-line no-undef
+    projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID!,
   },
 );
 

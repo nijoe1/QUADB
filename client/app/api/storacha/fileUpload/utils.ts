@@ -1,3 +1,6 @@
+import { Buffer } from "buffer";
+import process from "process";
+
 /**
  * Creates a File-like object that works in Node.js server environment
  * @param content - The content as a string or buffer

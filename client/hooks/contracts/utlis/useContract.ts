@@ -70,11 +70,11 @@ export const useContractTransaction = (config?: TransactionConfig) => {
           }),
         );
 
-        return hash;
+        return transactionState;
       } catch (error) {
         const errorState = createErrorState(error as Error);
         setTransactionState(errorState);
-        throw error;
+        throw { title: errorState.error?.title, description: errorState.error?.description };
       }
     },
   });

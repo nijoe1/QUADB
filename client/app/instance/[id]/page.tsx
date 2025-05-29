@@ -1,29 +1,40 @@
 "use client";
 
 import React from "react";
-import { useState } from "react";
 
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAccount } from "wagmi";
 
-import InstanceCodes from "@/components/InstanceCodes";
 import Loading from "@/components/animation/loading";
-import { Subscribe } from "@/components/contracts/subscribe";
 import { DatasetViewer } from "@/components/datasetViewer";
 import { useInstanceData } from "@/hooks/contracts/queries";
 import { useInstanceMembers } from "@/hooks/contracts/queries";
-import { Button } from "@/primitives/Button";
 import { Card, CardContent } from "@/ui-shadcn/card";
 import { Container } from "@/ui-shadcn/container";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui-shadcn/tabs";
 
-import { CardItem } from "./components/CardItem";
+import { InstanceCard, InstanceCodesView, VersionsView } from "./_components";
 
 const InstanceDetailsPage = ({ params: { id } }: { params: { id: string } }) => {
   const instanceID = id;
   const { address } = useAccount();
-  const [isSubscribeOpen, setIsSubscribeOpen] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const { data, isLoading, error } = useInstanceData(instanceID);
   const { data: instanceMembers } = useInstanceMembers(instanceID);
+  // Get current tab from URL params, default to 'dataset'
+  const currentTab = searchParams.get("tab") || "dataset";
+
+  // Handle tab changes with URL params
+  const handleTabChange = (value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value === "dataset") {
+      params.delete("tab"); // Remove tab param for default tab
+    } else {
+      params.set("tab", value);
+    }
+    router.push(`?${params.toString()}`);
+  };
 
   if (isLoading) {
     return (
@@ -39,8 +50,6 @@ const InstanceDetailsPage = ({ params: { id } }: { params: { id: string } }) => 
     return <div>Error loading instance data</div>;
   }
 
-  const hasAccess = data?.instance?.creator?.toLowerCase() === address?.toLowerCase();
-
   const { instance } = data || {};
 
   return (
@@ -50,7 +59,7 @@ const InstanceDetailsPage = ({ params: { id } }: { params: { id: string } }) => 
           <div>
             <Card className="mb-4 bg-[#333333] p-4 md:p-6">
               <CardContent className="flex flex-col items-center p-0">
-                <CardItem
+                <InstanceCard
                   profileInfo={{
                     name: instance?.metadata?.name || "Instance Name",
                     desc: instance?.metadata?.about || "Instance Description",
@@ -59,31 +68,13 @@ const InstanceDetailsPage = ({ params: { id } }: { params: { id: string } }) => 
                   }}
                   creator={instance?.creator}
                 />
-                {!((hasAccess ||
-                  instanceMembers?.find(
-                    (member: any) => member?.toLowerCase() === address?.toLowerCase(),
-                  )) as boolean) && (
-                  <div>
-                    <Button
-                      className="mb-3 rounded-md border border-white p-3"
-                      onClick={() => setIsSubscribeOpen(true)}
-                      value="Subscribe"
-                    />
-                    <Subscribe
-                      instanceID={instanceID}
-                      isOpen={isSubscribeOpen}
-                      onClose={() => setIsSubscribeOpen(false)}
-                      price={instance?.price || 0}
-                    />
-                  </div>
-                )}
               </CardContent>
             </Card>
 
             <Card className="mb-4 min-h-[1000px] bg-[#333333] p-4 md:p-6">
               <CardContent className="p-0">
-                <Tabs defaultValue="dataset" className="w-full">
-                  <TabsList className="mb-4 grid w-full grid-cols-2 bg-[#424242]">
+                <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
+                  <TabsList className="mb-4 grid w-full grid-cols-3 bg-[#424242]">
                     <TabsTrigger
                       value="dataset"
                       className="text-white data-[state=active]:bg-white data-[state=active]:text-black"
@@ -96,20 +87,20 @@ const InstanceDetailsPage = ({ params: { id } }: { params: { id: string } }) => 
                     >
                       Codes
                     </TabsTrigger>
+                    <TabsTrigger
+                      value="versions"
+                      className="text-white data-[state=active]:bg-white data-[state=active]:text-black"
+                    >
+                      Versions
+                    </TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="dataset">
-                    <DatasetViewer
-                      cid={instance?.cid}
-                      threshold={instance?.threshold}
-                      IPNS={instance?.IPNS}
-                      EncryptedKeyCID={instance?.IPNSEncryptedKey}
-                      spaceID={instanceID}
-                    />
+                    <DatasetViewer cid={instance?.cid} />
                   </TabsContent>
 
                   <TabsContent value="codes">
-                    <InstanceCodes
+                    <InstanceCodesView
                       hasAccess={
                         (instance?.creator?.toLowerCase() == address?.toLowerCase() ||
                           instanceMembers?.find(
@@ -117,6 +108,22 @@ const InstanceDetailsPage = ({ params: { id } }: { params: { id: string } }) => 
                           )) as boolean
                       }
                       InstanceID={instance?.InstanceID}
+                    />
+                  </TabsContent>
+
+                  <TabsContent value="versions">
+                    <VersionsView
+                      hasAccess={
+                        (instance?.creator?.toLowerCase() == address?.toLowerCase() ||
+                          instanceMembers?.find(
+                            (member: any) => member?.toLowerCase() === address?.toLowerCase(),
+                          )) as boolean
+                      }
+                      IPNS={instance?.IPNS}
+                      spaceID={instanceID}
+                      threshold={instance?.threshold}
+                      EncryptedKeyCID={instance?.IPNSEncryptedKey}
+                      currentIPNSValue={instance?.IPNS}
                     />
                   </TabsContent>
                 </Tabs>

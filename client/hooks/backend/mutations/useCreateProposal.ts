@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useWalletClient } from "wagmi";
 
-import { useToast } from "@/hooks/useToast";
+import { showToast } from "@/lib/toast";
 
 interface CreateProposalParams {
   cid: string;
@@ -10,7 +10,6 @@ interface CreateProposalParams {
 }
 
 export const useCreateProposal = (instanceId: string, sequence: string) => {
-  const { toast } = useToast();
   const queryClient = useQueryClient();
   const { data: walletClient } = useWalletClient();
 
@@ -53,21 +52,16 @@ export const useCreateProposal = (instanceId: string, sequence: string) => {
       }
     },
     onSuccess: () => {
-      toast({
-        title: "Proposal created",
-        description: "Your proposal has been created successfully.",
-        variant: "default",
-      });
+      showToast.success("Proposal created", "Your proposal has been created successfully.");
       queryClient.invalidateQueries({
         queryKey: ["proposals", instanceId, sequence],
       });
     },
     onError: (error) => {
-      toast({
-        title: "Error creating proposal",
-        description: error instanceof Error ? error.message : "Unknown error",
-        variant: "destructive",
-      });
+      showToast.error(
+        "Error creating proposal",
+        error instanceof Error ? error.message : "Unknown error",
+      );
     },
   });
 };

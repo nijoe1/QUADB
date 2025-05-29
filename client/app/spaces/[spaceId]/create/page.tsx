@@ -39,7 +39,7 @@ const fields: FormField[] = [
     field: {
       name: "image",
       label: "Dataset image",
-      validation: { required: true, isFile: true },
+      validation: { required: true },
     },
     component: "FileUpload",
   },
@@ -47,7 +47,7 @@ const fields: FormField[] = [
     field: {
       name: "file",
       label: "Dataset file",
-      validation: { required: true, isFile: true },
+      validation: { required: true },
     },
     component: "FileUpload",
   },
@@ -92,9 +92,6 @@ export default function CreateNewInstancePage({ params: { spaceId } }: CreateNew
 
   const create = useCreateInstance({
     spaceID,
-    onClose: () => {
-      router.push(`/spaces/${spaceId}`);
-    },
   });
 
   const handleBack = () => {
@@ -103,7 +100,7 @@ export default function CreateNewInstancePage({ params: { spaceId } }: CreateNew
 
   if (create.mutation.isSuccess) {
     return (
-      <Container className="py-8">
+      <Container className="border py-8">
         <div className="mx-auto max-w-2xl">
           <Alert variant="success" title="Dataset Created!">
             Your dataset has been successfully created.
@@ -121,13 +118,13 @@ export default function CreateNewInstancePage({ params: { spaceId } }: CreateNew
   }
 
   return (
-    <Container className="py-3">
-      <div className="mx-auto">
+    <Container className="px-0 py-5">
+      <div className="rounded-lg border p-5">
         {/* Header with back button */}
         <div className="mb-6">
           <Button
             onClick={handleBack}
-            icon={<ArrowLeft className="h-4 w-4" />}
+            icon={<ArrowLeft className="size-4" />}
             value="Back to Space"
             className="mb-4"
           />

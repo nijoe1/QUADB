@@ -8,12 +8,13 @@ import { useRouter } from "next/navigation";
 import { Hex } from "viem";
 
 import Loading from "@/components/animation/loading";
-import CreateSubSpaceModal from "@/components/contracts/createSubSpace";
 import { useFetchTreeData } from "@/hooks/helpers";
 import { useWindowDimensions } from "@/hooks/helpers";
 import { useFetchRootObject } from "@/hooks/helpers";
 import { Container } from "@/ui-shadcn/container";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui-shadcn/select";
+
+import { CreateSpaceModal } from "./_components/CreateSpaceModal";
 
 const SpacesGraph = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -26,6 +27,7 @@ const SpacesGraph = () => {
     width: undefined,
     height: undefined,
   });
+
   const [, /* tempTreeData */ setTempTreeData] = useState<any>(null);
 
   const [categoryOptions, setCategoryOptions] = useState([]);
@@ -132,7 +134,7 @@ const SpacesGraph = () => {
       ) : (
         <Container>
           <div className="flex h-[calc(100vh-150px)] items-center overflow-hidden rounded-lg border border-black shadow-md">
-            <div className="flex h-full w-full flex-col items-center justify-center">
+            <div className="flex size-full flex-col items-center justify-center">
               {/* Category dropdown */}
               <div className="mb-4 mt-[6%] w-[90%] md:w-[70%] lg:w-1/2">
                 <Select value={selectedCategory || ""} onValueChange={setSelectedCategory}>
@@ -172,7 +174,7 @@ const SpacesGraph = () => {
                 </div>
               )}
             </div>
-            <CreateSubSpaceModal
+            <CreateSpaceModal
               isOpen={isModalOpen}
               onClose={handleCloseModal}
               isRoot={isRoot}

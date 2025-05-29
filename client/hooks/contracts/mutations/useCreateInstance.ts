@@ -1,68 +1,42 @@
-import { useMemo } from "react";
-
 import { useMutation } from "@tanstack/react-query";
-import { Abi, Address, Hex, isAddress } from "viem";
+import { Abi, Address, isAddress } from "viem";
 
 import { CONTRACT_ABI, CONTRACT_ADDRESSES } from "@/app/constants/contracts";
-import {
-  ProgressModalProps,
-  ProgressStatus,
-  useSteps,
-  UseStepsProps,
-} from "@/components/ProgressModal";
+import { useProgressModal } from "@/components/ProgressModal";
 import { useCreateInstanceIPNS } from "@/hooks/ipns/create/useCreateInstance";
-import { storachaUploadFile } from "@/hooks/storacha";
-import { useToast } from "@/hooks/useToast";
+import { useUploadFile } from "@/hooks/storacha";
+import { showToast } from "@/lib/toast";
 
-import { useContractTransaction } from "../utlis";
-
-const InitialProgressModalProps: ProgressModalProps = {
-  isOpen: false,
-  heading: "Creating dataset...",
-  subheading: "Please hold while your dataset is being created.",
-  steps: [
-    {
-      name: "Uploading metadata",
-      description: "Uploading dataset metadata",
-      status: ProgressStatus.NOT_STARTED,
-    },
-    {
-      name: "Uploading file",
-      description: "Uploading dataset file",
-      status: ProgressStatus.NOT_STARTED,
-    },
-    {
-      name: "Creating IPNS",
-      description: "Creating dataset IPNS",
-      status: ProgressStatus.NOT_STARTED,
-    },
-    {
-      name: "Creating dataset",
-      description: "Creating dataset on chain",
-      status: ProgressStatus.NOT_STARTED,
-    },
-  ],
-};
+import { TransactionState, useContractTransaction } from "../utlis";
 
 export interface FormData {
   name: string;
   about: string;
   image: File;
-  members?: `0x${string}`[];
+  members?: Address[];
   threshold?: number;
   file: File;
 }
 
 interface UseCreateInstanceProps {
-  onClose: () => void;
-  spaceID: `0x${string}`;
+  spaceID: Address;
 }
 
-export const useCreateInstance = ({ onClose, spaceID }: UseCreateInstanceProps) => {
-  const { toast } = useToast();
+export const useCreateInstance = ({ spaceID }: UseCreateInstanceProps) => {
   const createIPNS = useCreateInstanceIPNS();
 
   const { executeContractTransaction: createInstance } = useContractTransaction();
+
+  const { mutateAsync: uploadFileMutation } = useUploadFile();
+
+  const uploadFile = async (file: File) => {
+    const cid = await uploadFileMutation(file, {
+      onError: () => {
+        throw { title: "Error", description: "An error occurred while uploading the file" };
+      },
+    });
+    return cid;
+  };
 
   const uploadInstanceMetadata = useMutation({
     mutationFn: async (formData: FormData) => {
@@ -77,47 +51,63 @@ export const useCreateInstance = ({ onClose, spaceID }: UseCreateInstanceProps) 
         about: formData.about,
         imageUrl: imageBase64,
       };
+
       const metadataFile = new File([JSON.stringify(metadata)], "metadata.json", {
         type: "application/json",
       });
-      return (await storachaUploadFile(metadataFile)) as unknown as string;
+      return (await uploadFile(metadataFile)) as unknown as string;
+    },
+    onError: () => {
+      throw { title: "Error", description: "An error occurred while uploading metadata" };
     },
   });
 
   const uploadInstanceFile = useMutation({
-    mutationFn: storachaUploadFile,
+    mutationFn: uploadFileMutation,
+    onError: () => {
+      throw { title: "Error", description: "An error occurred while uploading the dataset" };
+    },
   });
 
-  const stepsConfig = InitialProgressModalProps.steps.reduce((acc, step, index) => {
-    acc[index] = {
-      mutation:
-        index === 0
-          ? uploadInstanceMetadata
-          : index === 1
-            ? uploadInstanceFile
-            : index === 2
-              ? createIPNS
-              : createInstance,
-      step,
-    };
-    return acc;
-  }, {} as UseStepsProps);
+  const steps = [
+    {
+      name: "Uploading metadata",
+      description: "Uploading dataset metadata",
+      functionStatus: uploadInstanceMetadata,
+    },
+    {
+      name: "Uploading file",
+      description: "Uploading dataset file",
+      functionStatus: uploadInstanceFile,
+    },
+    {
+      name: "Creating IPNS",
+      description: "Creating dataset IPNS",
+      functionStatus: createIPNS,
+    },
+    {
+      name: "Creating dataset",
+      description: "Creating dataset on chain",
+      functionStatus: createInstance,
+    },
+  ];
 
-  const { steps } = useSteps(stepsConfig);
+  const { progressModalProps, resetSteps } = useProgressModal({
+    steps: steps.map((step) => ({
+      functionStatus: step.functionStatus,
+      step: {
+        name: step.name,
+        description: step.description,
+      },
+    })),
+    heading: "Creating dataset...",
+    subheading: "Please hold while your dataset is being created.",
+  });
 
-  console.log("steps statuses ", steps);
-
-  const progressModalProps = useMemo(
-    () => ({
-      ...InitialProgressModalProps,
-      steps,
-    }),
-    [steps],
-  );
-
-  const mutation = useMutation<Hex, Error, FormData>({
+  const mutation = useMutation<TransactionState, Error, FormData>({
     mutationFn: async (formData) => {
       try {
+        console.log("formData", formData);
         const metadataCID = await uploadInstanceMetadata.mutateAsync(formData);
         const fileCID = (await uploadInstanceFile.mutateAsync(formData.file)) as unknown as string;
 
@@ -127,46 +117,39 @@ export const useCreateInstance = ({ onClose, spaceID }: UseCreateInstanceProps) 
           threshold: formData.threshold || 1,
         });
 
-        const hash = await createInstance.mutateAsync({
+        const members = formData?.members?.filter((member) => isAddress(member)) || [];
+        const threshold = formData?.threshold || 1;
+
+        const price = BigInt(0);
+
+        const transactionState = await createInstance.mutateAsync({
           contractAddress: CONTRACT_ADDRESSES as Address,
           abi: CONTRACT_ABI as Abi,
           functionName: "createSpaceInstance",
           args: [
             spaceID,
-            BigInt(0),
-            formData.members?.filter((member) => isAddress(member)) || [],
-            formData.threshold || 0,
-            metadataCID || "",
+            price,
+            members,
+            threshold,
+            metadataCID,
             ipnsResult.name,
             ipnsResult.lit_config_cid,
           ],
         });
 
-        return hash;
+        return transactionState;
       } catch (error) {
         console.error(error);
         throw error;
       }
     },
     onSuccess: () => {
-      toast({
-        title: "Dataset Created",
-        description: "Your dataset has been created successfully.",
-        duration: 5000,
-      });
-      uploadInstanceMetadata.reset();
-      uploadInstanceFile.reset();
-      createIPNS.reset();
-      createInstance.reset();
-      onClose();
+      showToast.success("Dataset Created", "Your dataset has been created successfully.");
+      resetSteps();
     },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: `An error occurred: ${error.message}`,
-        variant: "destructive",
-        duration: 5000,
-      });
+    onError: (error: any) => {
+      showToast.error(error.title, error.description);
+      resetSteps();
     },
   });
 

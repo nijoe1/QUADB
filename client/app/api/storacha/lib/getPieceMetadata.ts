@@ -1,30 +1,16 @@
 import * as PieceHasher from "@web3-storage/data-segment/multihash";
-import { CARHeaderInfo, CARMetadata, InvocationConfig } from "@web3-storage/upload-client/types";
-import { Principal, Proof } from "@web3-storage/w3up-client/principal/ed25519";
-import { SharedSpace } from "@web3-storage/w3up-client/space";
+import { CARHeaderInfo, CARMetadata } from "@web3-storage/upload-client/types";
 import * as raw from "multiformats/codecs/raw";
 import { sha256 } from "multiformats/hashes/sha2";
 import * as Link from "multiformats/link";
 
-import * as Blob from "@/app/api/storacha/lib/blob/index.js";
 import * as CAR from "@/app/api/storacha/lib/car";
 import { ShardingStream } from "@/app/api/storacha/lib/sharding";
 import { createFileEncoderStream } from "@/app/api/storacha/lib/unixfs";
 
-export const getPieceMetadata = async (
-  file: File,
-  principal: Principal,
-  space: SharedSpace,
-  proof: Proof,
-) => {
+export const getPieceMetadata = async (file: File) => {
   const pieceHasher = PieceHasher;
-  const configure = () => {
-    return {
-      issuer: principal,
-      with: space.did(),
-      proofs: [proof],
-    } as InvocationConfig;
-  };
+
   let metadata: any = {};
   const shardIndexes = [];
   /** @type {import('./types.js').CARLink[]} */
@@ -39,9 +25,6 @@ export const getPieceMetadata = async (
         async transform(car, controller) {
           const bytes = new Uint8Array(await car.arrayBuffer());
           const digest = await sha256.digest(bytes);
-          const conf = configure();
-          // Invoke blob/add and write bytes to write target
-          await Blob.add(conf, digest, bytes);
           const cid = Link.create(CAR.code, digest);
 
           let piece;

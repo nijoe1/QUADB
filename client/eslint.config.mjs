@@ -6,11 +6,10 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   eslint.configs.recommended,
-  ...tseslint.configs.recommended, // .strict is a super set of recommended
-  // ...tseslint.configs.strict,
+  ...tseslint.configs.recommended,
   ...tseslint.configs.stylistic,
   {
-    ignores: ["dist", "node_modules", "ui-shadcn", ".next/**/*"],
+    ignores: ["dist", "node_modules", ".next/**/*"],
   },
   {
     extends: [
@@ -34,7 +33,7 @@ export default tseslint.config(
       "@typescript-eslint/ban-ts-comment": "off",
       "@typescript-eslint/class-literal-property-style": "off",
       "@typescript-eslint/no-unused-expressions": "off",
-      "no-undef": "off",
+      "no-undef": "warn",
       "tailwindcss/no-custom-classname": "warn",
       "tailwindcss/classnames-order": "warn",
       "valid-typeof": "off",

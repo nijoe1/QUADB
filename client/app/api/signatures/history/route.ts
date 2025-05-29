@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import process from "process";
 import { Hex } from "viem";
 
 // Initialize Supabase client
@@ -46,7 +47,6 @@ export async function POST(request: Request) {
         { status: 500 },
       );
     }
-    console.log(data);
     return NextResponse.json({ success: true, data: data });
   } catch (error) {
     console.error("Error in signatures history API:", error);

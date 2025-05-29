@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useWalletClient } from "wagmi";
 
 import { useUploadFile } from "@/hooks/storacha";
-import { useToast } from "@/hooks/useToast";
+import { showToast } from "@/lib/toast";
 
 interface CreateProposalWithFileParams {
   file: File;
@@ -13,7 +13,6 @@ interface CreateProposalWithFileParams {
 }
 
 export const useCreateProposalWithFile = () => {
-  const { toast } = useToast();
   const { data: walletClient } = useWalletClient();
   const uploadFile = useUploadFile();
 
@@ -67,17 +66,13 @@ export const useCreateProposalWithFile = () => {
       }
     },
     onSuccess: () => {
-      toast({
-        title: "Proposal created successfully",
-        variant: "default",
-      });
+      showToast.success("Proposal created successfully");
     },
     onError: (error) => {
-      toast({
-        title: "Error creating proposal",
-        description: error instanceof Error ? error.message : "Unknown error",
-        variant: "destructive",
-      });
+      showToast.error(
+        "Error creating proposal",
+        error instanceof Error ? error.message : "Unknown error",
+      );
     },
   });
 };

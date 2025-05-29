@@ -1,8 +1,10 @@
 "use client";
 
+import React from "react";
+
 import Link from "next/link";
 
-export default function NavbarLogo(): JSX.Element {
+export default function NavbarLogo(): React.JSX.Element {
   return (
     <Link href={"/"} className="mt-2 inline-block overflow-hidden rounded-md">
       <QUADBLogo />
@@ -10,7 +12,7 @@ export default function NavbarLogo(): JSX.Element {
   );
 }
 
-function QUADBLogo(): JSX.Element {
+function QUADBLogo(): React.JSX.Element {
   return (
     <svg
       version="1.1"

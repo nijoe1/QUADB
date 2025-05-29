@@ -1,7 +1,6 @@
-import type { ComponentPropsWithRef, ReactNode, ElementType } from "react";
-import { forwardRef } from "react";
+import { ComponentPropsWithRef, ElementType, forwardRef, ReactNode } from "react";
 
-export type PolymorphicRef<C extends ElementType> = React.ComponentPropsWithRef<C>["ref"];
+export type PolymorphicRef<C extends ElementType> = ComponentPropsWithRef<C>["ref"];
 
 export type ComponentProps<C extends ElementType> = {
   as?: C;
